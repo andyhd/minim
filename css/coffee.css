@@ -1,0 +1,216 @@
+body {
+    background: white url(../images/page-shadow.png) repeat-y scroll center 0;
+}
+
+#wrapper {
+    height: 100%;
+    width: 950px;
+    margin: 0 auto;
+    padding-bottom: 1.56em;
+}
+
+#masthead {
+    background: #f5f5f5; /* off white */
+    color: #222;
+    padding: 3.12em;
+}
+
+#masthead h1 {
+    font: bold 225% "Bitstream Vera Serif", "Times", serif;
+    padding-bottom: 0.7em;
+}
+
+#masthead p {
+    float: left;
+    clear: left;
+    font-size: 85%;
+}
+
+#mh_search {
+    float: right;
+}
+
+#mh_search label {
+    float: left;
+    text-indent: -9000em;
+    line-height: 1.5;
+    width: 20px;
+    background: transparent url(../images/search.png) no-repeat scroll 0 4px;
+}
+
+#mh_search_input {
+    font-size: 77%;
+    padding: 3px;
+}
+
+#content {
+    height: 100%;
+    clear: left;
+    background: #f5f5f5;
+    color: #222;
+    padding: 0 3.12em 3.12em;
+}
+
+#content p {
+    padding-bottom: 1.56em;
+}
+
+#navigation {
+    list-style-type: none;
+    padding: 0 3.12em;
+    min-height: 12px;
+    /* ie6 min-height */
+    *height: 12px;
+    background: #111 url(../images/shadow.png) top left repeat-x;
+    /* contain floats */
+    overflow: hidden;
+    zoom: 1;
+}
+
+#navigation li {
+  float: left;
+  margin-right: 1em;
+  border: 1px solid #333;
+  border-top: none;
+}
+
+#navigation li.current {
+  color: #111;
+  padding-bottom: 0.5em;
+  background: transparent url(../images/shadow.png) repeat-x scroll left bottom;
+  margin-bottom: -0.5em;
+  border-width: 0;
+}
+
+#navigation li a {
+  font: 85% sans-serif bold;
+  display: block;
+  padding: 0.31em 0.93em;
+  margin: 0 -1px -1px;
+  text-decoration: none;
+  background: transparent url(../images/shadow.png) repeat-x scroll left top;
+  color: #444;
+}
+
+#navigation li.current a {
+  background: #f5f5e6;
+  border: 0;
+  margin: 0;
+}
+
+#sub-content {
+  padding: 0 3.12em;
+  line-height: 1.4;
+  background: #111;
+  /* contain floats */
+  overflow: hidden;
+  zoom: 1;
+}
+
+.column {
+  float: left;
+  width: 50%;
+}
+
+.left-col .box {
+  margin-right: 1.56em;
+}
+
+.right-col .box {
+  margin-left: 1.56em;
+}
+
+.column .box {
+  border: 1px solid #333;
+  background: #111;
+  color: #ccc;
+  padding: 1.56em 1.56em 0;
+  margin-bottom: 1.56em;
+  font-size: 85%;
+  font-family: sans-serif;
+}
+
+.column p {
+  margin-bottom: 1.4em;
+}
+
+.column h2 {
+  font-size: 125%;
+  margin: 0 0 0.87em;
+  color: #88f;
+}
+
+.img-grid ol {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    /* contain floats */
+    overflow: hidden;
+    zoom: 1;
+}
+
+.img-grid li {
+    float: left;
+    padding: 0;
+    margin: 0;
+}
+
+.img-grid a {
+    line-height: 1;
+    padding: 0;
+}
+
+#comment-form {
+    border-top: 1px dotted #aaa;
+    border-bottom: 1px dotted #aaa;
+    padding: 1em 0;
+    margin: 1em 0;
+}
+
+#comment-form fieldset {
+    position: relative;
+    width: 485px;
+}
+
+#comment-form legend span {
+    position: absolute;
+    left: -9999px;
+}
+
+#comment-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.3em;
+}
+
+#comment-form input,
+#comment-form textarea {
+    padding: 0.3em;
+    margin-bottom: 0.3em;
+    border: 1px solid #aaa;
+}
+
+#comment-form input:focus,
+#comment-form textarea:focus {
+    border: 1px solid #bd6;
+}
+
+#comment-form input {
+    width: 285px;
+}
+
+#comment-form textarea {
+    width: 485px;
+}
+
+#comment-form .help-text {
+    display: inline;
+    font-size: 85%;
+    color: #aaa;
+}
+
+#comment-form .submit {
+    width: auto;
+    cursor: pointer;
+    font-weight: bold;
+}

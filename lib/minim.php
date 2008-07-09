@@ -21,7 +21,6 @@ class Minim
     var $debug;
     var $log_msgs;
     var $config;
-    var $plugins;
 
     function Minim($config=NULL)
     {
@@ -177,9 +176,4 @@ class Minim
         }
         return "#error:_mapping_not_found:_$mapping";
     }
-}
-
-class MinimPlugin
-{
-    
 }

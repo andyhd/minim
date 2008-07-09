@@ -38,44 +38,6 @@ class Minim
         require $this->lib('helpers');
     }
 
-    function load_plugins()
-    {
-        $plugins = array();
-        $dh = opendir("{$this->root}/plugins");
-        if (!$dh)
-        {
-            return $plugins;
-        }
-        $classes = get_declared_classes();
-        while ($dl = readdir($dh))
-        {
-            if (substr($dl, strlen($dl)-4) == '.php')
-            {
-                $plugin = substr($dl, 0, strlen($dl) - 4);
-                $file = "$this->root/plugins/$dl";
-                require_once $file;
-                # check what classes were loaded
-                $loaded = array_diff(get_declared_classes(), $classes);
-                $classes = array_merge($classes, $loaded);
-                $this->log("Loaded classes: ".print_r(array_values($loaded), TRUE));
-                $plugin_ok = FALSE;
-                foreach ($loaded as $class)
-                {
-                    if (is_subclass_of($class, 'MinimPlugin'))
-                    {
-                        $plugin_ok = TRUE;
-                    }
-                }
-                if (!$plugin_ok)
-                {
-                    die("$file is not a Minim plugin");
-                }
-            }
-        }
-        $this->log("Plugins available: ".join(', ', $plugins));
-        $this->plugins = $plugins;
-    }
-
     function log($msg)
     {
         if ($this->debug)

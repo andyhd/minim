@@ -75,5 +75,8 @@ $(function() {
      </div>
     </div>
    </div>
+   <div id="footer">
+    <p>&copy; 2008 Andy Driver - powered by Minim</p>
+   </div>
   </div>
 <?php minim()->end_block('content') ?>

@@ -35,12 +35,13 @@ body {
     text-indent: -9000em;
     line-height: 1.5;
     width: 20px;
-    background: transparent url(../images/search.png) no-repeat scroll 0 4px;
+    background: transparent url(../images/search.png) no-repeat scroll 0 2px;
 }
 
 #mh_search_input {
     font-size: 77%;
-    padding: 3px;
+    padding: 0.3em;
+    border: 1px solid #aaa;
 }
 
 #content {
@@ -213,4 +214,14 @@ body {
     width: auto;
     cursor: pointer;
     font-weight: bold;
+}
+
+#footer {
+    padding: 0.3em 3.12em;
+}
+
+#footer p {
+    text-align: center;
+    color: #aaa;
+    font-size: 85%;
 }

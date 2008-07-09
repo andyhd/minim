@@ -59,6 +59,10 @@ class FakePDOStatement
         foreach ($params as $key => &$val)
         {
             $val = mysql_real_escape_string($val, $this->dbh);
+            if (!is_numeric($val))
+            {
+                $val = "'$val'";
+            }
         }
         $sql = strtr($this->sql, $params);
         minim()->log("Executing query: $sql");

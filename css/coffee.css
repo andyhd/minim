@@ -121,7 +121,7 @@ body {
   margin-left: 1.56em;
 }
 
-.column .box {
+.box {
   border: 1px solid #333;
   background: #111;
   color: #ccc;
@@ -131,11 +131,11 @@ body {
   font-family: sans-serif;
 }
 
-.column p {
+.box p {
   margin-bottom: 1.4em;
 }
 
-.column h2 {
+.box h2 {
   font-size: 125%;
   margin: 0 0 0.87em;
   color: #88f;
@@ -162,10 +162,7 @@ body {
 }
 
 #comment-form {
-    border-top: 1px dotted #aaa;
-    border-bottom: 1px dotted #aaa;
-    padding: 1em 0;
-    margin: 1em 0;
+    padding-bottom: 1.56em;
 }
 
 #comment-form fieldset {
@@ -214,6 +211,36 @@ body {
     width: auto;
     cursor: pointer;
     font-weight: bold;
+}
+
+#comments {
+    padding-top: 1em;
+}
+
+.comment {
+    /* contain floats */
+    overflow: hidden;
+    zoom: 1;
+}
+
+.post h2 {
+    font-size: 115%;
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+
+.attribution {
+    font-size: 93%;
+}
+
+.author {
+    font-weight: bold;
+}
+
+.posted {
+    font-size: 85%;
+    color: #aaa;
+    float: right;
 }
 
 #footer {

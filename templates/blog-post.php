@@ -9,7 +9,21 @@
    <ol class="taglist">
    </ol>
   </div>
-  <form id="comment-form" method="post">
+<?php minim()->end_block('page_content') ?>
+
+<?php minim()->def_block('page_related') ?>
+  <div id="comments">
+<?php foreach ($comments as $i => $comment): ?>
+   <div class="box comment<?php echo $i+1 == count($comments) ? ' last-child' : '' ?>">
+    <p class="attribution">
+     <span class="author"><?php echo $comment['author'] ?></span> said:
+    </p>
+    <?php echo $comment['text'] ?>
+    <p class="posted"><?php echo date('H:i - d M Y', $comment['posted']) ?></p>
+   </div>
+<?php endforeach ?>
+  </div>
+  <form id="comment-form" method="post" class="box">
     <div>
      <label for="name_id">Name</label>
      <input type="text" name="name" id="name_id">
@@ -27,15 +41,4 @@
      <input type="submit" class="submit" value="Post comment">
     </div>
   </form>
-  <div id="comments">
-<?php foreach ($comments as $comment): ?>
-   <div class="comment">
-    <?php echo $comment['text'] ?>
-    <p class="attribution">
-     <span class="author"><?php echo $comment['author'] ?></span>
-     <span class="posted"><?php echo date('H:i d M y', $comment['posted']) ?></span>
-    </p>
-   </div>
-<?php endforeach ?>
-  </div>
-<?php minim()->end_block('page_content') ?>
+<?php minim()->end_block('page_related') ?>

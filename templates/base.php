@@ -41,8 +41,6 @@ $(function() {
 
 <?php include_once minim()->lib('random_engrish') ?>
 <?php include_once minim()->lib('navigation_tabs') ?>
-<?php include_once minim()->lib('flickr') ?>
-<?php //include_once minim()->lib('twitter') ?>
 
 <?php minim()->def_block('content') ?>
   <div id="wrapper">
@@ -62,18 +60,7 @@ $(function() {
 <?php navigation() ?>
    </ul>
    <div id="sub-content">
-    <div class="column left-col">
-     <div class="box">
-      <p>Recent Flickr Photos</p>
-<?php flickr_grid() ?>
-     </div>
-    </div>
-    <div class="column right-col">
-     <div class="box">
-      <p>Twitter</p>
-<?php //twitter_feed() ?>
-     </div>
-    </div>
+<?php minim()->block('page_related') ?>
    </div>
    <div id="footer">
     <p>&copy; 2008 Andy Driver - powered by Minim</p>

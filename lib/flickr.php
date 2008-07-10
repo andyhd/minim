@@ -64,6 +64,10 @@ class Flickr
         elseif (function_exists('simplexml_load_string'))
         {
             $xml = simplexml_load_string($xml);
+            if (!$xml)
+            {
+                return $images;
+            }
             foreach ($xml->item as $item)
             {
                 $images[] = array(

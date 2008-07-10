@@ -8,7 +8,8 @@ if (array_intersect(array_keys($_GET), $post_params) == $post_params)
 {
     minim()->render('blog-post', array(
         'post' => Blog::getPost($_GET['year'], $_GET['month'], $_GET['day'],
-                                $_GET['slug'])
+                                $_GET['slug']),
+        'comments' => $test_data['comments'],
     ));
 }
 else

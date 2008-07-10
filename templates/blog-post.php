@@ -24,6 +24,7 @@
 <?php endforeach ?>
   </div>
   <form id="comment-form" method="post" class="box">
+    <h3>Add A Comment</h3>
     <div>
      <label for="name_id">Name</label>
      <input type="text" name="name" id="name_id">

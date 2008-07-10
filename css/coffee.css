@@ -17,6 +17,10 @@ body {
 
 #masthead h1 {
     font: bold 225% "Bitstream Vera Serif", "Times", serif;
+    background: transparent url(../images/pagezero-logo.png) -15px -100px no-repeat;
+    text-indent: -9999em;
+    width: 364px;
+    height: 30px;
     padding-bottom: 0.7em;
 }
 
@@ -126,7 +130,7 @@ body {
   color: #ccc;
   padding: 1.56em 1.56em 0;
   margin-bottom: 1.56em;
-  font-size: 85%;
+  font-size: 93%;
   font-family: sans-serif;
 }
 
@@ -164,14 +168,10 @@ body {
     padding-bottom: 1.56em;
 }
 
-#comment-form fieldset {
-    position: relative;
-    width: 485px;
-}
-
-#comment-form legend span {
-    position: absolute;
-    left: -9999px;
+#comment-form h3 {
+    font-size: 115%;
+    margin-bottom: 0.3em;
+    color: #aaa;
 }
 
 #comment-form label {
@@ -243,7 +243,7 @@ body {
 }
 
 #footer {
-    padding: 0.3em 3.12em;
+    padding: 1em 3.12em 0;
 }
 
 #footer p {

@@ -56,10 +56,10 @@ $(function() {
    <div id="content">
 <?php minim()->block('page_content') ?>
    </div>
-   <ul id="navigation">
-<?php navigation() ?>
-   </ul>
    <div id="sub-content">
+    <ul id="navigation">
+<?php navigation() ?>
+    </ul>
 <?php minim()->block('page_related') ?>
    </div>
    <div id="footer">

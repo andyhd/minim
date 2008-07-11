@@ -6,10 +6,17 @@ require minim()->fixture('blog');
 $post_params = array('year', 'month', 'day', 'slug');
 if (array_intersect(array_keys($_GET), $post_params) == $post_params)
 {
+    $post = Blog::getPost($_GET['year'], $_GET['month'], $_GET['day'],
+                          $_GET['slug']);
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST')
+    {
+        // add a comment
+    }
+
     minim()->render('blog-post', array(
-        'post' => Blog::getPost($_GET['year'], $_GET['month'], $_GET['day'],
-                                $_GET['slug']),
-        'comments' => $test_data['comments'],
+        'post' => $post,
+        'comments' => $post->comments,
     ));
 }
 else

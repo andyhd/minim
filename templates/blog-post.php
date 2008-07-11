@@ -1,11 +1,11 @@
 <?php minim()->extend('base') ?>
 
-<?php minim()->def_block('title') ?>Blog<?php minim()->end_block('title') ?>
+<?php minim()->def_block('title') ?><?php echo $post->title ?><?php minim()->end_block('title') ?>
 
 <?php minim()->def_block('page_content') ?>
   <div class="post">
-   <h2><?php echo $post['title'] ?></h2>
-   <?php echo $post['content'] ?>
+   <h2><?php echo $post->title ?></h2>
+   <?php echo $post->content ?>
    <ol class="taglist">
    </ol>
   </div>

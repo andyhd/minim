@@ -1,4 +1,47 @@
 <?php
+function breve()
+{
+    static $instance;
+    if (!$instance)
+    {
+        $instance = new Breve();
+    }
+    return $instance;
+}
+
+class Breve
+{
+    var $managers;
+
+    function Breve()
+    {
+        $this->managers = array();
+    }
+
+    function &manager($model)
+    {
+        if (!$model)
+        {
+            return NULL;
+        }
+        if (!array_key_exists($model, $this->managers))
+        {
+            $class = "{$model}Manager";
+            if (class_exists($class))
+            {
+                $this->managers[$model] =& new $class();
+            }
+            else
+            {
+                $this->managers[$model] =& new BreveManager($model);
+            }
+            $this->managers[$model]->setModel($model);
+            minim()->log("Created manager for $model: ".print_r($this->managers[$model], TRUE));
+        }
+        return $this->managers[$model];
+    }
+}
+
 class BreveModel
 {
     var $_fields;
@@ -305,6 +348,11 @@ class BreveManager
 {
     var $table = NULL;
     var $model = NULL;
+
+    function setModel($model)
+    {
+        $this->model = $model;
+    }
 
     function get($id)
     {

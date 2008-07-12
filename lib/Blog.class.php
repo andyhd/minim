@@ -1,13 +1,15 @@
 <?php
 require minim()->lib('breve');
 
-class Blog
+class BlogPostManager
 {
-    function getRecentPosts($num)
+    var $table = "post";
+
+    function getRecent($num)
     {
         $sql = <<<SQL
             SELECT *
-            FROM post
+            FROM {$this->table}
             ORDER BY posted DESC
             LIMIT :n
 SQL;
@@ -21,7 +23,7 @@ SQL;
         return $posts;
     }
 
-    function getPost($year, $month, $day, $slug)
+    function get($year, $month, $day, $slug)
     {
         $date = sprintf("%04d-%02d-%02d", $year, $month, $day);
         $params = array(
@@ -31,7 +33,7 @@ SQL;
         );
         $sql = <<<SQL
             SELECT *
-            FROM post
+            FROM {$this->table}
             WHERE slug LIKE :slug AND
                   posted BETWEEN :from AND :to
 SQL;
@@ -89,6 +91,16 @@ SQL;
             }
         }
         return $comments;
+    }
+
+    function manager()
+    {
+        static $manager;
+        if (!$manager)
+        {
+            $manager = new BlogPostManager();
+        }
+        return $manager;
     }
 }
 

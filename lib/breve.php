@@ -29,6 +29,15 @@ class BreveModel
         }
     }
 
+    function setTable($table)
+    {
+        $class = get_class($this);
+        if (!defined("$class.TABLE"))
+        {
+            define("$class.TABLE", $table);
+        }
+    }
+
     function define()
     {
         // should be overridden
@@ -43,7 +52,17 @@ class BreveModel
     {
         if ($field = $this->getField($name))
         {
-            return $field->setValue($value);
+            if ($field->_readonly)
+            {
+                minim()->log("$name field is read-only");
+                return FALSE;
+            }
+            $ret = $field->setValue($value);
+            if (!$ret)
+            {
+                minim()->log("Couldn't set $name to $value");
+            }
+            return $ret;
         }
 
         die(get_class($this).": Can't set field $name - does not exist");
@@ -57,7 +76,9 @@ class BreveModel
     function &getField($name)
     {
         if (!array_key_exists($name, $this->_fields))
+        {
             return FALSE;
+        }
         return $this->_fields[$name];
     }
 
@@ -90,24 +111,17 @@ class BreveModel
 
         return $this;
     }
-
-    function get($params = array())
-    {
-        if (!$params)
-        {
-            return NULL;
-        }
-        $sql = sprintf('SELECT * FROM %s WHERE %s', $this->_table, $criteria);
-    }
 }
 
 class BreveField
 {
     var $_value;
+    var $_readonly;
 
     function __construct($params)
     {
         $this->_value = NULL;
+        $this->_readonly = FALSE;
     }
 
     function setValue($value)
@@ -141,12 +155,12 @@ class BreveInt extends BreveField
 
     function setValue($value)
     {
-        if (!is_int($value))
+        if (!is_numeric($value))
         {
             return FALSE;
         }
 
-        return $this->_value = $value;
+        return $this->_value = (int) $value;
     }
 }
 
@@ -200,6 +214,7 @@ class BreveSlug extends BreveChar
     function __construct($params = array())
     {
         parent::__construct($params);
+        $this->_readonly = TRUE;
         if (@$params['from'])
         {
             $this->_from = $params['from'];
@@ -233,7 +248,7 @@ class BreveSlug extends BreveChar
 
         # TODO - unicode support
         $value = strtolower($value);
-        $value = preg_replace('/\s+/-/', $value);
+        $value = preg_replace('/\s+/', '-', $value);
         return $value;
     }
 }

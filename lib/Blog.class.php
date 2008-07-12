@@ -43,6 +43,11 @@ SQL;
 
 class BlogPost extends BreveModel
 {
+    function table()
+    {
+        return 'post';
+    }
+
     function define()
     {
         $this->setField('id', new BreveInt(array('autoincrement' => TRUE)));
@@ -59,12 +64,12 @@ class BlogPost extends BreveModel
     {
         if ($name == 'comments')
         {
-            return $this->getComments();
+            return $this->comments();
         }
         return parent::__get($name);
     }
 
-    function getComments()
+    function comments()
     {
         static $comments;
         if (!is_array($comments))
@@ -89,12 +94,17 @@ SQL;
 
 class BlogComment extends BreveModel
 {
+    function table()
+    {
+        return 'comment';
+    }
+
     function define()
     {
         $this->setField('id', new BreveInt(array('autoincrement' => TRUE)));
         $this->setField('post_id', new BreveInt());
         $this->setField('content', new BreveText());
         $this->setField('posted', new BreveTimestamp());
-        $this->setField('author', new BreveInt());
+        $this->setField('author', new BreveChar(array('maxlength' => 100)));
     }
 }

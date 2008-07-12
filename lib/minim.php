@@ -76,7 +76,7 @@ class Minim
         if (is_readable($_filename))
         {
             $this->log("Rendering $_name template");
-            $this->log("Context: " . var_export($_context, TRUE));
+            $this->log("Context: " . print_r($_context, TRUE));
             extract($_context);
             include $_filename;
         }

@@ -16,10 +16,10 @@
 <?php foreach ($comments as $i => $comment): ?>
    <div class="box comment<?php echo $i+1 == count($comments) ? ' last-child' : '' ?>">
     <p class="attribution">
-     <span class="author"><?php echo $comment['author'] ?></span> said:
+     <span class="author"><?php echo $comment->author ?></span> said:
     </p>
-    <?php echo $comment['text'] ?>
-    <p class="posted"><?php echo date('H:i - d M Y', $comment['posted']) ?></p>
+    <?php echo $comment->content ?>
+    <p class="posted"><?php echo date('H:i - d M Y', $comment->posted) ?></p>
    </div>
 <?php endforeach ?>
   </div>

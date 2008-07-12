@@ -69,7 +69,8 @@ class FakePDOStatement
         $this->resultset = @mysql_query($sql, $this->dbh);
         if (!$this->resultset)
         {
-            die('FakePDOStatement: Query failed: '.mysql_error($this->dbh));
+            die('FakePDOStatement: Query failed: '.mysql_error($this->dbh).
+                "\nQuery: $sql");
         }
     }
 

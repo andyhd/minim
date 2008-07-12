@@ -4,6 +4,7 @@ require minim()->lib('breve');
 class BlogPostManager
 {
     var $table = "post";
+    var $model = "BlogPost";
 
     function getRecent($num)
     {
@@ -45,11 +46,6 @@ SQL;
 
 class BlogPost extends BreveModel
 {
-    function table()
-    {
-        return 'post';
-    }
-
     function define()
     {
         $this->setField('id', new BreveInt(array('autoincrement' => TRUE)));
@@ -76,19 +72,7 @@ class BlogPost extends BreveModel
         static $comments;
         if (!is_array($comments))
         {
-            $sql = <<<SQL
-                SELECT *
-                FROM comment
-                WHERE post_id=:id
-                ORDER BY posted DESC
-SQL;
-            $s = minim()->db()->prepare($sql);
-            $s->execute(array(':id' => $this->id));
-            $comments = array();
-            foreach ($s->fetchAll() as $comment)
-            {
-                $comments[] = new BlogComment($comment);
-            }
+            $comments = BlogComment::manager()->getForPost($this->id);
         }
         return $comments;
     }
@@ -106,11 +90,6 @@ SQL;
 
 class BlogComment extends BreveModel
 {
-    function table()
-    {
-        return 'comment';
-    }
-
     function define()
     {
         $this->setField('id', new BreveInt(array('autoincrement' => TRUE)));
@@ -118,5 +97,39 @@ class BlogComment extends BreveModel
         $this->setField('content', new BreveText());
         $this->setField('posted', new BreveTimestamp());
         $this->setField('author', new BreveChar(array('maxlength' => 100)));
+    }
+
+    function manager()
+    {
+        static $manager;
+        if (!$manager)
+        {
+            $manager =& new BlogCommentManager();
+        }
+        return $manager;
+    }
+}
+
+class BlogCommentManager extends BreveManager
+{
+    var $table = "comment";
+    var $model = "BlogComment";
+
+    function getForPost($post_id)
+    {
+        $sql = <<<SQL
+            SELECT *
+            FROM {$this->table}
+            WHERE post_id=:id
+            ORDER BY posted DESC
+SQL;
+        $s = minim()->db()->prepare($sql);
+        $s->execute(array(':id' => $post_id));
+        $comments = array();
+        foreach ($s->fetchAll() as $comment)
+        {
+            $comments[] = new BlogComment($comment);
+        }
+        return $comments;
     }
 }

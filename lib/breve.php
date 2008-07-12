@@ -2,7 +2,6 @@
 class BreveModel
 {
     var $_fields;
-    var $_table;
 
     function BreveModel()
     {
@@ -26,15 +25,6 @@ class BreveModel
             $keys = array_keys($this->_fields);
             $params = array_combine($keys, $argv);
             $this->_fromArray($params);
-        }
-    }
-
-    function setTable($table)
-    {
-        $class = get_class($this);
-        if (!defined("$class.TABLE"))
-        {
-            define("$class.TABLE", $table);
         }
     }
 
@@ -308,5 +298,27 @@ class BreveTimestamp extends BreveField
         }
 
         return $this->_value = $value;
+    }
+}
+
+class BreveManager
+{
+    var $table = NULL;
+    var $model = NULL;
+
+    function get($id)
+    {
+        if (!$this->table or !$this->model or !is_numeric($id))
+        {
+            return NULL;
+        }
+        $sql = <<<SQL
+            SELECT *
+            FROM {$this->table}
+            WHERE id=:id
+SQL;
+        $s = minim()->db()->prepare($sql);
+        $s->execute(array(':id' => $id));
+        return new $this->model($s->fetch());
     }
 }

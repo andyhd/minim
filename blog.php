@@ -16,7 +16,7 @@ if (array_intersect(array_keys($_GET), $post_params) == $post_params)
 
     minim()->render('blog-post', array(
         'post' => $post,
-        'comments' => $post->comments,
+        'comments' => $post->comments(),
     ));
 }
 else

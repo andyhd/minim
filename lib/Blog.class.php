@@ -13,23 +13,9 @@ class BlogPost extends BreveModel
         $this->setField('tags', new BreveChar(array('maxlength' => 255)));
     }
 
-    function __get($name)
-    {
-        if ($name == 'comments')
-        {
-            return $this->comments();
-        }
-        return parent::__get($name);
-    }
-
     function comments()
     {
-        static $comments;
-        if (!is_array($comments))
-        {
-            $comments = breve()->manager('BlogComment')->getForPost($this->id);
-        }
-        return $comments;
+        return breve()->manager('BlogComment')->getForPost($this->id);
     }
 }
 

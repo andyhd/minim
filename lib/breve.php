@@ -283,8 +283,14 @@ class BreveText extends BreveField
 
     function isValid()
     {
+        // TODO - add unicode support (mb_strlen)
         $maxlen = $this->getAttribute('maxlength');
-        if ($maxlen and strlen($this->_value) > $maxlen)
+        $len = strlen($this->_value);
+        if ($maxlen and $len > $maxlen)
+        {
+            return FALSE;
+        }
+        if ($this->getAttribute('required') and $len < 1)
         {
             return FALSE;
         }

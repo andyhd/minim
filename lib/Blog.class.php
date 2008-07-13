@@ -3,14 +3,24 @@ class BlogPost extends BreveModel
 {
     function define()
     {
-        $this->setField('id', new BreveInt(array('autoincrement' => TRUE)));
-        $this->setField('title', new BreveChar(array('maxlength' => 100)));
+        $this->setField('id', new BreveInt(array(
+            'autoincrement' => TRUE)));
+        $this->setField('title', new BreveText(array(
+            'maxlength' => 100,
+            'required' => TRUE,
+            'not_null' => TRUE)));
         $this->setField('slug', new BreveSlug(array(
+            'read_only' => TRUE,
             'from' => $this->getField('title'))));
-        $this->setField('content', new BreveText());
-        $this->setField('posted', new BreveTimestamp());
-        $this->setField('author', new BreveInt());
-        $this->setField('tags', new BreveChar(array('maxlength' => 255)));
+        $this->setField('content', new BreveText(array(
+            'required' => TRUE,
+            'not_null' => TRUE)));
+        $this->setField('posted', new BreveTimestamp(array(
+            'auto_now' => TRUE)));
+        $this->setField('author', new BreveInt(array(
+            'not_null' => TRUE)));
+        $this->setField('tags', new BreveText(array(
+            'maxlength' => 255)));
     }
 
     function comments()
@@ -66,11 +76,19 @@ class BlogComment extends BreveModel
 {
     function define()
     {
-        $this->setField('id', new BreveInt(array('autoincrement' => TRUE)));
-        $this->setField('post_id', new BreveInt());
-        $this->setField('content', new BreveText());
-        $this->setField('posted', new BreveTimestamp());
-        $this->setField('author', new BreveChar(array('maxlength' => 100)));
+        $this->setField('id', new BreveInt(array(
+            'autoincrement' => TRUE)));
+        $this->setField('post_id', new BreveInt(array(
+            'not_null' => TRUE)));
+        $this->setField('content', new BreveText(array(
+            'required' => TRUE,
+            'not_null' => TRUE)));
+        $this->setField('posted', new BreveTimestamp(array(
+            'auto_now' => TRUE)));
+        $this->setField('author', new BreveText(array(
+            'maxlength' => 100,
+            'not_null' => TRUE,
+            'required' => TRUE)));
     }
 }
 

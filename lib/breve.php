@@ -45,10 +45,14 @@ class Breve
 class BreveModel
 {
     var $_fields;
+    var $_errors;
+    var $_validated;
 
     function BreveModel()
     {
         $this->_fields = array();
+        $this->_errors = array();
+        $this->_validated = FALSE;
         $this->define(); // set up fields
         
         // allow prepopulating
@@ -85,7 +89,7 @@ class BreveModel
     {
         if ($field = $this->getField($name))
         {
-            if ($field->_readonly)
+            if ($field->getAttribute('read_only'))
             {
                 minim()->log("$name field is read-only");
                 return FALSE;
@@ -94,6 +98,10 @@ class BreveModel
             if (!$ret)
             {
                 minim()->log("Couldn't set $name to $value");
+            }
+            else
+            {
+                $this->_validated = FALSE;
             }
             return $ret;
         }
@@ -110,7 +118,8 @@ class BreveModel
     {
         if (!array_key_exists($name, $this->_fields))
         {
-            return FALSE;
+            $falsevar = FALSE;
+            return $falsevar;
         }
         return $this->_fields[$name];
     }
@@ -144,48 +153,91 @@ class BreveModel
 
         return $this;
     }
+
+    function isValid()
+    {
+        if (!$this->_validated)
+        {
+            $this->_validated = TRUE;
+            $errors = array();
+            foreach ($this->_fields as $name => $field)
+            {
+                $errors[] = $field->isValid() ? NULL : "Field $name invalid";
+            }
+            $errors = array_filter($errors);
+            $this->_errors = $errors;
+        }
+        return empty($this->_errors);
+    }
+
+    function errors()
+    {
+        return $this->_errors;
+    }
+
+    function save()
+    {
+        breve()->manager(get_class($this))->save($this);
+    }
 }
 
 class BreveField
 {
     var $_value;
-    var $_readonly;
+    var $_attrs;
 
-    function __construct($params)
+    function BreveField($attrs=array())
     {
         $this->_value = NULL;
-        $this->_readonly = FALSE;
+        $this->_attrs = $attrs;
     }
 
     function setValue($value)
     {
-        return $this->_value = $value;
+        if (!$this->getAttribute('read_only'))
+        {
+            return $this->_value = $value;
+        }
+        return FALSE;
     }
 
     function getValue()
     {
         return $this->_value;
     }
+
+    function getValueForDb()
+    {
+        return $this->getValue();
+    }
+
+    function setAttribute($name, $value)
+    {
+        $this->_attrs[$name] = $value;
+    }
+
+    function getAttribute($name)
+    {
+        if (array_key_exists($name, $this->_attrs))
+        {
+            return $this->_attrs[$name];
+        }
+        return NULL;
+    }
+
+    function isValid()
+    {
+        if ($this->_value === NULL and ($this->getAttribute('not_null') or
+                                        $this->getAttribute('required')))
+        {
+            return FALSE;
+        }
+        return TRUE;
+    }
 }
 
 class BreveInt extends BreveField
 {
-    var $_autoincrement;
-
-    function BreveInt($params = array())
-    {
-        $this->__construct($params);
-    }
-
-    function __construct($params = array())
-    {
-        parent::__construct($params);
-        if (@$params['autoincrement'])
-        {
-            $this->_autoincrement = $params['autoincrement'];
-        }
-    }
-
     function setValue($value)
     {
         if (!is_numeric($value))
@@ -193,28 +245,22 @@ class BreveInt extends BreveField
             return FALSE;
         }
 
-        return $this->_value = (int) $value;
+        return parent::setValue((int) $value);
+    }
+
+    function isValid()
+    {
+        if (is_int($this->_value))
+        {
+            return TRUE;
+        }
+
+        return parent::isValid();
     }
 }
 
-class BreveChar extends BreveField
+class BreveText extends BreveField
 {
-    var $_maxlength;
-
-    function BreveChar($params = array())
-    {
-        $this->__construct($params);
-    }
-
-    function __construct($params = array())
-    {
-        parent::__construct($params);
-        if (@$params['maxlength'])
-        {
-            $this->_maxlength = $params['maxlength'];
-        }
-    }
-
     function setValue($value)
     {
         if (!is_string($value))
@@ -223,104 +269,78 @@ class BreveChar extends BreveField
         }
         
         # TODO - add unicode support here (mb_strlen)
-        if ($this->_maxlength and strlen($value) > $this->_maxlength)
+        $maxlen = $this->getAttribute('maxlength');
+        if ($maxlen and strlen($value) > $maxlen)
         {
             # TODO - add unicode support here (mb_substr)
-            $value = substr($value, 0, $this->_maxlength);
+            $value = substr($value, 0, $maxlen);
 
             # Raise a WARNING?
         }
 
-        return $this->_value = $value;
+        return parent::setValue($value);
+    }
+
+    function isValid()
+    {
+        $maxlen = $this->getAttribute('maxlength');
+        if ($maxlen and strlen($this->_value) > $maxlen)
+        {
+            return FALSE;
+        }
+
+        return parent::isValid();
     }
 }
 
-class BreveSlug extends BreveChar
+class BreveSlug extends BreveText
 {
-    var $_from;
-
-    function BreveSlug($params = array())
+    function _slugify($str)
     {
-        $this->__construct($params);
+        // TODO - unicode support
+        $value = strtolower($value);
+        $value = preg_replace('/\s+/', '-', $value);
+        return $value;
     }
 
-    function __construct($params = array())
+    function setValue(&$value)
     {
-        parent::__construct($params);
-        $this->_readonly = TRUE;
-        if (@$params['from'])
+        $from = $this->getAttribute('from');
+        if ($from)
         {
-            $this->_from = $params['from'];
+            return FALSE;
         }
-    }
-
-    function setValue($value)
-    {
-        // slugs are read-only
+        if (is_string($value))
+        {
+            return parent::setValue($this->_slugify($value));
+        }
         return FALSE;
     }
 
     function getValue()
     {
-        // get value by slugifying _from field
-        if (is_null($this->_from))
+        $value = parent::getValue();
+        $from = $this->getAttribute($from);
+        if (!$value and $from)
         {
-            return NULL;
+            return $this->_slugify($from->getValue());
         }
-
-        $value = $this->_from->getValue();
-        if ($value === FALSE)
-        {
-            return FALSE;
-        }
-
-        if ($value === '')
-        {
-            return '';
-        }
-
-        # TODO - unicode support
-        $value = strtolower($value);
-        $value = preg_replace('/\s+/', '-', $value);
         return $value;
     }
-}
 
-class BreveText extends BreveChar
-{
-    function BreveText($params = array())
+    function isValid()
     {
-        $this->__construct($params);
-    }
-
-    function __construct($params = array())
-    {
-        parent::__construct($params);
-    }
-
-    function setValue($value)
-    {
-        if (!is_string($value))
+        $from = $this->getAttribute($from);
+        if ($from)
         {
-            return FALSE;
+            return $from->isValid();
         }
-
-        return $this->_value = $value;
+        return parent::isValid();
     }
 }
 
 class BreveTimestamp extends BreveField
 {
-    function BreveTimestamp($params = array())
-    {
-        $this->__construct($params);
-    }
-
-    function __construct($params = array())
-    {
-        parent::__construct($params);
-    }
-
     function setValue($value)
     {
         // TODO - don't use unix timestamps
@@ -340,7 +360,20 @@ class BreveTimestamp extends BreveField
             }
         }
 
-        return $this->_value = $value;
+        return parent::setValue($value);
+    }
+
+    function getValueForDb()
+    {
+        if ($this->getAttribute('auto_now'))
+        {
+            return date('Y-m-d H:i:s');
+        }
+        if ($this->_value)
+        {
+            return date('Y-m-d H:i:s', $this->_value);
+        }
+        return NULL;
     }
 }
 
@@ -368,5 +401,40 @@ SQL;
         $s = minim()->db()->prepare($sql);
         $s->execute(array(':id' => $id));
         return new $this->model($s->fetch());
+    }
+
+    function save($instance)
+    {
+        if (!$instance->isValid())
+        {
+            minim()->log("Cannot save invalid model");
+            return FALSE;
+        }
+        $updates = array();
+        $data = array();
+        $id = $instance->getValue('id');
+        if ($id)
+        {
+            // assume this is an UPDATE
+            $sql = "UPDATE {$this->table} SET %s WHERE id=:id";
+            $data['id'] = $id;
+        }
+        else
+        {
+            // this must be an INSERT
+            $sql = "INSERT INTO {$this->table} SET %s";
+
+        }
+        foreach ($instance->_fields as $name => $field)
+        {
+            if ($name != 'id')
+            {
+                $updates[] = "$name = :$name";
+                $data[":$name"] = $field->getValueForDb();
+            }
+        }
+        $sql = sprintf($sql, join(', ', $updates));
+        $s = minim()->db()->prepare($sql);
+        return $s->execute($data);
     }
 }

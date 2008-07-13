@@ -9,14 +9,24 @@ if (array_intersect(array_keys($_GET), $post_params) == $post_params)
     $post = breve()->manager('BlogPost')->get($_GET['year'], $_GET['month'],
                                               $_GET['day'], $_GET['slug']);
 
+    $errors = NULL;
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
     {
         // add a comment
+        $comment = new BlogComment($_POST);
+        if ($comment->isValid())
+        {
+            $comment->save();
+        }
+        else
+        {
+            $errors = $comment->errors();
+        }
     }
 
     minim()->render('blog-post', array(
         'post' => $post,
-        'comments' => $post->comments(),
+        'errors' => $errors,
     ));
 }
 else

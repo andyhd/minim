@@ -13,8 +13,8 @@
 
 <?php minim()->def_block('page_related') ?>
   <div id="comments">
-<?php foreach ($comments as $i => $comment): ?>
-   <div class="box comment<?php echo $i+1 == count($comments) ? ' last-child' : '' ?>">
+<?php foreach ($post->comments() as $i => $comment): ?>
+   <div class="box comment<?php echo $i+1 == count($post->comments()) ? ' last-child' : '' ?>">
     <p class="attribution">
      <span class="author"><?php echo $comment->author ?></span> said:
     </p>
@@ -23,20 +23,28 @@
    </div>
 <?php endforeach ?>
   </div>
-  <form id="comment-form" method="post" class="box">
+  <form id="comment-form" method="post" class="box" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
     <h3>Add A Comment</h3>
+<?php if ($errors): ?>
+    <ul class="errors">
+    <?php foreach ($errors as $error): ?>
+     <li><?php echo $error ?></li>
+    <?php endforeach ?>
+    </ul>
+<?php endif ?>
     <div>
-     <label for="name_id">Name</label>
-     <input type="text" name="name" id="name_id">
+     <input type="hidden" name="post_id" value="<?php echo $post->id ?>">
+     <label for="author_id">Name</label>
+     <input type="text" name="author" id="author_id">
     </div>
-    <div>
+<!--    <div>
      <label for="email_id">Email</label>
      <input type="text" name="email" id="email_id">
      <p class="help-text">Will not be published.</p>
-    </div>
+    </div> -->
     <div>
-     <label for="comment_id">Comment</label>
-     <textarea name="comment" rows="6" id="comment_id"></textarea>
+     <label for="content_id">Comment</label>
+     <textarea name="content" rows="6" id="content_id"></textarea>
     </div>
     <div>
      <input type="submit" class="submit" value="Post comment">

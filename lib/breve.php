@@ -131,7 +131,8 @@ class BreveModel
             return $field->getValue();
         }
         
-        die(get_class($this).": Can't get field $name - does not exist");
+        minim()->log(get_class($this).": Can't get field $name - does not exist");
+        return NULL;
     }
 
     function __get($name)

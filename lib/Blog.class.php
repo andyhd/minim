@@ -85,10 +85,12 @@ class BlogComment extends BreveModel
             'not_null' => TRUE)));
         $this->setField('posted', new BreveTimestamp(array(
             'auto_now' => TRUE)));
-        $this->setField('author', new BreveText(array(
+        $this->setField('name', new BreveText(array(
             'maxlength' => 100,
             'not_null' => TRUE,
             'required' => TRUE)));
+        $this->setField('email', new BreveText(array(
+            'maxlength' => 255)));
     }
 }
 

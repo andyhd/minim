@@ -16,7 +16,14 @@
 <?php foreach ($post->comments() as $i => $comment): ?>
    <div class="box comment<?php echo $i+1 == count($post->comments()) ? ' last-child' : '' ?>">
     <p class="attribution">
-     <span class="author"><?php echo $comment->author ?></span> said:
+     <span class="author">
+      <?php if ($comment->email): ?>
+      <a href="mailto:<?php echo $comment->name ?> &lt;<?php echo $comment->email ?>&gt;"><?php echo $comment->name ?></a>
+      <?php else: ?>
+      <?php echo $comment->name ?>
+      <?php endif ?>
+      </span>
+      said:
     </p>
     <?php echo $comment->content ?>
     <p class="posted"><?php echo date('H:i - d M Y', $comment->posted) ?></p>
@@ -34,14 +41,14 @@
 <?php endif ?>
     <div>
      <input type="hidden" name="post_id" value="<?php echo $post->id ?>">
-     <label for="author_id">Name</label>
-     <input type="text" name="author" id="author_id">
+     <label for="name_id">Name</label>
+     <input type="text" name="name" id="name_id">
     </div>
-<!--    <div>
+    <div>
      <label for="email_id">Email</label>
      <input type="text" name="email" id="email_id">
      <p class="help-text">Will not be published.</p>
-    </div> -->
+    </div>
     <div>
      <label for="content_id">Comment</label>
      <textarea name="content" rows="6" id="content_id"></textarea>

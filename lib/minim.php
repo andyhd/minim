@@ -176,4 +176,17 @@ class Minim
         }
         return "#error:_mapping_not_found:_$mapping";
     }
+
+    function truncate($str, $limit)
+    {
+        // TODO - add unicode support (mb_strlen)
+        if (strlen($str) < $limit)
+        {
+            return $str;
+        }
+        // cheat and use PHP's wordwrap() function to avoid splitting words
+        // TODO - add unicode support (?)
+        $lines = explode(wordwrap($str, $limit), "\n");
+        return $lines[0] . '...'; // TODO - change to horizontal ellipsis
+    }
 }

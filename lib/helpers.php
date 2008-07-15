@@ -10,3 +10,10 @@ function url_for_blog_post($post)
         "slug" => $post->slug
     ));
 }
+
+function alternate($str1, $str2)
+{
+    static $toggle = True;
+    $toggle = !$toggle;
+    return $toggle ? $str1 : $str2;
+}

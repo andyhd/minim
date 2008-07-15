@@ -76,7 +76,7 @@ class Minim
         if (is_readable($_filename))
         {
             $this->log("Rendering $_name template");
-            $this->log("Context: " . print_r($_context, TRUE));
+            $this->log("<a href=\"#\" class=\"expanded\">Context<span>: " . print_r($_context, TRUE) . "</span></a>");
             extract($_context);
             include $_filename;
         }
@@ -92,6 +92,10 @@ class Minim
         }
         elseif ($this->debug)
         {
+            print <<<JAVASCRIPT
+<script type="text/js">
+</script>
+JAVASCRIPT;
             print '<pre class="debug">'.join("\n", $this->log_msgs)."</pre>";
         }
         ob_end_flush();
@@ -177,16 +181,17 @@ class Minim
         return "#error:_mapping_not_found:_$mapping";
     }
 
-    function truncate($str, $limit)
+    function truncate($str, $limit=300)
     {
         // TODO - add unicode support (mb_strlen)
         if (strlen($str) < $limit)
         {
             return $str;
         }
+
         // cheat and use PHP's wordwrap() function to avoid splitting words
         // TODO - add unicode support (?)
-        $lines = explode(wordwrap($str, $limit), "\n");
+        $lines = explode("\n", wordwrap($str, $limit));
         return $lines[0] . '...'; // TODO - change to horizontal ellipsis
     }
 }

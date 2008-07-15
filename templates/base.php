@@ -20,7 +20,7 @@
 
 <?php minim()->def_block('js_foot') ?>
   <script type="text/javascript">
-$(function() {
+jQuery(function() {
     $('#mh_search :submit').hide();
     var input = $('#mh_search_input');
     var initial = $('label[for="mh_search_input"]').text()

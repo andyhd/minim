@@ -32,7 +32,7 @@ if (array_intersect(array_keys($_GET), $post_params) == $post_params)
 else
 {
     minim()->render('blog', array(
-        'posts' => breve()->manager('BlogPost')->getRecent(5),
+        'posts' => breve()->manager('BlogPost')->latest(8),
     ));
 }
 ?>

@@ -302,10 +302,11 @@ class BreveText extends BreveField
 
 class BreveSlug extends BreveText
 {
-    function _slugify($str)
+    function _slugify($value)
     {
         // TODO - unicode support
         $value = strtolower($value);
+        $value = preg_replace('/[^-A-Za-z0-9\s]/', '', $value);
         $value = preg_replace('/\s+/', '-', $value);
         return $value;
     }
@@ -327,7 +328,7 @@ class BreveSlug extends BreveText
     function getValue()
     {
         $value = parent::getValue();
-        $from = $this->getAttribute($from);
+        $from = $this->getAttribute('from');
         if (!$value and $from)
         {
             return $this->_slugify($from->getValue());

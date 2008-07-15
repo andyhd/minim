@@ -8,7 +8,7 @@
 <?php minim()->block('css') ?>
 <?php minim()->block('js_head') ?>
  </head>
- <body<?php minim()->block('body_class') ?>>
+ <body class="<?php minim()->block('body_class') ?>">
 <?php minim()->block('content') ?>
 <?php minim()->block('js_foot') ?>
  </body>

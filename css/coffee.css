@@ -251,3 +251,38 @@ body {
     color: #aaa;
     font-size: 85%;
 }
+
+.admin h1 {
+    font-size: 123%;
+    font-weight: bold;
+    margin-bottom: 1em;
+}
+
+.admin table {
+    width: 100%;
+}
+
+.admin th {
+    background: #555;
+    color: #ccc;
+    font-weight: bold;
+    padding: 0.3em;
+    border-right: 1px solid #ccc;
+}
+
+.admin th.last-child {
+    border: none;
+}
+
+.admin td {
+    padding: 0.3em;
+    border-right: 1px solid #ccc;
+}
+
+.admin td.last-child {
+    border: none;
+}
+
+.admin .alt td {
+    background: #ddd;
+}

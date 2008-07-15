@@ -4,7 +4,7 @@
 
 <?php minim()->def_block('page_content') ?>
   <ol class="blog-posts">
-<?php foreach ($posts as $post): ?>
+<?php for ($i = 0; $i < 3 and $i < count($posts); $i++): $post = $posts[$i] ?>
    <li>
     <div class="post">
      <h2><a href="<?php echo url_for_blog_post($post) ?>"><?php echo $post->title ?></a></h2>
@@ -17,7 +17,12 @@
      </ol>
     </div>
    </li>
-<?php endforeach ?>
+<?php endfor ?>
+  </ol>
+  <ol class="titles">
+<?php for ($i = 3; $i < count($posts); $i++): $post = $posts[$i] ?>
+   <li><a href="<?php echo url_for_blog_post($post) ?>"><?php echo $post->title ?></a></li>
+<?php endfor ?>
   </ol>
   <p>
    <a href="<?php minim()->url_for("blog-archive") ?>">Older Posts</a>

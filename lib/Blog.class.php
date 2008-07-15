@@ -33,7 +33,7 @@ class BlogPostManager extends BreveManager
 {
     var $table = "post";
 
-    function getRecent($num)
+    function latest($num)
     {
         $sql = <<<SQL
             SELECT *
@@ -43,6 +43,23 @@ class BlogPostManager extends BreveManager
 SQL;
         $s = minim()->db()->prepare($sql);
         $s->execute(array(':n' => $num));
+        $posts = array();
+        foreach ($s->fetchAll() as $post)
+        {
+            $posts[] = new BlogPost($post);
+        }
+        return $posts;
+    }
+
+    function all()
+    {
+        $sql = <<<SQL
+            SELECT *
+            FROM {$this->table}
+            ORDER BY posted DESC
+SQL;
+        $s = minim()->db()->prepare($sql);
+        $s->execute();
         $posts = array();
         foreach ($s->fetchAll() as $post)
         {

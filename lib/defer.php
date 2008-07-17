@@ -72,33 +72,41 @@ class BreveModelSet
         $this->_cache = $this->execute_query($query, $params);
     }
 
+    var $_max_existing = array();
+
+    function _disambiguate_params($params, $fparams, $fquery)
+    {
+        $fkeys = array_keys($fparams);
+        $pkeys = array_keys($params);
+        foreach ($fkeys as &$key)
+        {
+            if (in_array($key, $pkeys))
+            {
+                if (!array_key_exists($key, $this->_max_existing))
+                {
+                    $this->_max_existing[$key] = 0;
+                }
+                $this->_max_existing[$key]++;
+                $new_key = "{$key}{$this->_max_existing[$key]}";
+                $fquery = str_replace($key, $new_key, $fquery);
+                $fparams[$new_key] = $fparams[$key];
+                unset($fparams[$key]);
+            }
+        }
+        return array($fquery, $fparams);
+    }
+
     function build_query()
     {
         // intended to be overridden to allow use of alternative backends
         $query = array();
         $params = array();
-        $max_existing = array();
+        $this->_max_existing = array();
         foreach ($this->_filters as &$filter)
         {
-            $fquery = $filter->to_string();
-            $fparams = $filter->params();
-            $fkeys = array_keys($fparams);
-            $pkeys = array_keys($params);
-            foreach ($fkeys as &$key)
-            {
-                if (in_array($key, $pkeys))
-                {
-                    if (!array_key_exists($key, $max_existing))
-                    {
-                        $max_existing[$key] = 0;
-                    }
-                    $max_existing[$key]++;
-                    $new_key = "{$key}{$max_existing[$key]}";
-                    $fquery = str_replace($key, $new_key, $fquery);
-                    $fparams[$new_key] = $fparams[$key];
-                    unset($fparams[$key]);
-                }
-            }
+            // TODO - hide this from the developer
+            list($fquery, $fparams) = $this->_disambiguate_params($params,
+                $filter->params(), $filter->to_string());
             $query[] = $fquery;
             $params = array_merge($params, $fparams);
         }
@@ -110,6 +118,7 @@ class BreveModelSet
             WHERE {$query}
 SQL;
         $sql = trim(preg_replace('/\s+/', ' ', $sql));
+        print_r(array($sql, $params));
         return array($sql, $params);
     }
 
@@ -194,6 +203,5 @@ if (!class_exists('BreveModel'))
    
     $ms = new BreveModelSet('BlogPost');
     $ms->filter(array('id__gt' => 1, 'id__lt' => 4));
-    print_r($ms->build_query());
     print_r($ms->items);
 }

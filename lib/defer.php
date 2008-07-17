@@ -77,26 +77,65 @@ class BreveModelSet
         // intended to be overridden to allow use of alternative backends
         $query = array();
         $params = array();
+        $max_existing = array();
         foreach ($this->_filters as &$filter)
         {
-            $query[] = $filter->to_string();
-            $params = array_merge($params, $filter->params());
+            $fquery = $filter->to_string();
+            $fparams = $filter->params();
+            $fkeys = array_keys($fparams);
+            $pkeys = array_keys($params);
+            foreach ($fkeys as &$key)
+            {
+                if (in_array($key, $pkeys))
+                {
+                    if (!array_key_exists($key, $max_existing))
+                    {
+                        $max_existing[$key] = 0;
+                    }
+                    $max_existing[$key]++;
+                    $new_key = "{$key}{$max_existing[$key]}";
+                    $fquery = str_replace($key, $new_key, $fquery);
+                    $fparams[$new_key] = $fparams[$key];
+                    unset($fparams[$key]);
+                }
+            }
+            $query[] = $fquery;
+            $params = array_merge($params, $fparams);
         }
         // TODO - extend to allow OR
-        return array(join(' AND ', $query), $params);
-    }
-
-    function execute_query($query, $params)
-    {
-        // intended to be overridden to allow use of alternative backends
+        $query = join(' AND ', $query);
         $sql = <<<SQL
             SELECT *
             FROM {$this->_table}
             WHERE {$query}
 SQL;
-        $s = minim()->db()->prepare($sql);
+        $sql = trim(preg_replace('/\s+/', ' ', $sql));
+        return array($sql, $params);
+    }
+
+    function execute_query($query, $params)
+    {
+        // intended to be overridden to allow use of alternative backends
+        $s = minim()->db()->prepare($query);
         $s->execute($params);
-        return $s->fetchAll();
+        $posts = array();
+        foreach ($s->fetchAll() as $post)
+        {
+            $posts[] = new BlogPost($post);
+        }
+        return $posts;
+    }
+
+    function __get($name)
+    {
+        if ($name == 'items')
+        {
+            if (!$this->_cache)
+            {
+                $this->_fill_cache();
+            }
+            return $this->_cache;
+        }
     }
 }
 
@@ -150,9 +189,11 @@ if (!class_exists('BreveModel'))
     require_once 'lib/minim.php';
     require_once minim()->lib('breve');
     require_once minim()->lib('Blog.class');
+
+    minim()->debug = TRUE;
    
     $ms = new BreveModelSet('BlogPost');
-    $ms->filter(array('id__eq' => '1'));
-    $ms->_fill_cache();
-    print_r($ms);
+    $ms->filter(array('id__gt' => 1, 'id__lt' => 4));
+    print_r($ms->build_query());
+    print_r($ms->items);
 }

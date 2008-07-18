@@ -27,6 +27,15 @@ class BlogPost extends BreveModel
     {
         return breve()->manager('BlogComment')->getForPost($this->id);
     }
+
+    function __get($name)
+    {
+        if ($name == 'comments')
+        {
+            return $this->comments();
+        }
+        return parent::__get($name);
+    }
 }
 
 class BlogPostManager extends BreveManager
@@ -35,57 +44,32 @@ class BlogPostManager extends BreveManager
 
     function latest($num)
     {
-        $sql = <<<SQL
-            SELECT *
-            FROM {$this->table}
-            ORDER BY posted DESC
-            LIMIT :n
-SQL;
-        $s = minim()->db()->prepare($sql);
-        $s->execute(array(':n' => $num));
-        $posts = array();
-        foreach ($s->fetchAll() as $post)
-        {
-            $posts[] = new BlogPost($post);
-        }
-        return $posts;
+        $ms = new BreveModelSet('BlogPost');
+        $ms->order_by('-posted');
+        $ms->limit($num);
+        return $ms;
     }
 
     function all()
     {
-        $sql = <<<SQL
-            SELECT *
-            FROM {$this->table}
-            ORDER BY posted DESC
-SQL;
-        $s = minim()->db()->prepare($sql);
-        $s->execute();
-        $posts = array();
-        foreach ($s->fetchAll() as $post)
-        {
-            $posts[] = new BlogPost($post);
-        }
-        return $posts;
+        $ms = new BreveModelSet('BlogPost');
+        $ms->order_by('-posted');
+        return $ms;
     }
 
     // override get
     function get($year, $month, $day, $slug)
     {
         $date = sprintf("%04d-%02d-%02d", $year, $month, $day);
-        $params = array(
-            ':from' => "$date 00:00:00",
-            ':to' => "$date 23:59:59",
-            ':slug' => $slug
-        );
-        $sql = <<<SQL
-            SELECT *
-            FROM {$this->table}
-            WHERE slug LIKE :slug AND
-                  posted BETWEEN :from AND :to
-SQL;
-        $s = minim()->db()->prepare($sql);
-        $s->execute($params);
-        return new BlogPost($s->fetch());
+        $from = "$date 00:00:00";
+        $to = "$date 23:59:59";
+        $ms = new BreveModelSet('BlogPost');
+        $ms->filter(array(
+            'slug__eq' => $slug,
+            'posted__range' => array($from, $to)
+        ));
+        $ms->limit(1);
+        return $ms;
     }
 }
 
@@ -117,19 +101,9 @@ class BlogCommentManager extends BreveManager
 
     function getForPost($post_id)
     {
-        $sql = <<<SQL
-            SELECT *
-            FROM {$this->table}
-            WHERE post_id=:id
-            ORDER BY posted DESC
-SQL;
-        $s = minim()->db()->prepare($sql);
-        $s->execute(array(':id' => $post_id));
-        $comments = array();
-        foreach ($s->fetchAll() as $comment)
-        {
-            $comments[] = new BlogComment($comment);
-        }
-        return $comments;
+        $ms = new BreveModelSet('BlogComment');
+        $ms->filter(array('post_id__eq' => $post_id));
+        $ms->order_by('-posted');
+        return $ms;
     }
 }

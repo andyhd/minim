@@ -1,6 +1,7 @@
 <?php
 require_once 'lib/minim.php';
 require_once minim()->lib('breve');
+require_once minim()->lib('defer');
 require_once minim()->lib('Blog.class');
 
 $post_params = array('year', 'month', 'day', 'slug');
@@ -25,7 +26,7 @@ if (array_intersect(array_keys($_GET), $post_params) == $post_params)
     }
 
     minim()->render('blog-post', array(
-        'post' => $post,
+        'post' => $post->items[0],
         'errors' => $errors,
     ));
 }

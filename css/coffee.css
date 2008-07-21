@@ -63,6 +63,7 @@ body {
 #navigation {
     list-style-type: none;
     min-height: 12px;
+    margin-bottom: 1.56em;
     /* ie6 min-height */
     *height: 12px;
     background: transparent url(../images/shadow.png) top left repeat-x;
@@ -128,7 +129,7 @@ body {
   border: 1px solid #333;
   background: #111;
   color: #ccc;
-  padding: 1.56em 1.56em 0;
+  padding: 1.56em;
   margin-bottom: 1.56em;
   font-size: 93%;
   font-family: sans-serif;
@@ -210,10 +211,6 @@ body {
     width: auto;
     cursor: pointer;
     font-weight: bold;
-}
-
-#comments {
-    padding-top: 1em;
 }
 
 .comment {

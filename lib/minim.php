@@ -18,6 +18,7 @@ class Minim
     var $blocks;
     var $extends;
     var $root;
+    var $webroot;
     var $debug;
     var $log_msgs;
     var $config;
@@ -27,6 +28,8 @@ class Minim
         $this->blocks = array();
         $this->extends = array();
         $this->root = realpath(dirname(__FILE__).'/../');
+        $this->webroot = substr($_SERVER['PHP_SELF'], 0,
+            strpos($_SERVER['PHP_SELF'], '/controllers'));
         $this->debug = array_key_exists('debug', $_REQUEST);
         $this->log_msgs = array();
         if (is_null($config))
@@ -35,6 +38,7 @@ class Minim
             $this->config = $config;
         }
         require $this->lib('helpers');
+        $this->log("Webroot: {$this->webroot}");
     }
 
     function log($msg)
@@ -103,7 +107,43 @@ JAVASCRIPT;
 
     function render_404()
     {
-        $this->render('404');
+        $search_engines = array(
+            'Ask Jeeves' => '\.ask\.co.*\bask=([^&]+)',
+            'Google' => 'google\.co.*\bq=([^&]+)',
+            'MSN' => 'msn\.co.*\bq=([^&]+)',
+            'Yahoo!' => 'yahoo\.co.*\bp=([^&]+)',
+        );
+        $url = htmlspecialchars($_SERVER['REQUEST_URI']);
+        if ($referrer = @$_SERVER['HTTP_REFERER'])
+        {
+            if (preg_match('/^http:[^\/]+pagezero/', $referrer))
+            {
+                $this->render('404-my-bad', array(
+                    'url' => $url,
+                ));
+                return;
+            }
+            foreach ($search_engines as $name => $search_engine)
+            {
+                if (preg_match('/'.$search_engine.'/', $referrer, $m))
+                {
+                    $terms = htmlspecialchars(urldecode($m[1]));
+                    $this->render('404-search', array(
+                        'url' => $url,
+                        'terms' => $terms,
+                        'engine' => $name,
+                    ));
+                    return;
+                }
+            }
+            $this->render('404-other-site', array(
+                'url' => $url,
+            ));
+            return;
+        }
+        $this->render('404-no-search', array(
+            'url' => $url,
+        ));
     }
 
     function def_block($name)
@@ -179,7 +219,7 @@ JAVASCRIPT;
             extract($_params);
             $_pat = $_map['url_pattern'];
             $_rev = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_pat);
-            $_rev = ltrim(rtrim($_rev, '$'), '^');
+            $_rev = $this->webroot.ltrim(rtrim($_rev, '$'), '^');
             $this->log("Mapped to URL: $_rev");
             return $_rev;
         }

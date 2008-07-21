@@ -1,9 +1,11 @@
 RewriteEngine On
-
-RewriteBase /~andy.driver/pagezero/
-RewriteRule ^$  home.php [L]
-RewriteRule ^blog$ blog.php [L]
-RewriteRule ^blog/(\d{4})/(\d{2})/(\d{2})/([-a-z0-9]+)$ blog.php?year=$1&month=$2&day=$3&slug=$4 [L]
-RewriteRule ^admin/blog/delete-post/(\d+)$ admin.blog.php?id=$1 [L]
-RewriteRule ^admin/blog/new-post$ admin.blog.php?new-post [L]
-RewriteRule ^admin/blog$ admin.blog.php [L]
+RewriteBase /~andy.driver/pagezero
+RewriteRule ([^/]+.css)$ css/$1 [L]
+RewriteRule ([^/]+.js)$ js/$1 [L]
+RewriteRule /images/([^/]+)$ images/$1 [L]
+RewriteRule ^$ controllers/home.php [L]
+RewriteRule ^blog/(\d{4})/(\d{2})/(\d{2})/([-a-z0-9]+) controllers/blog.php?year=$1&month=$2&day=$3&slug=$4 [QSA,L]
+RewriteRule ^blog$ controllers/blog.php [L]
+RewriteRule ^admin/blog/delete-post/(\d+)$ controllers/admin.blog.php?id=$1 [L]
+RewriteRule ^admin/blog/new-post$ controllers/admin.blog.php?new-post [L]
+RewriteRule ^admin/blog$ controllers/admin.blog.php [L]

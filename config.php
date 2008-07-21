@@ -13,6 +13,12 @@ $config = array(
         'admin/blog/delete-post' => array(
             'url_pattern' => '^/admin/blog/delete-post/(?P<id>\d+)$',
         ),
+        'admin/blog/new-post' => array(
+            'url_pattern' => '^/admin/blog/new-post$',
+        ),
+        'admin/blog/new-post-submit' => array(
+            'url_pattern' => '^/admin/blog$',
+        ),
     ),
     'database' => array(
         'host' => 'localhost',

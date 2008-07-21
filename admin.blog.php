@@ -1,6 +1,7 @@
 <?php
 require_once 'lib/minim.php';
 require_once minim()->lib('breve');
+require_once minim()->lib('defer');
 require_once minim()->lib('Blog.class');
 
 $posts = breve()->manager('BlogPost')->all();

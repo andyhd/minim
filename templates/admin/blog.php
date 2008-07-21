@@ -6,6 +6,7 @@
 
 <?php minim()->def_block('page_content') ?>
     <h1>Manage Posts</h1>
+    <p><a href="<?php echo minim()->url_for('admin/blog/new-post') ?>">New post</a></p>
     <form method="post">
       <table class="blog-posts">
         <thead>
@@ -17,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-<?php foreach ($posts as $post): ?>
+<?php foreach ($posts->items as $post): ?>
           <tr<?php echo alternate(' class="alt"', '') ?>>
             <td class="expand"><?php echo $post->title ?></td>
             <td><?php echo $post->author ?></td>

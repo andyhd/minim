@@ -10,6 +10,12 @@ if (array_intersect(array_keys($_GET), $post_params) == $post_params)
     $post = breve()->manager('BlogPost')->get($_GET['year'], $_GET['month'],
                                               $_GET['day'], $_GET['slug']);
 
+    if (!$post->items)
+    {
+        minim()->render_404();
+        return;
+    }
+
     $errors = NULL;
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
     {

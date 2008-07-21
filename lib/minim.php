@@ -101,6 +101,11 @@ JAVASCRIPT;
         ob_end_flush();
     }
 
+    function render_404()
+    {
+        $this->render('404');
+    }
+
     function def_block($name)
     {
         ob_start();
@@ -164,7 +169,7 @@ JAVASCRIPT;
 
     var $url_map = array();
 
-    function url_for($_mapping, $_params)
+    function url_for($_mapping, $_params=array())
     {
         if (array_key_exists($_mapping, $this->config['url_map']))
         {

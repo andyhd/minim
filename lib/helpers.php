@@ -39,21 +39,46 @@ function paginate($source)
         }
     }
     $out = '';
-    $url = '';
-    if ($from > 1)
+    if ($source->prev())
     {
+        if ($source->prev() == 1)
+        {
+            $params = $source->url_params;
+        }
+        else
+        {
+            $params = array_merge($source->url_params, array(
+                'page' => $source->prev()
+            ));
+        }
+        $url = minim()->url_for($source->url, $params);
         $out .= <<<HTML
 <li><a href="$url" class="prev">Prev</a></li>
 HTML;
     }
     for ($i = $from; $i <= $to; $i++)
     {
+        if ($i == 1)
+        {
+            $params = $source->url_params;
+        }
+        else
+        {
+            $params = array_merge($source->url_params, array(
+                'page' => $i
+            ));
+        }
+        $url = minim()->url_for($source->url, $params);
         $out .= <<<HTML
 <li><a href="$url">$i</a></li>
 HTML;
     }
-    if ($to < $source->max_page())
+    if ($source->next())
     {
+        $params = array_merge($source->url_params, array(
+            'page' => $source->next()
+        ));
+        $url = minim()->url_for($source->url, $params);
         $out .= <<<HTML
 <li><a href="$url" class="next">Next</a></li>
 HTML;

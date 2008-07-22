@@ -7,7 +7,7 @@ require_once minim()->lib('pagination');
 
 $posts = breve()->manager('BlogPost')->all();
 
-$paginator = new BrevePaginator($posts);
+$paginator = new BrevePaginator($posts, 'admin/blog');
 
 $errors = NULL;
 if ($_SERVER['REQUEST_METHOD'] == 'POST')

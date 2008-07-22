@@ -16,8 +16,8 @@ $config = array(
         'admin/blog/new-post' => array(
             'url_pattern' => '^/admin/blog/new-post$',
         ),
-        'admin/blog/new-post-submit' => array(
-            'url_pattern' => '^/admin/blog$',
+        'admin/blog' => array(
+            'url_pattern' => '^/admin/blog(?:/(?P<page>\d+))?$',
         ),
     ),
     'database' => array(

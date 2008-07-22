@@ -5,11 +5,14 @@ class BrevePaginator
     var $per_page;
     var $page;
     var $max_page;
+    var $url;
+    var $url_params;
 
-    function BrevePaginator($source, $per_page=20)
+    function BrevePaginator($source, $url, $params=array(), $per_page=20)
     {
         $this->source = $source;
-        minim()->log("Set paginator QuerySet: ".print_r($source, TRUE));
+        $this->url = $url;
+        $this->url_params = $params;
         $this->per_page = $per_page;
         $this->page = 1;
         $this->max_page = NULL;
@@ -38,7 +41,6 @@ class BrevePaginator
         if ($name == 'items')
         {
             $qs = $this->page();
-            minim()->log('Paginator QuerySet: '.var_export($qs, TRUE));
             return $qs->items;
         }
     }
@@ -47,7 +49,7 @@ class BrevePaginator
     {
         if (is_null($this->max_page))
         {
-            $this->max_page = ceil($this->count() / $this->per_page);
+            $this->max_page = floor($this->count() / $this->per_page);
         }
         return $this->max_page;
     }

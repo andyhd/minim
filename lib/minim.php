@@ -218,12 +218,15 @@ JAVASCRIPT;
             $this->log("Params: ".var_export($_params, TRUE));
             extract($_params);
             $_pat = $_map['url_pattern'];
-            $_rev = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_pat);
-            $_rev = $this->webroot.ltrim(rtrim($_rev, '$'), '^');
+            # replace optional params first
+            $_rev = preg_replace(',\(\?\:/\(\?P<(.*?)>.*?\)\)\?,e',
+                'isset($$1) ? "/{$$1}" : ""', $_pat);
+            $_rev = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_rev);
+            $_rev = $this->webroot.ltrim(rtrim($_rev, '/$'), '^');
             $this->log("Mapped to URL: $_rev");
             return $_rev;
         }
-        return "#error:_mapping_not_found:_$mapping";
+        return "#error:_mapping_not_found:_$_mapping";
     }
 
     function truncate($str, $limit=300)

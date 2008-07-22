@@ -8,4 +8,4 @@ RewriteRule ^blog/(\d{4})/(\d{2})/(\d{2})/([-a-z0-9]+) controllers/blog.php?year
 RewriteRule ^blog$ controllers/blog.php [L]
 RewriteRule ^admin/blog/delete-post/(\d+)$ controllers/admin.blog.php?id=$1 [L]
 RewriteRule ^admin/blog/new-post$ controllers/admin.blog.php?new-post [L]
-RewriteRule ^admin/blog$ controllers/admin.blog.php [L]
+RewriteRule ^admin/blog(?:/(\d+))?$ controllers/admin.blog.php?page=$1 [L]

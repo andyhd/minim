@@ -23,10 +23,11 @@
             <td class="expand"><?php echo $post->title ?></td>
             <td><?php echo $post->author ?></td>
             <td><?php echo date('H:i:s d/m/Y', $post->posted) ?></td>
-            <td class="last-child"><a href="<?php echo minim()->url_for('admin/blog/delete-post', $post->id) ?>" class="delete-link">Delete</a></td>
+            <td class="last-child"><a href="<?php echo minim()->url_for('admin/blog/delete-post', array('id' => $post->id)) ?>" class="delete-link">Delete</a></td>
           </tr>
 <?php endforeach ?>
         </tbody>
       </table>
     </form>
+    <?php echo paginate($posts) ?>
 <?php minim()->end_block('page_content') ?>

@@ -7,6 +7,7 @@ class BreveModelSet
     var $_start;
     var $_num;
     var $_cache;
+    var $_count;
     var $_filter_classes;
 
     function BreveModelSet($model)
@@ -22,6 +23,7 @@ class BreveModelSet
         $this->_start = 0;
         $this->_num = 0;
         $this->_cache = array();
+        $this->_count = NULL;
         $this->_filter_classes = $this->get_filter_classes();
     }
 
@@ -57,6 +59,7 @@ class BreveModelSet
             }
             $this->_sorting[] = array($field, $direction);
         }
+        return $this;
     }
 
     function limit($a, $b=0)
@@ -71,6 +74,7 @@ class BreveModelSet
             $this->_start = 0;
             $this->_num = $a;
         }
+        return $this;
     }
 
     function get_filter_classes()
@@ -106,10 +110,26 @@ class BreveModelSet
         return $classes[$op];
     }
 
+    function count()
+    {
+        if (is_null($this->_count))
+        {
+            list($query, $params) = $this->build_count_query();
+            $s = $this->execute_query($query, $params);
+            $row = $s->fetch();
+            if (!($this->_count = @$row['_total']))
+            {
+                $this->_count = 0;
+            }
+        }
+        return $this->_count;
+    }
+
     function _fill_cache()
     {
         list($query, $params) = $this->build_query();
-        $this->_cache = $this->execute_query($query, $params);
+        $s = $this->execute_query($query, $params);
+        $this->_cache = $this->_results_to_objects($s);
     }
 
     var $_max_existing = array();
@@ -136,7 +156,12 @@ class BreveModelSet
         return array($fquery, $fparams);
     }
 
-    function build_query()
+    function build_count_query()
+    {
+        return $this->build_query(True);
+    }
+
+    function build_query($count=False)
     {
         // intended to be overridden to allow use of alternative backends
         $query = array();
@@ -152,8 +177,13 @@ class BreveModelSet
         }
         // TODO - extend to allow OR
         $query = join(' AND ', $query);
+        $fields = '*';
+        if ($count)
+        {
+            $fields = 'COUNT(*) AS _total';
+        }
         $sql = <<<SQL
-            SELECT *
+            SELECT {$fields}
             FROM {$this->_table}
 SQL;
         if ($query)
@@ -162,36 +192,39 @@ SQL;
             WHERE {$query}
 SQL;
         }
-        $sorting = array();
-        foreach ($this->_sorting as $order_by)
+        if (!$count)
         {
-            list($field, $direction) = $order_by;
-            if ($direction == '+')
+            $sorting = array();
+            foreach ($this->_sorting as $order_by)
             {
-                $direction = 'ASC';
+                list($field, $direction) = $order_by;
+                if ($direction == '+')
+                {
+                    $direction = 'ASC';
+                }
+                if ($direction == '-')
+                {
+                    $direction = 'DESC';
+                }
+                // TODO - implement random sort
+                $sorting[] = "$field $direction";
             }
-            if ($direction == '-')
+            if ($sorting)
             {
-                $direction = 'DESC';
-            }
-            // TODO - implement random sort
-            $sorting[] = "$field $direction";
-        }
-        if ($sorting)
-        {
-            $sorting = join(', ', $sorting);
-            $sql .= <<<SQL
-            ORDER BY {$sorting}
+                $sorting = join(', ', $sorting);
+                $sql .= <<<SQL
+                ORDER BY {$sorting}
 SQL;
-        }
-        if ($this->_num)
-        {
-            $sql .= ' LIMIT ';
-            if ($this->_start)
-            {
-                $sql .= "{$this->_start}, ";
             }
-            $sql .= $this->_num;
+            if ($this->_num)
+            {
+                $sql .= ' LIMIT ';
+                if ($this->_start)
+                {
+                    $sql .= "{$this->_start}, ";
+                }
+                $sql .= $this->_num;
+            }
         }
         $sql = trim(preg_replace('/\s+/', ' ', $sql));
         return array($sql, $params);
@@ -202,12 +235,18 @@ SQL;
         // intended to be overridden to allow use of alternative backends
         $s = minim()->db()->prepare($query);
         $s->execute($params);
-        $posts = array();
-        foreach ($s->fetchAll() as $post)
+        return $s;
+    }
+
+    function _results_to_objects($s)
+    {
+        $objects = array();
+        $model = $this->_model;
+        foreach ($s->fetchAll() as $row)
         {
-            $posts[] = new BlogPost($post);
+            $objects[] = new $model($row);
         }
-        return $posts;
+        return $objects;
     }
 
     function __get($name)

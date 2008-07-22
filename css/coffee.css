@@ -283,3 +283,18 @@ body {
 .admin .alt td {
     background: #ddd;
 }
+
+.pagination {
+    /* clear floats */
+    overflow: hidden;
+    zoom: 1;
+}
+
+.pagination li {
+    float: left;
+    padding: 0.5em;
+    border-right: 1px solid #aaa;
+}
+
+.pagination a {
+}

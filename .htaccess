@@ -1,11 +1,8 @@
 RewriteEngine On
 RewriteBase /~andy.driver/pagezero
-RewriteRule ([^/]+.css)$ css/$1 [L]
-RewriteRule ([^/]+.js)$ js/$1 [L]
-RewriteRule /images/([^/]+)$ images/$1 [L]
-RewriteRule ^$ controllers/home.php [L]
-RewriteRule ^blog/(\d{4})/(\d{2})/(\d{2})/([-a-z0-9]+) controllers/blog.php?year=$1&month=$2&day=$3&slug=$4 [QSA,L]
-RewriteRule ^blog$ controllers/blog.php [L]
-RewriteRule ^admin/blog/delete-post/(\d+)$ controllers/admin.blog.php?id=$1 [L]
-RewriteRule ^admin/blog/new-post$ controllers/admin.blog.php?new-post [L]
-RewriteRule ^admin/blog(?:/(\d+))?$ controllers/admin.blog.php?page=$1 [L]
+RewriteRule ^$ controllers/home.php [QSA,L]
+RewriteRule ^blog$ controllers/blog.php [QSA,L]
+RewriteRule ^blog/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<slug>[-a-z0-9]+)$ controllers/blog-post.php?year=$1&month=$2&day=$3&slug=$4 [QSA,L]
+RewriteRule ^admin/blog/delete/(?P<id>\d+)$ controllers/admin/blog-post-delete.php?id=$1 [QSA,L]
+RewriteRule ^admin/blog/new$ controllers/admin/blog-post-new.php [QSA,L]
+RewriteRule ^admin/blog(?:/(?P<page>\d+))?$ controllers/admin/blog.php?page=$1 [QSA,L]

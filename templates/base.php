@@ -3,18 +3,18 @@
 <?php minim()->def_block('title') ?><?php minim()->block('title') ?> - PageZero<?php minim()->end_block('title') ?>
 
 <?php minim()->def_block('meta') ?>
-  <link rel="shortcut icon" type="image/gif" href="images/favicon.gif">
+  <link rel="shortcut icon" type="image/gif" href="<?php echo minim()->webroot ?>/images/favicon.gif">
 <?php minim()->block('page_meta') ?>
 <?php minim()->end_block('meta') ?>
 
 <?php minim()->def_block('css') ?>
-  <link rel="stylesheet" type="text/css" href="css/reset-fonts.css">
-  <link rel="stylesheet" type="text/css" href="css/coffee.css">
+  <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/reset-fonts.css">
+  <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/coffee.css">
 <?php minim()->block('page_css') ?>
 <?php minim()->end_block('css') ?>
 
 <?php minim()->def_block('js_head') ?>
-  <script type="text/javascript" src="js/jquery-1.2.6.min.js"></script>
+  <script type="text/javascript" src="<?php echo minim()->webroot ?>/js/jquery-1.2.6.min.js"></script>
 <?php minim()->block('page_js_head') ?>
 <?php minim()->end_block('js_head') ?>
 

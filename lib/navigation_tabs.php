@@ -10,7 +10,7 @@ function navigation()
     {
         $current = 'home';
     }
-    if (preg_match('/blog.php$/', $_SERVER['SCRIPT_NAME']))
+    if (preg_match('/blog.*?.php$/', $_SERVER['SCRIPT_NAME']))
     {
         $current = 'blog';
     }

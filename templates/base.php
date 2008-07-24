@@ -33,7 +33,11 @@ function label_inside(field) {
         if (input.val() == '') {
             input.val(initial).css('color', '#aaa');
         }
-    }).css('color', '#aaa').val(initial);
+    });
+    if (input.val() == '')
+    { 
+        input.val(initial).css('color', '#aaa');
+    }
 }
 jQuery(function() {
     $('#mh_search :submit').hide();

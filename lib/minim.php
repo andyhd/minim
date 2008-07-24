@@ -221,6 +221,7 @@ JAVASCRIPT;
             # replace optional params first
             $_rev = preg_replace(',\(\?\:/\(\?P<(.*?)>.*?\)\)\?,e',
                 'isset($$1) ? "/{$$1}" : ""', $_pat);
+            $this->log("Replaced optional params: $_rev");
             $_rev = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_rev);
             $_rev = $this->webroot.ltrim(rtrim($_rev, '/$'), '^');
             $this->log("Mapped to URL: $_rev");

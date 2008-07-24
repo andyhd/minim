@@ -24,6 +24,7 @@ jQuery(function () {
     </ul>
     <?php endif ?>
     <form method="post">
+      <?php if (@$post): ?><input type="hidden" name="id" value="<?php echo $post->id ?>"><?php endif ?>
       <div class="form-row">
         <label for="title-id">Title</label>
         <input id="title-id" type="text" name="title" value="<?php if (@$post) { echo $post->title; } ?>" size="40">

@@ -13,8 +13,8 @@ $config = array(
         'admin/blog-post-delete' => array(
             'url_pattern' => '^/admin/blog/delete/(?P<id>\d+)$',
         ),
-        'admin/blog-post-new' => array(
-            'url_pattern' => '^/admin/blog/new$',
+        'admin/blog-post-edit' => array(
+            'url_pattern' => '^/admin/blog/edit(?:/(?P<id>\d+))?$',
         ),
         'admin/blog' => array(
             'url_pattern' => '^/admin/blog(?:/(?P<page>\d+))?$',

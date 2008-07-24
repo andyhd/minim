@@ -9,22 +9,6 @@ $posts = breve()->manager('BlogPost')->all();
 
 $paginator = new BrevePaginator($posts, 'admin/blog');
 
-$errors = NULL;
-if ($_SERVER['REQUEST_METHOD'] == 'POST')
-{
-    // add a post
-    $post = new BlogPost($_POST);
-    if ($post->isValid())
-    {
-        $post->save();
-    }
-    else
-    {
-        $errors = $comment->errors();
-    }
-}
-
 minim()->render('admin/blog', array(
     'posts' => $paginator,
-    'errors' => $errors,
 ));

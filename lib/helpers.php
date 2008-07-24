@@ -58,6 +58,13 @@ HTML;
     }
     for ($i = $from; $i <= $to; $i++)
     {
+        if ($i == $source->page)
+        {
+            $out .= <<<HTML
+<li>$i</li>
+HTML;
+            continue;
+        }
         if ($i == 1)
         {
             $params = $source->url_params;

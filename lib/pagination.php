@@ -19,6 +19,10 @@ class BrevePaginator
         if (array_key_exists('page', $_GET))
         {
             $this->page = (int) $_GET['page'];
+            if ($this->page < 1)
+            {
+                $this->page = 1;
+            }
         }
     }
 
@@ -32,7 +36,7 @@ class BrevePaginator
         {
             $page = 1;
         }
-        $start = $page * $this->per_page;
+        $start = ($page - 1) * $this->per_page;
         return $this->source->limit($start, $this->per_page);
     }
 

@@ -20,11 +20,11 @@
 
 <?php minim()->def_block('js_foot') ?>
   <script type="text/javascript">
-jQuery(function() {
-    $('#mh_search :submit').hide();
-    var input = $('#mh_search_input');
-    var initial = $('label[for="mh_search_input"]').text()
-    $('#mh_search_input').focus(function () {
+function label_inside(field) {
+    var id = field.id;
+    var initial = jQuery('label[for="'+id+'"]').text()
+    var input = jQuery(field);
+    input.focus(function () {
         input.css('color', '#000');
         if (input.val() == initial) {
             input.val('');
@@ -34,6 +34,11 @@ jQuery(function() {
             input.val(initial).css('color', '#aaa');
         }
     }).css('color', '#aaa').val(initial);
+}
+jQuery(function() {
+    $('#mh_search :submit').hide();
+    var input = $('#mh_search_input');
+    label_inside(input);
 });
   </script>
 <?php minim()->block('page_js_foot') ?>

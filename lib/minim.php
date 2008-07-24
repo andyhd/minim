@@ -242,4 +242,10 @@ JAVASCRIPT;
         $lines = explode("\n", wordwrap($str, $limit));
         return $lines[0] . '...'; // TODO - change to horizontal ellipsis
     }
+
+    function redirect($page)
+    {
+        header('Location: '.$this->url_for($page));
+        exit;
+    }
 }

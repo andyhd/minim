@@ -338,7 +338,7 @@ class BreveSlug extends BreveText
 
     function isValid()
     {
-        $from = $this->getAttribute($from);
+        $from = $this->getAttribute('from');
         if ($from)
         {
             return $from->isValid();

@@ -38,15 +38,27 @@ foreach ($config['url_map'] as $name => $map)
     {
         $pat = preg_replace(',^\^/,', '^', $pat);
     }
+    $action = '';
+    if (preg_match(',^(.+):(.+)$,', $name, $m))
+    {
+        $name = $m[1];
+        $action = $m[2];
+    }
     fputs($fp, "RewriteRule {$pat} controllers/{$name}.php");
+    $params = array();
     if (preg_match_all(',\(\?P<(.*?)>.*?\),', $pat, $m))
     {
-        $params = array();
         foreach ($m[1] as $i => $param)
         {
+            // mod_rewrite doesn't do named params :(
             $params[] = "$param=$". ($i + 1);
         }
         fputs($fp, "?".join('&', $params));
+    }
+    if ($action)
+    {
+        $prefix = $params ? '&' : '?';
+        fputs($fp, "{$prefix}action=$action");
     }
     fputs($fp, " [QSA,L]\n");
 }

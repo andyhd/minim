@@ -425,7 +425,7 @@ SQL;
         {
             // assume this is an UPDATE
             $sql = "UPDATE {$this->table} SET %s WHERE id=:id";
-            $data['id'] = $id;
+            $data[':id'] = $id;
         }
         else
         {

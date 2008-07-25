@@ -39,6 +39,9 @@ class Minim
         }
         require $this->lib('helpers');
         $this->log("Webroot: {$this->webroot}");
+        session_start();
+        // cache user messages so we don't erase new ones in the render phase
+        $this->user_messages();
     }
 
     function log($msg)
@@ -248,5 +251,32 @@ JAVASCRIPT;
     {
         header('Location: '.$this->url_for($page));
         exit;
+    }
+
+    function user_message($msg)
+    {
+        if (!is_array(@$_SESSION['user_messages']))
+        {
+            $_SESSION['user_messages'] = array();
+        }
+        $_SESSION['user_messages'][] = $msg;
+    }
+
+    function user_messages()
+    {
+        static $messages;
+        if (!$messages)
+        {
+            if (array_key_exists('user_messages', $_SESSION))
+            {
+                $messages = $_SESSION['user_messages'];
+                unset($_SESSION['user_messages']);
+            }
+            else
+            {
+                $messages = array();
+            }
+        }
+        return $messages;
     }
 }

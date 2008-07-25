@@ -5,10 +5,13 @@ require_once minim()->lib('defer');
 require_once minim()->lib('Blog.class');
 require_once minim()->lib('pagination');
 
-if (array_key_exists('id', $_GET) and $edit_id = (int) $_GET['id'])
+$action = @$_REQUEST['action'];
+$id = (int) @$_REQUEST['id'];
+
+if ($id)
 {
     $post = breve()->manager('BlogPost')->all()->filter(array(
-        'id__eq' => $edit_id
+        'id__eq' => $id
     ));
     if (!$post->items)
     {
@@ -21,6 +24,13 @@ else
     $post = NULL;
 }
 
+if ($action == 'delete')
+{
+    $post->delete();
+    minim()->user_message("Deleted post \"{$post->title}\"");
+    minim()->redirect('admin/blog');
+}
+
 $errors = NULL;
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
@@ -30,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     if ($post->isValid())
     {
         $post->save();
+        minim()->user_message("Saved post \"{$post->title}\"");
         minim()->redirect('admin/blog');
     }
     else

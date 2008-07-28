@@ -83,7 +83,7 @@ class Minim
         if (is_readable($_filename))
         {
             $this->log("Rendering $_name template");
-            $this->log("<a href=\"#\" class=\"expanded\">Context<span>: " . print_r($_context, TRUE) . "</span></a>");
+            $this->log("Context: " . print_r($_context, TRUE));
             extract($_context);
             include $_filename;
         }
@@ -217,8 +217,8 @@ JAVASCRIPT;
         if (array_key_exists($_mapping, $this->config['url_map']))
         {
             $_map = $this->config['url_map'][$_mapping];
-            $this->log("Using URL map: $_mapping -> ".htmlspecialchars(var_export($_map, TRUE)));
-            $this->log("Params: ".var_export($_params, TRUE));
+            $this->log("Using URL map: $_mapping -> ".print_r($_map, TRUE));
+            $this->log("Params: ".print_r($_params, TRUE));
             extract($_params);
             $_pat = $_map['url_pattern'];
             # replace optional params first
@@ -278,5 +278,10 @@ JAVASCRIPT;
             }
         }
         return $messages;
+    }
+
+    function form($model, $params)
+    {
+        return new MinimForm($model, $params);
     }
 }

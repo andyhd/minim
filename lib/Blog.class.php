@@ -86,10 +86,8 @@ class BlogComment extends BreveModel
             'not_null' => TRUE)));
         $this->setField('posted', new BreveTimestamp(array(
             'auto_now' => TRUE)));
-        $this->setField('name', new BreveText(array(
-            'maxlength' => 100,
-            'not_null' => TRUE,
-            'required' => TRUE)));
+        $this->setField('author', new BreveInt(array(
+            'not_null' => TRUE)));
         $this->setField('email', new BreveText(array(
             'maxlength' => 255)));
     }
@@ -101,9 +99,13 @@ class BlogCommentManager extends BreveManager
 
     function getForPost($post_id)
     {
-        $ms = new BreveModelSet('BlogComment');
-        $ms->filter(array('post_id__eq' => $post_id));
-        $ms->order_by('-posted');
+        static $ms;
+        if (!$ms)
+        {
+            $ms = new BreveModelSet('BlogComment');
+            $ms->filter(array('post_id__eq' => $post_id));
+            $ms->order_by('-posted');
+        }
         return $ms;
     }
 }

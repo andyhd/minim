@@ -40,18 +40,18 @@
     </ul>
 <?php endif ?>
     <div>
-     <input type="hidden" name="post_id" value="<?php echo $post->id ?>">
-     <label for="name_id">Name</label>
-     <input type="text" name="name" id="name_id">
+     <?php echo $form->post_id->render() ?>
+     <?php echo $form->name->label ?>
+     <?php echo $form->name->render() ?>
     </div>
     <div>
-     <label for="email_id">Email</label>
-     <input type="text" name="email" id="email_id">
+     <?php echo $form->email->label ?>
+     <?php echo $form->email->render() ?>
      <p class="help-text">Will not be published.</p>
     </div>
     <div>
-     <label for="content_id">Comment</label>
-     <textarea name="content" rows="6" id="content_id"></textarea>
+     <?php echo $form->content->label ?>
+     <?php echo $form->content->render() ?>
     </div>
     <div>
      <input type="submit" class="submit" value="Post comment">

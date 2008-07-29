@@ -26,6 +26,22 @@ class MinimForm
         }
     }
 
+    function &exclude($fields)
+    {
+        // TODO - find a more efficient way of doing this
+        if (is_array($fields) and $fields)
+        {
+            foreach ($fields as $name)
+            {
+                if (array_key_exists($name, $this->_fields))
+                {
+                    unset($this->_fields[$name]);
+                }
+            }
+        }
+        return $this;
+    }
+
     function hiddenField($name, $params=array())
     {
         $this->_fields[$name] = new MinimHidden($name, $params);

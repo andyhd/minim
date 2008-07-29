@@ -31,6 +31,7 @@ if (!$post->items)
 // build the comment form
 $form = minim()->form('BlogComment', array('id' => 'comment-form',
                                            'class' => 'box'))
+               ->exclude(array('id', 'author', 'posted'))
                ->hiddenField('post_id', array('initial' => $post->first->id))
                ->textField('name')
                ->textField('email', array('help' => 'Will not be published'))

@@ -2,16 +2,6 @@
 
 <?php minim()->def_block('title') ?>New Blog Post<?php minim()->end_block('title') ?>
 
-<?php minim()->def_block('page_js_head') ?>
-  <script type="text/javascript">
-jQuery(function () {
-    jQuery('.form-row input[type="text"]').each(function () {
-        label_inside(this);
-    });
-});
-  </script>
-<?php minim()->end_block('page_js_head') ?>
-
 <?php minim()->def_block('body_class') ?>admin<?php minim()->end_block('body_class') ?>
 
 <?php minim()->def_block('page_content') ?>

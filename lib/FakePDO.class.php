@@ -91,7 +91,7 @@ class FakePDOStatement
         {
             $results[] = $row;
         }
-        minim()->log('Result set: '.var_export($results, TRUE));
+        minim()->log('Result set: '.print_r($results, TRUE));
         return $results;
     }
 }

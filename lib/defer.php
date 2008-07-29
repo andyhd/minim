@@ -12,11 +12,11 @@ class BreveModelSet
 
     function BreveModelSet($model)
     {
-        if (!class_exists($model) or !is_subclass_of($model, 'BreveModel'))
-        {
-            die("Model $model not found");
-        }
-        $this->_table = breve()->manager($model)->table;
+#        if (!class_exists($model) or !is_subclass_of($model, 'BreveModel'))
+#        {
+#            die("Model $model not found");
+#        }
+        $this->_table = breve($model)->table();
         $this->_model = $model;
         $this->_filters = array();
         $this->_sorting = array();
@@ -241,10 +241,10 @@ SQL;
     function _results_to_objects($s)
     {
         $objects = array();
-        $model = $this->_model;
+        $model =& breve($this->_model);
         foreach ($s->fetchAll() as $row)
         {
-            $objects[] = new $model($row);
+            $objects[] =& $model->from($row);
         }
         return $objects;
     }
@@ -317,20 +317,4 @@ class BreveFilter
         }
         return array(":{$this->field}" => $this->value);
     }
-}
-
-if (!class_exists('BreveModel'))
-{
-    require_once 'lib/minim.php';
-    require_once minim()->lib('breve');
-    require_once minim()->lib('Blog.class');
-
-    minim()->debug = TRUE;
-   
-    $ms = new BreveModelSet('BlogPost');
-    $ms->filter(array(
-        'posted__range' => array('2007-01-01 00:00:00', '2008-01-01 00:00:00'),
-    ));
-    $ms->order_by('-posted');
-    print_r($ms->items);
 }

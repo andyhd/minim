@@ -10,6 +10,9 @@ class MinimForm
         $this->_model = $model;
         $this->_params = $params;
         $this->_fields = array();
+
+        $manager = breve()->manager($model);
+
     }
 
     function hiddenField($name, $params=array())

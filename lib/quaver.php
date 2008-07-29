@@ -11,8 +11,19 @@ class MinimForm
         $this->_params = $params;
         $this->_fields = array();
 
+        // build default form from model
         $manager = breve()->manager($model);
-
+        foreach ($manager->_fields as $name => $field)
+        {
+            switch (get_class($field))
+            {
+                case 'BreveTimestamp':
+                    $this->dateField($name);
+                    break;
+                default:
+                    $this->textField($name);
+            }
+        }
     }
 
     function hiddenField($name, $params=array())
@@ -24,6 +35,12 @@ class MinimForm
     function textField($name, $params=array())
     {
         $this->_fields[$name] = new MinimText($name, $params);
+        return $this;
+    }
+
+    function dateField($name, $params=array())
+    {
+        $this->_fields[$name] = new MinimDate($name, $params);
         return $this;
     }
 
@@ -112,6 +129,16 @@ PHP;
 }
 
 class MinimText extends MinimInput
+{
+    function render()
+    {
+        return <<<PHP
+<input id="{$this->_id}" type="text" name="{$this->_name}" value="{$this->getValue()}"{$this->_class}>
+PHP;
+    }
+}
+
+class MinimDate extends MinimInput
 {
     function render()
     {

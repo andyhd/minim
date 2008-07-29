@@ -259,6 +259,15 @@ SQL;
             }
             return $this->_cache;
         }
+        // reveal intent
+        if ($name == 'first')
+        {
+            if (!$this->_cache)
+            {
+                $this->_fill_cache();
+            }
+            return $this->_cache[0];
+        }
     }
 }
 

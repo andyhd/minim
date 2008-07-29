@@ -6,11 +6,21 @@ require_once minim()->lib('defer');
 require_once minim()->lib('Blog.class');
 
 $date = sprintf("%04d-%02d-%02d", $_GET['year'], $_GET['month'], $_GET['day']);
-$filter = array(
+
+// get the first post with a matching slug on the specified day
+$post = breve('BlogPost')
+->all()
+->filter(array(
     'posted__range' => array("$date 00:00:00", "$date 23:59:59"),
     'slug__eq' => $_GET['slug']
-);
-$post = breve('BlogPost')->all()->filter($filter)->limit(1);
+))
+->limit(1);
+
+// get all comments for the post
+$comments = breve('BlogComment')
+->all()
+->filter(array('post_id__eq' => $post->first->id))
+->order_by('-posted');
 
 if (!$post->items)
 {
@@ -18,13 +28,14 @@ if (!$post->items)
     return;
 }
 
+// build the comment form
 $form = minim()->form('BlogComment', array('id' => 'comment-form',
                                            'class' => 'box'))
-               ->hiddenField('post_id', array('initial' => $post->items[0]->id))
+               ->hiddenField('post_id', array('initial' => $post->first->id))
                ->textField('name')
                ->textField('email', array('help' => 'Will not be published'))
                ->textArea('content', array('rows' => 6));
-minim()->log('form: '.print_r($form, TRUE));
+minim()->log(print_r($form, TRUE));
 
 $errors = NULL;
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -43,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
 minim()->render('blog-post', array(
     'post' => $post->items[0],
-    'comments' => breve('BlogComment')->all()->filter(array('post_id__eq' => $post->items[0]->id))->order_by('-posted'),
+    'comments' => $comments,
     'form' => $form,
     'errors' => $errors,
 ));

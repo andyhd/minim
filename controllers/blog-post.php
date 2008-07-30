@@ -4,6 +4,7 @@ require_once minim()->lib('breve-refactor');
 require_once minim()->lib('quaver');
 require_once minim()->lib('defer');
 require_once minim()->lib('Blog.class');
+require_once minim()->lib('user');
 
 $date = sprintf("%04d-%02d-%02d", $_GET['year'], $_GET['month'], $_GET['day']);
 
@@ -29,8 +30,8 @@ if (!$post->items)
 }
 
 // build the comment form
-$form = minim()->form('BlogComment', array('id' => 'comment-form',
-                                           'class' => 'box'))
+$form = minim()->form(array('id' => 'comment-form',
+                            'class' => 'box'))
                ->exclude(array('id', 'author', 'posted'))
                ->hiddenField('post_id', array('initial' => $post->first->id))
                ->textField('name')
@@ -42,14 +43,21 @@ $errors = NULL;
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
     // add a comment
-    $comment = breve('BlogComment')->from($_POST);
-    if ($comment->isValid())
+    $form->from($_POST);
+    if ($form->isValid())
     {
+        $user = breve('User')->from($form->getData());
+        $user->save();
+        $comment = breve('BlogComment')->from($form->getData());
+        $comment->author = $user->id;
         $comment->save();
+
+        minim()->user_message('Comment saved');
+        minim()->redirect('blog-post', $_GET);
     }
     else
     {
-        $errors = $comment->errors();
+        $errors = $form->errors();
     }
 }
 

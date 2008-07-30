@@ -4,24 +4,31 @@ class MinimForm
     var $_model;
     var $_params;
     var $_fields;
+    var $_validated;
+    var $_errors;
 
     function __construct($model, $params=array())
     {
         $this->_model = $model;
         $this->_params = $params;
         $this->_fields = array();
+        $this->_validated = FALSE;
+        $this->_errors = array();
 
         // build default form from model
-        $manager = breve()->manager($model);
-        foreach ($manager->_fields as $name => $field)
+        if ($this->_model)
         {
-            switch (get_class($field))
+            $manager = breve()->manager($model);
+            foreach ($manager->_fields as $name => $field)
             {
-                case 'BreveTimestamp':
-                    $this->dateField($name);
-                    break;
-                default:
-                    $this->textField($name);
+                switch (get_class($field))
+                {
+                    case 'BreveTimestamp':
+                        $this->dateField($name);
+                        break;
+                    default:
+                        $this->textField($name);
+                }
             }
         }
     }
@@ -77,11 +84,54 @@ class MinimForm
         minim()->log("MinimForm {$this->_name} has no field named {$name}");
         return NULL;
     }
+
+    function from($data)
+    {
+        foreach ($this->_fields as $name => &$field)
+        {
+            if (array_key_exists($name, $data))
+            {
+                $field->_value = $data[$name];
+            }
+        }
+    }
+
+    function isValid()
+    {
+       if (!$this->_validated)
+        {
+            $this->_validated = TRUE;
+            $errors = array();
+            foreach ($this->_fields as $name => $field)
+            {
+                $errors[] = $field->isValid() ? NULL : "Field $name invalid";
+            }
+            $errors = array_filter($errors);
+            $this->_errors = $errors;
+        }
+        return empty($this->_errors);
+    }
+
+    function errors()
+    {
+        return $this->_errors();
+    }
+
+    function getData()
+    {
+        $data = array();
+        foreach ($this->_fields as $name => &$field)
+        {
+            $data[$name] = $field->getValue();
+        }
+        return $data;
+    }
 }
 
 class MinimInput
 {
     var $_initial;
+    var $_value;
     var $_name;
     var $_attrs;
     var $_id;
@@ -93,6 +143,7 @@ class MinimInput
     {
         $this->_name = $name;
         $this->_attrs = $params;
+        $this->_value = NULL;
         if (array_key_exists('initial', $this->_attrs))
         {
             $this->_initial = $params['initial'];
@@ -125,12 +176,21 @@ PHP;
 
     function getValue()
     {
-        return $this->_initial;
+        if (!$this->_value)
+        {
+            return $this->_initial;
+        }
+        return $this->_value;
     }
 
     function render()
     {
         die('MinimInput::render must be overridden');
+    }
+
+    function isValid()
+    {
+        return TRUE;
     }
 }
 

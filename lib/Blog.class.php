@@ -20,5 +20,4 @@ breve()->register('BlogComment')
        ->field('content', breve()->text(array('required' => TRUE,
                                               'not_null' => TRUE)))
        ->field('posted',  breve()->timestamp(array('auto_now' => TRUE)))
-       ->field('author',  breve()->int(array('not_null' => TRUE)))
-       ->field('email',   breve()->text(array('maxlength' => 255)));
+       ->field('author',  breve()->int(array('not_null' => TRUE)));

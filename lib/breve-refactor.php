@@ -47,7 +47,7 @@ class BreveModel
             $ret = $field->setValue($value);
             if (!$ret)
             {
-                minim()->log("Couldn't set $name to $value");
+                minim()->log("Couldn't set $name to ".print_r($value, TRUE));
             }
             else
             {
@@ -92,7 +92,6 @@ class BreveModel
 
     function _fromArray($data)
     {
-        print "BreveModel::_fromArray called";
         if (!is_array($data))
         {
             return $this;
@@ -100,7 +99,10 @@ class BreveModel
 
         foreach ($data as $key => $value)
         {
-            $this->setValue($key, $value);
+            if ($this->_getField($key))
+            {
+                $this->setValue($key, $value);
+            }
         }
 
         return $this;
@@ -215,6 +217,10 @@ class BreveInt extends BreveField
     function isValid()
     {
         if (is_int($this->_value))
+        {
+            return TRUE;
+        }
+        if ($this->getAttribute('autoincrement') and is_null($this->_value))
         {
             return TRUE;
         }
@@ -408,10 +414,7 @@ class BreveManager
             return $model;
         }
 
-        foreach ($data as $key => $value)
-        {
-            $model->setValue($key, $value);
-        }
+        $model->_fromArray($data);
 
         return $model;
     }
@@ -445,7 +448,6 @@ class BreveManager
         {
             // this must be an INSERT
             $sql = "INSERT INTO {$this->_table} SET %s";
-
         }
         foreach ($instance->_fields as $name => $field)
         {
@@ -457,7 +459,13 @@ class BreveManager
         }
         $sql = sprintf($sql, join(', ', $updates));
         $s = minim()->db()->prepare($sql);
-        return $s->execute($data);
+        $ret = $s->execute($data);
+        if (!$id)
+        {
+            minim()->log("Setting id of new {$this->_model} to {$ret['last_insert_id']}"); 
+            $instance->id = $ret['last_insert_id'];
+        }
+        return $ret;
     }
 }
 

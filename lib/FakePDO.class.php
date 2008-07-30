@@ -72,6 +72,17 @@ class FakePDOStatement
             die('FakePDOStatement: Query failed: '.mysql_error($this->dbh).
                 "\nQuery: $sql");
         }
+        $ret = array();
+        if (strpos($sql, 'INSERT') === 0)
+        {
+            // get last insert id
+            $ret['last_insert_id'] = @mysql_insert_id($this->dbh);
+        }
+        if (strpos($sql, 'UPDATE') === 0 or strpos($sql, 'DELETE') === 0)
+        {
+            $ret['affected_rows'] = @mysql_affected_rows($this->dbh);
+        }
+        return $ret;
     }
 
     function fetch()

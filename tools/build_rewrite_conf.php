@@ -44,7 +44,7 @@ foreach ($config['url_map'] as $name => $map)
         $name = $m[1];
         $action = $m[2];
     }
-    fputs($fp, "RewriteRule {$pat} controllers/{$name}.php");
+    fputs($fp, "RewriteRule {$pat} views/{$name}.php");
     $params = array();
     if (preg_match_all(',\(\?P<(.*?)>.*?\),', $pat, $m))
     {

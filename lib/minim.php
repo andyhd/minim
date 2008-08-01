@@ -29,7 +29,7 @@ class Minim
         $this->extends = array();
         $this->root = realpath(dirname(__FILE__).'/../');
         $this->webroot = substr($_SERVER['PHP_SELF'], 0,
-            strpos($_SERVER['PHP_SELF'], '/controllers'));
+            strpos($_SERVER['PHP_SELF'], '/views'));
         $this->debug = array_key_exists('debug', $_REQUEST);
         $this->log_msgs = array();
         if (is_null($config))
@@ -172,6 +172,11 @@ JAVASCRIPT;
     function lib($name)
     {
         return "{$this->root}/lib/{$name}.php";
+    }
+
+    function models($name)
+    {
+        return "{$this->root}/models/{$name}.php";
     }
 
     function fixture($name)

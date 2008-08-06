@@ -16,11 +16,9 @@ body {
 }
 
 #masthead h1 {
-    font: bold 225% "Bitstream Vera Serif", "Times", serif;
-    background: transparent url(../images/pagezero-logo.png) -15px -100px no-repeat;
-    text-indent: -9999em;
-    width: 364px;
-    height: 30px;
+    font: bold 225% "Arial", sans-serif;
+    width: 950px;
+    height: 50px;
     padding-bottom: 0.7em;
 }
 

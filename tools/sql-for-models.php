@@ -1,5 +1,6 @@
 <?php
-require_once '../lib/minim.php';
+$root = realpath(dirname(__FILE__));
+require_once $root.'/../lib/minim.php';
 require_once minim()->lib('breve-refactor');
 
 if ($argc and in_array('--verbose', $argv))

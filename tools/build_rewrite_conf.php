@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 if (!isset($argc) or $argc < 2)
 {
@@ -29,6 +30,7 @@ if ($base)
 {
     fputs($fp, "RewriteBase $base\n");
 }
+
 $configfile = realpath(dirname(__FILE__).'/../config.php');
 include $configfile;
 foreach ($config['url_map'] as $name => $map)
@@ -62,3 +64,9 @@ foreach ($config['url_map'] as $name => $map)
     }
     fputs($fp, " [QSA,L]\n");
 }
+
+// admin rule last allows previous more specific rules to override
+fputs($fp, "RewriteRule ^".(!$base ? '/' : '')."admin(?:/(.*))?$ views/admin.php?path=$1 [QSA,L]\n");
+
+fclose($fp);
+

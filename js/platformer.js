@@ -92,102 +92,83 @@ function createBaddie(x,y) { // {{{
 }
 //}}}
 
-function drawSlice(i) { // {{{
-    console.log('drawSlice(' + i + ')');
-
+function drawSlice(i) // {{{
+{
     var x = i * slice_width;
 
+    // create terrain slice
+    var slice = document.createElement('div');
+    $(slice).addClass('slice')
+            .attr('id', 'slice_' + i)
+            .css({left: x + 'px',
+                  top: heights[i] * slice_height + 'px'});
+
     // previous height
-    var ph = 12;
-    if (i > 0) {
-        ph = heights[i - 1];
-    }
+    var prev_height = i > 0 ? heights[i - 1] : 12;
 
     // create the part of the slice below ground level
-    var bp = document.createElement("div");
-    $(bp).addClass("underground")
-         .css({width: slice_width + "px",
-               top: slice_height + "px"});
+    var base = document.createElement("div");
+    $(base).addClass("underground")
+           .css({width: slice_width + "px",
+                 top: slice_height + "px"});
 
     // if this slice is at the same height as last, draw a flat piece of ground
-    var p;
-    if (heights[i] == ph || ph == 100) {
-        p = createCell(BlockTypes.FLAT, x, heights[i] * slice_height, Colours.ground1);
-        $(bp).css('height', (500 - ((heights[i] + 1) * slice_height)) + "px");
-/*        if (Math.random() < 0.5) {
-        } else if (i > 5 && Math.random() < 0.4) {
-            baddies[i] = createBaddie(x + 3, p.offsetTop + 14);
-            baddies[i].id = "baddy_" + i;
-            $('#board').append(baddies[i]);
-        }*/
+    if (heights[i] == prev_height || prev_height == 100)
+    {
+        $(base).css('height', (500 - ((heights[i] + 1) * slice_height)) + "px");
+
+        $(slice).attr('type', BlockTypes.FLAT)
+                .css({width: slice_width + 'px',
+                      height: slice_height + 'px'})
+                .append(base);
+    }
 
     // terrain slopes up
-    } else if (heights[i] < ph) {
-        p = createCell(BlockTypes.RAMP_UP, x, heights[i] * slice_height, Colours.ground1);
-
+    else if (heights[i] < prev_height)
+    {
         // add bottom half of slope
-        var p2 = createCell(BlockTypes.RAMP_UP, 0, 0, Colours.ground1);
-        $(p2).css({borderTop: slice_height + "px solid " + Colours.ground1,
-                   borderRight: slice_width + "px solid " + Colours.ground2});
-        $(p).append(p2);
-        $(bp).css('height', (500 -((heights[i] + 2) * slice_height)) + "px");
+        var ramp = document.createElement('div');
+        $(ramp).css({borderTop: slice_height + "px solid " + Colours.ground1,
+                     borderRight: slice_width + "px solid " + Colours.ground2,
+                     top: 0,
+                     left: 0,
+                     position: 'absolute',
+                     background: Colours.ground1});
+
+        $(base).css('height', (500 - ((heights[i] + 2) * slice_height)) + "px");
+
+        $(slice).attr('type', BlockTypes.RAMP_UP)
+                .css({borderTop: slice_height+'px solid '+Colours.sky,
+                      borderRight: slice_width+'px solid '+Colours.ground1})
+                .append(ramp)
+                .append(base);                    
+    }
 
     // terrain slopes down
-    } else if (heights[i] > ph) {
-        p = createCell(BlockTypes.RAMP_DOWN, x, ph * slice_height, Colours.ground1);
-
+    else if (heights[i] > prev_height)
+    {
         // add bottom half of slope
-        var p2 = createCell(BlockTypes.RAMP_DOWN, -slice_width, 0, Colours.ground1);
-        $(p2).css({borderTop: slice_height + "px solid " + Colours.ground1,
-                   borderLeft: slice_width + "px solid " + Colours.ground2});
-        $(p).append(p2);
-        $(bp).css({height: (500 - ((ph + 2) * slice_height)) + "px",
-                   left: -slice_width + 'px'});
+        var ramp = document.createElement('div');
+        $(ramp).css({left: -slice_width + 'px',
+                     top: 0,
+                     position: 'absolute',
+                     background: Colours.ground1,
+                     borderTop: slice_height + "px solid " + Colours.ground1,
+                     borderLeft: slice_width + "px solid " + Colours.ground2});
+
+        $(base).css({height: (500 - ((prev_height + 2) * slice_height)) + "px",
+                     left: -slice_width + 'px'});
+
+        $(slice).attr('type', BlockTypes.RAMP_DOWN)
+                .css({top: (prev_height * slice_height) + 'px',
+                      borderTop: slice_height + 'px solid' + Colours.sky,
+                      borderLeft: slice_width + 'px solid' + Colours.ground1})
+                .append(ramp)
+                .append(base);
     }
-    $(p).attr('id', 'slice_' + i)
-        .addClass('slice')
-        .append(bp);
-    $('#board').append(p);
+    $('#board').append(slice);
 }
 // }}}
-
-function createCell(type, x, y, col) { //{{{
-    switch (type)
-    {
-        case BlockTypes.FLAT:
-            typeName = 'flat';
-            break;
-        case BlockTypes.RAMP_UP:
-            typeName = 'ramp_up';
-            break;
-        case BlockTypes.RAMP_DOWN:
-            typeName = 'ramp_down';
-            break;
-    }
-    console.log('createCell(type=' + typeName + ', x=' + x + ', y=' + y + ', col=' + col + ')');
-
-    // use borders to create a terrain slice with ramps
-    var piece = document.createElement("div");
-    $(piece).attr('type', type)
-            .css({position: 'absolute',
-                  left: x + "px",
-                  top: y + "px",
-                  background: col});
-
-    if (type == BlockTypes.FLAT) {
-        $(piece).css({width: slice_width + "px",
-                      height: slice_height + "px"});
-    } else if (type == BlockTypes.RAMP_UP) {
-        $(piece).css({borderTop: slice_height + "px solid " + Colours.sky,
-                      borderRight: slice_width + "px solid " + col});
-    } else if (type == BlockTypes.RAMP_DOWN) {
-        $(piece).css({borderTop: slice_height + "px solid " + Colours.sky,
-                      borderLeft: slice_width + "px solid " + col});
-    }
-   
-    return piece;
-}
-//}}}
 
 function handleKeyUp(e) { //{{{
    var keynum;

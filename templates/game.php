@@ -1,6 +1,6 @@
 <?php minim()->extend('base') ?>
 
-<?php minim()->def_block('title') ?>Home<?php minim()->end_block('title') ?>
+<?php minim()->def_block('title') ?>Game<?php minim()->end_block('title') ?>
 
 <?php minim()->def_block('page_css') ?>
   <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/platformer.css">

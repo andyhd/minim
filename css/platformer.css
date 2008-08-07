@@ -15,61 +15,6 @@
     z-index: 100;
 }
 
-.block {
-    position: absolute;
-    width: 26px;
-    height: 26px;
-    border: 2px solid #a90;
-    border-bottom-color: #fea;
-    border-right-color: #fea;
-    background: #fa3;
-    color: #ffe;
-    font: bold 21px sans-serif;
-    text-align: center;
-    z-index: 100;
-}
-
-.cloud {
-    position: absolute;
-    width: 70px;
-    height: 40px;
-    border: 1px solid #aaf;
-    background: #fff;
-}
-
-.subcloud {
-    width: 30px;
-    height: 30px;
-}
-
-.subcloud1 {
-    top: -15px;
-    left: 20px;
-}
-
-.subcloud2 {
-    top: -5px;
-    left: -5px;
-}
-
-.subcloud3 {
-    top: -5px;
-    left: 45px;
-}
-
-.coin {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    background: #fe3;
-    text-align: center;
-    font-size: 12px;
-    border: 1px solid #da3;
-    border-right-color: #ffc;
-    border-bottom-color: #ffc;
-    color: #da3;
-}
-
 .baddie {
     z-index: 150;
     position: absolute;
@@ -123,4 +68,9 @@
     color: #ff0;
     z-index: 1001;
     text-align: center;
+}
+
+.slice {
+    position: absolute;
+    background: #060;
 }

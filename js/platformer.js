@@ -1,12 +1,10 @@
 var heights = new Array();
-var b = $('#board');
 var w = 32;
 var slice_width = w;
 var h = 32;
 var slice_height = h;
 var s = 60; // frame delay
-var lx = 0; // The index of the first visible slice
-var hero = $('#hero');
+var first_visible = 0; // The index of the first visible slice
 var baddies = new Array();
 
 var playing = true;
@@ -53,15 +51,14 @@ function init() { //{{{
     }
     var slices_in_view = 20;
     for (var i = 0; i < slices_in_view; i++) {
-        drawSlice(i);
+        drawSlice(i, i * slice_width);
     }
 
     // place the hero
-    hero.attr('dh', 0)
-        .css('top', ((heights[0]-1)*h - hero.attr('dh')) + 'px')
-        .attr('state', 0)
-        .attr('jumpState', 0);
-    b.append(hero);
+    $('#board').append($('#hero').attr('dh', 0)
+                                 .css('top', ((heights[0] - 1) * h) + 'px')
+                                 .attr('state', 0)
+                                 .attr('jumpState', 0));
     adjustHeroHeight();
 
     // start the game loop
@@ -92,10 +89,8 @@ function createBaddie(x,y) { // {{{
 }
 //}}}
 
-function drawSlice(i) // {{{
+function drawSlice(i, x) // {{{
 {
-    var x = i * slice_width;
-
     // create terrain slice
     var slice = document.createElement('div');
     $(slice).addClass('slice')
@@ -173,88 +168,87 @@ function drawSlice(i) // {{{
 function handleKeyUp(e) { //{{{
    var keynum;
    var keychar;
+   var hero = $('#hero');
+   var state = hero.attr('state');
    if(window.event) {
       keynum = e.keyCode;
-   } else if(e.which) {
+   } else if (e.which) {
       keynum = e.which;
    }
    keychar = String.fromCharCode(keynum).toLowerCase();
    switch (keychar) {
    case 'a':
-      if ((hero.state&Constants.LEFT)==Constants.LEFT) {
-         hero.state -= Constants.LEFT;
+      if ((state & Constants.LEFT) == Constants.LEFT) {
+         state -= Constants.LEFT;
       }
       break;
    case 'd':
-      if ((hero.state&Constants.RIGHT)==Constants.RIGHT) {
-         hero.state -= Constants.RIGHT;
+      if ((state & Constants.RIGHT) == Constants.RIGHT) {
+         state -= Constants.RIGHT;
       }
       break;
    case 'w':
-      hero.state -= Constants.UP;
+      state -= Constants.UP;
       break;
-
-   }      
+   }
+   hero.attr('state', state);
    return true;
 }
 //}}}
 
 function handleKeyDown(e) { //{{{
-   var keynum;
-   var keychar;
-   if(window.event) {
-      keynum = e.keyCode;
-   } else if(e.which) {
-      keynum = e.which;
+    var hero = $('#hero');
+    var state = hero.attr('state');
+    var keynum;
+    var keychar;
+    if (window.event) {
+        keynum = e.keyCode;
+    } else if (e.which) {
+        keynum = e.which;
+    }
+    keychar = String.fromCharCode(keynum).toLowerCase();
+    switch (keychar) {
+    case 'a':
+        if ((state & Constants.RIGHT) != Constants.RIGHT) {
+            state |= Constants.LEFT;
+        }      
+        break;
+    case 'd':
+        if ((state & Constants.LEFT) != Constants.LEFT) {
+            state |= Constants.RIGHT;
+        }
+        break;
+    case 'w':
+        if ((state & Constants.UP) != Constants.UP) {
+            state |= Constants.UP;
+            hero.attr('state', state);
+            jump();
+        }
+        break;
    }
-   keychar = String.fromCharCode(keynum).toLowerCase();
-   switch (keychar) {
-   case 'a':
-      if ((hero.state&Constants.RIGHT)!=Constants.RIGHT) {
-         hero.state |= Constants.LEFT;
-      }      
-      break;
-   case 's':
-      break;
-   case 'd':
-      if ((hero.state&Constants.LEFT)!=Constants.LEFT) {
-         hero.state |= Constants.RIGHT;
-      }
-      break;
-   case 'e':
-      break;
-   case 'w':
-      if ((hero.state&Constants.UP)!=Constants.UP) {
-         hero.state |= Constants.UP;
-         jump();
-      }
-      break;
-   case 'q':
-      break;
-   }      
+   hero.attr('state', state);
    return true;
 }
 
 //}}}
 
 function loop() { //{{{
-   if (running) {
-      if ((hero.state&Constants.LEFT)==Constants.LEFT) {
-         stepLeft();
-      } else if ((hero.state&Constants.RIGHT)==Constants.RIGHT) {
-         stepRight();
-      }
-      adjustHeroHeight();
-      moveBaddies();
-      //hero.innerHTML = getLandHeight(hero.offsetLeft+12);
-      window.setTimeout("loop()",s);
-   }
+    var hero = $('#hero');
+    if (running) {
+        if ((hero.attr('state') & Constants.LEFT) == Constants.LEFT) {
+            stepLeft();
+        } else if ((hero.attr('state') & Constants.RIGHT) == Constants.RIGHT) {
+            stepRight();
+        }
+        adjustHeroHeight();
+//        moveBaddies();
+        window.setTimeout("loop()",s);
+    }
 }
 //}}}
 
 function moveBaddies() { //{{{
    for (var id in baddies) {
-      //console.log(id);
       var bad = baddies[id];
       if (bad.offsetLeft < -w) {
          bad.parentNode.removeChild(bad);
@@ -284,104 +278,66 @@ function moveBaddies() { //{{{
 //}}}
 
 function getSlice(x) { //{{{
-   var dhx = x-document.getElementById('slice_'+lx).offsetLeft;
-   var dx = Math.floor(dhx/w);
-   return document.getElementById('slice_'+(lx+dx));
+    // get the terrain slice for the x coord specified
+    x -= $('#slice_' + first_visible).get(0).offsetLeft;
+    var slices_from_first = Math.floor(x / slice_width);
+    var ret = $('#slice_' + (first_visible + slices_from_first)).get(0);
+    return ret;
 }
 //}}}
 
 function getLandHeight(x) { //{{{
-   var dhx = x-document.getElementById('slice_'+lx).offsetLeft;
-   var dx = Math.floor(dhx/w);
+   var dhx = x - $('#slice_' + first_visible).attr('offsetLeft');
+   var dx = Math.floor(dhx / slice_width);
    var ph = 12;
-   if (lx+dx > 0) {
-      ph = heights[lx+dx-1];
+   if (first_visible + dx > 0) {
+      ph = heights[first_visible + dx - 1];
    }
-   var base = (heights[lx+dx]-1)*h;
-   if (heights[lx+dx] < ph) {
-      base -= (dhx%w)-w;
-   } else if (heights[lx+dx] > ph) {
-      base += (dhx%w)-w;
+   var base = (heights[first_visible + dx] - 1) * slice_height;
+   if (heights[first_visible + dx] < ph) {
+      base -= (dhx % slice_width) - slice_width;
+   } else if (heights[first_visible + dx] > ph) {
+      base += (dhx % slice_width) - slice_width;
    }
    return base;
 }
 //}}}
 
 function adjustHeroHeight() { //{{{
-   var sliceL = getSlice(hero.offsetLeft);
-   var sliceR = getSlice(hero.offsetLeft+hero.offsetWidth);
-   var base = getLandHeight(hero.offsetLeft+12);
-   var blockLBottom = 0;
-   var blockLTop = 0;
-   var blockLLeft = 0;
-   var blockLRight = 0;
-   var blockRBottom = 0;
-   var blockRTop = 0;
-   var blockRLeft = 0;
-   var blockRRight = 0;
-   if (sliceL.block) {
-      blockLTop = sliceL.offsetTop+sliceL.block.offsetTop;
-      blockLBottom = blockLTop + sliceL.block.offsetHeight;
-      blockLLeft = sliceL.offsetLeft + sliceL.block.offsetLeft;
-      blockLRight = blockLLeft + sliceL.block.offsetWidth;
-   }
-   if (sliceR.block) {
-      blockRTop = sliceR.offsetTop+sliceR.block.offsetTop;
-      blockRBottom = blockRTop + sliceR.block.offsetHeight;
-      blockRLeft = sliceR.offsetLeft + sliceR.block.offsetLeft;
-      blockRRight = blockRLeft + sliceR.block.offsetWidth;
-   }
+    var hero = $('#hero');
+    var oTop = hero.attr('offsetTop');
+    var oLeft = hero.attr('offsetLeft');
+    var oWidth = hero.attr('offsetWidth');
+    var oHeight = hero.attr('offsetHeight');
+    var dh = hero.attr('dh');
+    var state = hero.attr('state');
 
-   if (hero.offsetTop < base) {
-      if (!sliceL.block || hero.offsetLeft > blockLRight || hero.offsetTop+hero.offsetHeight != blockLTop) {
-         if (!sliceR.block || hero.offsetLeft+hero.offsetWidth < blockRLeft || hero.offsetTop+hero.offsetHeight != blockRTop) {
-            if (hero.dh < 0 && (hero.state&Constants.UP)==Constants.UP) {
-               hero.dh += 0.9;
-            } else {
-               hero.dh += 1.8;
-            }
-         }
-      }
-   }
-   if (hero.dh > 14) {
-      hero.dh = 14;
-   }
-   if (hero.dh == 0 && hero.offsetTop > base) {
-      hero.style.top = base;
-   } else if (base < hero.offsetTop + hero.dh) {
-      hero.style.top = base;
-      hero.dh = 0;
-   } else {
-      if (sliceL.block) {
-         if (hero.offsetTop+hero.offsetHeight <= blockLTop && hero.offsetTop+hero.offsetHeight+hero.dh >= blockLTop) {
-            hero.style.top = blockLTop - hero.offsetHeight;
-            hero.dh = 0;
-         } else if (hero.offsetTop>=blockLBottom && hero.offsetTop+hero.dh<=blockLBottom) {
-            if (hero.offsetTop+hero.offsetHeight > sliceL.offsetTop+sliceL.block.offsetTop) {
-               if (hero.offsetLeft <= blockLRight) {
-                  hitBlock(sliceL.block);
-                  hero.dh = sliceL.offsetTop+sliceL.block.offsetTop+sliceL.block.offsetHeight - hero.offsetTop;
-               }
-            }
-         }
-      }
-      if (sliceR.block) {
-         if (hero.offsetTop+hero.offsetHeight <= blockRTop && hero.offsetTop+hero.offsetHeight+hero.dh >= blockRTop) {
-            if (hero.offsetLeft+hero.offsetWidth >= blockRLeft) {
-               hero.style.top = blockRTop - hero.offsetHeight;
-               hero.dh = 0;
-            }
-         } else if (hero.offsetTop>=blockRBottom && hero.offsetTop+hero.dh<=blockRBottom) {
-            if (hero.offsetTop+hero.offsetHeight > blockRTop) {
-               if (hero.offsetLeft+hero.offsetWidth >= blockRLeft) {
-                  hitBlock(sliceR.block);
-                  hero.dh = sliceR.offsetTop+sliceR.block.offsetTop+sliceR.block.offsetHeight - hero.offsetTop;
-               }
-            }
-         }
-      }
-      hero.style.top = hero.offsetTop + hero.dh;
-   }
+    var base = getLandHeight(oLeft + 12);
+
+    if (oTop < base) {
+        if (dh < 0 &&
+            (state & Constants.UP) == Constants.UP) {
+            dh += 0.9;
+        } else {
+            dh += 1.8;
+        }
+    }
+    if (dh > 14) {
+        dh = 14;
+    }
+
+    var top;
+    if (dh == 0 && oTop > base) {
+        top = base;
+    } else if (base < oTop + dh) {
+        top = base;
+        dh = 0;
+    } else {
+        top = oTop + dh;
+    }
+
+    hero.attr('dh', dh)
+        .css('top', top + 'px');
 }
 //}}}
 
@@ -415,56 +371,40 @@ function stepLeft() { //{{{
 //}}}
 
 function stepRight() { //{{{
-   if ((hero.state&Constants.RIGHT)==Constants.RIGHT) {
-      var sliceR = getSlice(hero.offsetLeft+hero.offsetWidth+5);
-      var blockRTop = 0;
-      var blockRBottom = 0;
-      var blockRLeft = 0;
-      var blockRRight = 0;
+    var hero = $('#hero');
+    var state = hero.attr('state');
+    var oLeft = hero.attr('offsetLeft');
+    var oWidth = hero.attr('offsetWidth');
 
-      if (sliceR.block) {
-         blockRTop = sliceR.offsetTop+sliceR.block.offsetTop;
-         blockRBottom = blockRTop + sliceR.block.offsetHeight;
-         blockRLeft = sliceR.offsetLeft + sliceR.block.offsetLeft;
-         blockRRight = blockRLeft + sliceR.block.offsetWidth;
-      }
-      var step = 0;
-      hero.innerHTML = "";
-      if (!sliceR.block || hero.offsetTop >= blockRBottom || hero.offsetTop+hero.offsetHeight <= blockRTop) {
-         step = 5;
-      } else if (sliceR.block) {
-         if (hero.offsetTop < blockRBottom && hero.offsetTop+hero.offsetHeight > blockRTop) {
-            if (hero.offsetLeft+hero.offsetWidth + 5 > blockRLeft) {
-               step = blockRLeft-(hero.offsetLeft+hero.offsetWidth+1);
-            } else {
-               step = 5;
+    if ((state & Constants.RIGHT) == Constants.RIGHT) {
+        var sliceR = getSlice(oLeft + oWidth + 5);
+        var step = 5;
+        if (oLeft < 350)
+        {
+            hero.css('left', (oLeft + step) + 'px');
+        }
+        else
+        {
+            if (first_visible >= 980)
+            {
+                return;
             }
-         }
-      }
-      if (step != 0) {
-         if (hero.offsetLeft < 350) {
-            hero.style.left = hero.offsetLeft + step;
-         } else {
-            if (lx<980) {
-               for (var i = lx;i<lx+20;i++) {
-                  var slice = document.getElementById("slice_"+i);
-                  if (slice.offsetLeft < -w) {
-                     slice.parentNode.removeChild(slice);
-                     drawSlice(document.getElementById("slice_"+(lx+19)).offsetLeft+w,lx+20);
-                     lx++;
-                  } else {
-                     slice.style.left = slice.offsetLeft-step;
-                  }
-               }
+            for (var i = first_visible; i < first_visible + 20; i++)
+            {
+                var slice = $("#slice_" + i).get(0);
+                if (slice.offsetLeft < -slice_width)
+                {
+                    $(slice).css('left', (slice.offsetLeft - step) + 'px');
+                    continue;
+                }
 
-               for (var id in baddies) {
-                  var bad = baddies[id];
-                  bad.style.left = bad.offsetLeft-step;
-               }
+                $(slice).remove();
+                var far_slice = $('#slice_' + (first_visible + 19)).get(0);
+                drawSlice(far_slice.offsetLeft + slice_width, first_visible + 20);
+                first_visible++;
             }
-         }
-      }
-   }
+        }
+    }
 }
 //}}}
 
@@ -478,7 +418,6 @@ function jump() { //{{{
 //}}}
 
 function animateBaddy(id) { //{{{
-   //console.log(id);
    var baddy = document.getElementById(id);
    baddy.style.top = baddy.offsetTop + 5;
    baddy.style.height = baddy.offsetHeight - 5;

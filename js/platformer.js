@@ -5,6 +5,8 @@ var h = 32;
 var slice_height = h;
 var s = 60; // frame delay
 var first_visible = 0; // The index of the first visible slice
+var slices_in_view = 20;
+var slices = new Array();
 var baddies = new Array();
 
 var playing = true;
@@ -49,7 +51,6 @@ function init() { //{{{
         last = d;
         heights[i] = height;
     }
-    var slices_in_view = 20;
     for (var i = 0; i < slices_in_view; i++) {
         drawSlice(i, i * slice_width);
     }
@@ -161,6 +162,7 @@ function drawSlice(i, x) // {{{
                 .append(ramp)
                 .append(base);
     }
+    slices[i] = slice;
     $('#board').append(slice);
 }
 // }}}
@@ -360,7 +362,6 @@ function stepRight() { //{{{
     var oWidth = hero.attr('offsetWidth');
 
     if ((state & Constants.RIGHT) == Constants.RIGHT) {
-        var sliceR = getSlice(oLeft + oWidth + 5);
         var step = 5;
         if (oLeft < 350)
         {
@@ -368,22 +369,27 @@ function stepRight() { //{{{
         }
         else
         {
+            // if we are in the last screen, don't scroll
             if (first_visible >= 980)
             {
                 return;
             }
-            for (var i = first_visible; i < first_visible + 20; i++)
+
+            // scroll the terrain
+            var far_slice = first_visible + slices_in_view;
+            for (var i = first_visible; i < far_slice; i++)
             {
-                var slice = $("#slice_" + i).get(0);
-                if (slice.offsetLeft < -slice_width)
+                var slice = slices[i];
+                var soLeft = slice.offsetLeft;
+                if (soLeft >= -slice_width)
                 {
-                    $(slice).css('left', (slice.offsetLeft - step) + 'px');
+                    $(slice).css('left', (soLeft - step) + 'px');
                     continue;
                 }
 
                 $(slice).remove();
-                var far_slice = $('#slice_' + (first_visible + 19)).get(0);
-                drawSlice(far_slice.offsetLeft + slice_width, first_visible + 20);
+                var next_slice_x = slices[far_slice - 1].offsetLeft + slice_width - step;
+                drawSlice(far_slice, next_slice_x);
                 first_visible++;
             }
         }

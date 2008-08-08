@@ -342,31 +342,14 @@ function adjustHeroHeight() { //{{{
 //}}}
 
 function stepLeft() { //{{{
-   if ((hero.state&Constants.LEFT)==Constants.LEFT) {
-      if (hero.offsetLeft > 8) {
-         var sliceL = getSlice(hero.offsetLeft-5);
-         var blockLTop = 0;
-         var blockLBottom = 0;
-         var blockLLeft = 0;
-         var blockLRight = 0;
+    var hero = $('#hero');
+    var oLeft = hero.attr('offsetLeft');
 
-         if (sliceL.block) {
-            blockLTop = sliceL.offsetTop+sliceL.block.offsetTop;
-            blockLBottom = blockLTop + sliceL.block.offsetHeight;
-            blockLLeft = sliceL.offsetLeft + sliceL.block.offsetLeft;
-            blockLRight = blockLLeft + sliceL.block.offsetWidth;
-         }
-         if (!sliceL.block || hero.offsetTop >= blockLBottom || hero.offsetTop+hero.offsetHeight <= blockLTop) {
-            hero.style.left = hero.offsetLeft - 5;
-         } else if (sliceL.block) {
-            if (hero.offsetTop < blockLBottom && hero.offsetTop+hero.offsetHeight > blockLTop) {
-               if (hero.offsetLeft - 5 < blockLRight) {
-                  hero.style.left = blockLRight;
-               }
-            }
-         }
-      }
-   }
+    if ((hero.attr('state') & Constants.LEFT) == Constants.LEFT) {
+        if (oLeft > 8) {
+            hero.css('left', (oLeft - 5) + 'px');
+        }
+    }
 }
 //}}}
 

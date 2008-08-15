@@ -404,6 +404,12 @@ class BreveManager
         return $ms;
     }
 
+    function &filter($kwargs=array())
+    {
+        $ms = $this->all()->filter($kwargs);
+        return $ms;
+    }
+
     function &from($data)
     {
         $model =& new BreveModel($this->_model);

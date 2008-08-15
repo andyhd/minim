@@ -10,16 +10,13 @@ $date = sprintf("%04d-%02d-%02d", $_GET['year'], $_GET['month'], $_GET['day']);
 
 // get the first post with a matching slug on the specified day
 $post = breve('BlogPost')
-->all()
 ->filter(array(
     'posted__range' => array("$date 00:00:00", "$date 23:59:59"),
     'slug__eq' => $_GET['slug']
-))
-->limit(1);
+));
 
 // get all comments for the post
 $comments = breve('BlogComment')
-->all()
 ->filter(array('post_id__eq' => $post->first->id))
 ->order_by('-posted');
 
@@ -32,7 +29,6 @@ if (!$post->items)
 // build the comment form
 $form = minim()->form(array('id' => 'comment-form',
                             'class' => 'box'))
-               ->exclude(array('id', 'author', 'posted'))
                ->hiddenField('post_id', array('initial' => $post->first->id))
                ->textField('name')
                ->textField('email', array('help' => 'Will not be published'))

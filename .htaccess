@@ -6,5 +6,4 @@ RewriteRule ^blog/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<slug>[-a-z
 RewriteRule ^admin/blog/delete/(?P<id>\d+)$ views/admin/blog-post.php?id=$1&action=delete [QSA,L]
 RewriteRule ^admin/blog/edit(?:/(?P<id>\d+))?$ views/admin/blog-post.php?id=$1&action=edit [QSA,L]
 RewriteRule ^admin/blog(?:/(?P<page>\d+))?$ views/admin/blog.php?page=$1 [QSA,L]
-RewriteRule ^admin(?:/(.*))?$ views/admin/default.php?path=$1 [QSA,L]
-RewriteRule ^game$ views/game.php [QSA,L]
+RewriteRule ^admin(?:/(.*))?$ views/admin.php?path=$1 [QSA,L]

@@ -31,22 +31,34 @@ if ($base)
     fputs($fp, "RewriteBase $base\n");
 }
 
-$configfile = realpath(dirname(__FILE__).'/../config.php');
-include $configfile;
-foreach ($config['url_map'] as $name => $map)
+class Foo
 {
-    $pat = $map['url_pattern'];
+    function Foo($configfile)
+    {
+        $this->maps = array();
+        include $configfile;
+    }
+
+    function map_url($pattern, $view, $action=null)
+    {
+        $this->maps[] = array(
+            'pat' => $pattern,
+            'view' => $view,
+            'action' => $action
+        );
+        return $this;
+    }
+}
+
+$foo = new Foo(realpath(dirname(__FILE__).'/../config.php'));
+foreach ($foo->maps as $map)
+{
+    extract($map);
     if ($base)
     {
         $pat = preg_replace(',^\^/,', '^', $pat);
     }
-    $action = '';
-    if (preg_match(',^(.+):(.+)$,', $name, $m))
-    {
-        $name = $m[1];
-        $action = $m[2];
-    }
-    fputs($fp, "RewriteRule {$pat} views/{$name}.php");
+    fputs($fp, "RewriteRule {$pat} views/{$view}.php");
     $params = array();
     if (preg_match_all(',\(\?P<(.*?)>.*?\),', $pat, $m))
     {

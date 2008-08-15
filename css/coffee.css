@@ -16,9 +16,9 @@ body {
 }
 
 #masthead h1 {
-    font: bold 225% "Arial", sans-serif;
+    font: bold 300% "Dronecat", sans-serif;
+    color: #ddd;
     width: 950px;
-    height: 50px;
     padding-bottom: 0.7em;
 }
 

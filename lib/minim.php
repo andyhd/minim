@@ -215,13 +215,56 @@ JAVASCRIPT;
         return $dbh;
     }
 
-    var $url_map = array();
+    var $_url_map = array();
+
+    function &_url_map_for($view, $action)
+    {
+        foreach ($this->_url_map as &$map)
+        {
+            if ($map['view'] == $view and $map['action'] == $action)
+            {
+                return $map;
+            }
+        }
+        $nullvar = null;
+        return $nullvar;
+    }
+
+    function map_url($url_pattern, $view, $action=null)
+    {
+        $map =& $this->_url_map_for($view, $action);
+        if (is_null($map))
+        {
+            $this->_url_map[] = array(
+                'url_pattern' => $url_pattern,
+                'view' => $view,
+                'action' => $action
+            );
+        }
+        else
+        {
+            // replace existing map
+            $map = array(
+                'url_pattern' => $url_pattern,
+                'view' => $view,
+                'action' => $action
+            );
+            $this->log("Replacing URL map for $view:$action");
+        }
+        return $this;
+    }
 
     function url_for($_mapping, $_params=array())
     {
-        if (array_key_exists($_mapping, $this->config['url_map']))
+        list($_view, $_action) = explode(':', $_mapping);
+        if (is_null($_action))
         {
-            $_map = $this->config['url_map'][$_mapping];
+            $_view = $_mapping;
+        }
+        $_map = $this->_url_map_for($_view, $_action);
+
+        if ($_map)
+        {
             $this->log("Using URL map: $_mapping -> ".print_r($_map, TRUE));
             $this->log("Params: ".print_r($_params, TRUE));
             extract($_params);

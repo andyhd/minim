@@ -15,6 +15,7 @@ function minim($config=NULL)
 
 class Minim
 {
+    var $_start_time;
     var $blocks;
     var $extends;
     var $root;
@@ -25,6 +26,8 @@ class Minim
 
     function Minim($config=NULL)
     {
+        list($usec, $sec) = explode(' ', microtime());
+        $this->_start_time = (float)$usec + (float)$sec;
         $this->blocks = array();
         $this->extends = array();
         $this->root = realpath(dirname(__FILE__).'/../');
@@ -99,6 +102,9 @@ class Minim
         }
         elseif ($this->debug)
         {
+            list($usec, $sec) = explode(' ', microtime());
+            $end_time = (float)$usec + (float)$sec;
+            $this->log('Took: '.sprintf('%.4f', ($end_time - $this->_start_time)).'s');
             print <<<JAVASCRIPT
 <script type="text/js">
 </script>
@@ -256,7 +262,7 @@ JAVASCRIPT;
 
     function url_for($_mapping, $_params=array())
     {
-        list($_view, $_action) = explode(':', $_mapping);
+        @list($_view, $_action) = explode(':', $_mapping);
         if (is_null($_action))
         {
             $_view = $_mapping;

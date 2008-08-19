@@ -1,0 +1,17 @@
+#say a {
+    display: block;
+    background: transparent url(../images/talk.png) no-repeat 0 0;
+    width: 24px;
+    height: 24px;
+}
+
+#say a span {
+    position: absolute;
+    left: -9999em;
+}
+
+.avatar {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+}

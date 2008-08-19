@@ -25,8 +25,7 @@ $neighbours = breve('MudUser')->filter(array(
 
 // called via AJAX?
 $template = 'mud';
-if (array_key_exists('X-Requested-By', $_SERVER) and
-    $_SERVER['X-Requested-By'] == 'XMLHTTPRequest')
+if (minim()->isXhrRequest())
 {
     $template = 'mud_json';
 }

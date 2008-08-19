@@ -19,32 +19,7 @@
 <?php minim()->end_block('js_head') ?>
 
 <?php minim()->def_block('js_foot') ?>
-  <script type="text/javascript">
-function label_inside(field) {
-    var id = field.id;
-    var initial = jQuery('label[for="'+id+'"]').text()
-    var input = jQuery(field);
-    input.focus(function () {
-        input.css('color', '#000');
-        if (input.val() == initial) {
-            input.val('');
-        }
-    }).blur(function() {
-        if (input.val() == '') {
-            input.val(initial).css('color', '#aaa');
-        }
-    });
-    if (input.val() == '')
-    { 
-        input.val(initial).css('color', '#aaa');
-    }
-}
-jQuery(function() {
-    $('#mh_search :submit').hide();
-    var input = $('#mh_search_input');
-    label_inside(input);
-});
-  </script>
+  <script type="text/javascript" src="<?php echo minim()->webroot ?>/js/label_inside.js"></script>
 <?php minim()->block('page_js_foot') ?>
 <?php minim()->end_block('js_foot') ?>
 

@@ -357,4 +357,10 @@ JAVASCRIPT;
         }
         return new MinimForm($model, $params);
     }
+
+    function isXhrRequest()
+    {
+        $xhrHeader = @$_SERVER['HTTP_X_REQUESTED_WITH'];
+        return strtolower($xhrHeader) == 'xmlhttprequest';
+    }
 }

@@ -5,6 +5,7 @@ class BreveModel
     var $_fields;
     var $_errors;
     var $_validated;
+    var $_json;
 
     function BreveModel($name)
     {
@@ -12,6 +13,7 @@ class BreveModel
         $this->_fields = array();
         $this->_errors = array();
         $this->_validated = FALSE;
+        $this->_json = NULL;
     }
 
     function _setFields(&$fields)
@@ -137,6 +139,16 @@ class BreveModel
     function delete()
     {
         breve($this->_name)->delete($this);
+    }
+
+    function to_array()
+    {
+        $ar = array();
+        foreach ($this->_fields as $name => $field)
+        {
+            $ar[$name] = $field->getValue();
+        }
+        return $ar;
     }
 }
 

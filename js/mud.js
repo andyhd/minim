@@ -133,7 +133,10 @@ function enter_text()
           }
           if (e.keyCode == 13)
           {
-            console.log($(this).val());
+            $.post('http://localhost/~andy.driver/pagezero/mud', {
+                'user': 1,
+                'says': $(this).val()
+            });
             $(this).blur();
             $(window).bind('keydown.mud', handle_key_down)
                      .bind('keyup.mud', handle_key_up);

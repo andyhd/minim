@@ -27,6 +27,11 @@ $neighbours = breve('MudUser')->filter(array(
 $template = 'mud';
 if (minim()->isXhrRequest())
 {
+    if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
+    {
+        $user = $_POST['user'];
+        $text = $_POST['says'];
+    }
     $template = 'mud_json';
 }
 minim()->render($template, array(

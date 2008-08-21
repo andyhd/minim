@@ -10,17 +10,10 @@ jQuery(function () {
         "img": "images/hero.png",
         "state": 0,
         "x": 100,
-        "y": 100
+        "y": 200
     });
-    $('#say-form').hide().change(function() {
-        $.post('http://localhost/~andy.driver/pagezero/mud', {
-            "msg": $(this).val()
-        }, mud_refresh);
-    });
-    $('#say a').click(function () {
-        $('#say-form').toggle();
-    });
-    $(window).keydown(handle_key_down).keyup(handle_key_up);
+    $(window).bind('keydown.mud', handle_key_down)
+             .bind('keyup.mud', handle_key_up);
 //    mud_update();
     game_loop();
 });
@@ -80,6 +73,76 @@ function place_user_avatar(data)
                  top: data.y + 'px'
              })
              .appendTo('body');
+    $(avatar).append(make_speech_bubble());
+    var input = document.createElement('input');
+    $(input).attr('id', 'user-input')
+            .attr('type', 'text')
+            .appendTo('body');
+}
+
+function make_speech_bubble()
+{
+    var t = document.createElement('div');
+    $(t).addClass('t')
+        .append(document.createElement('div'));
+    var b = document.createElement('div');
+    $(b).addClass('b')
+        .append(document.createElement('div'));
+    var c = document.createElement('div');
+    var d = document.createElement('div');
+    var p = document.createElement('p');
+    $(p).addClass('text');
+    $(d).append(p);
+    $(c).addClass('c')
+        .append(d);
+    var bubble = document.createElement('div');
+    $(bubble).addClass('speech-bubble')
+             .append(t)
+             .append(c)
+             .append(b)
+             .hide();
+    return bubble;
+}
+
+function say(user, text)
+{
+    var bubble = user.find('.speech-bubble');
+    bubble.find('.text').text(text);
+    bubble.show();
+    var delay = 3000 + (text.split(' ').length * 250);
+    setTimeout(function () { bubble.hide(); }, delay);
+}
+
+function enter_text()
+{
+    var bubble = $('#user .speech-bubble');
+    var text = bubble.find('.text');
+    text.text('');
+    bubble.show();
+    $(window).unbind('keydown.mud')
+             .unbind('keyup.mud');
+    var first = true;
+    var ui = $('#user-input');
+    ui.val('')
+      .keypress(function (e) {
+          if (first)
+          {
+            // discard first keypress event, because it's the 's'
+            first = false;
+            return true;
+          }
+          if (e.keyCode == 13)
+          {
+            console.log($(this).val());
+            $(this).blur();
+            $(window).bind('keydown.mud', handle_key_down)
+                     .bind('keyup.mud', handle_key_up);
+            setTimeout(function() { bubble.hide(); }, 3000);
+          }
+          text.text($(this).val() + String.fromCharCode(e.which));
+          return true;
+      })
+      .focus();
 }
 
 function get_frame_x(state, frame)
@@ -124,65 +187,72 @@ function avatar_in_view(avatar, text)
 function handle_key_down(e)
 {
     state = $('#user').attr('state');
-    key = String.fromCharCode(e.keyCode).toLowerCase();
-    switch (key) {
-        case 'q':
+    switch (e.keyCode) {
+        case 38: // up arrow
             if (!(state & SOUTH))
             {
                 state |= NORTH;
             }
             break;
-        case 'a':
+        case 40: // down arrow
             if (!(state & ~NORTH))
             {
                 state |= SOUTH;
             }
             break;
-        case 'o':
+        case 37: // left arrow
             if (!(state & ~EAST))
             {
                 state |= WEST;
             }
             break;
-        case 'p':
+        case 39: // right arrow
             if (!(state & ~WEST))
             {
                 state |= EAST;
             }
+            break;
+        case 83: // 's'
+            enter_text();
+            break;
+        default:
+            return true;
     }
     $('#user').attr('state', state);
-    return true;
+    return false;
 }
 
 function handle_key_up(e)
 {
     state = $('#user').attr('state');
-    key = String.fromCharCode(e.keyCode).toLowerCase();
-    switch (key) {
-        case 'q':
+    switch (e.keyCode) {
+        case 38:
             if (state & NORTH)
             {
                 state ^= NORTH;
             }
             break;
-        case 'a':
+        case 40:
             if (state & SOUTH)
             {
                 state ^= SOUTH;
             }
             break;
-        case 'o':
+        case 37:
             if (state & WEST)
             {
                 state ^= WEST;
             }
             break;
-        case 'p':
+        case 39:
             if (state & EAST)
             {
                 state ^= EAST;
             }
+            break;
+        default:
+            return true;
     }
     $('#user').attr('state', state);
-    return true;
+    return false;
 }

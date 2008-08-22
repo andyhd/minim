@@ -11,7 +11,6 @@
 <?php minim()->end_block('page_js_foot') ?>
 
 <?php minim()->def_block('page_content') ?>
-<div id="say"><a href="#"><span>Say</span></a><textarea id="say-form"></textarea></div>
 User: <?php echo $user->id ?><br>
 Map: <?php echo $area->map ?><br>
 <ul>

@@ -2,7 +2,7 @@
 $others = array();
 foreach ($neighbours->items as $avatar)
 {
-    $others[] = $avatar->to_array();
+    $others[] = array_merge($avatar->to_array(), array('says' => 'hi!'));
 }
 echo json_encode(array(
     'user' => (int)$user,

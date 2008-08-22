@@ -32,6 +32,7 @@ if (minim()->isXhrRequest())
         $user = $_POST['user'];
         $text = $_POST['says'];
     }
+    header('Content-Type: text/json');
     $template = 'mud_json';
 }
 minim()->render($template, array(

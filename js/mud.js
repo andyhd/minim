@@ -4,16 +4,11 @@ var EAST = 4;
 var WEST = 8;
 
 var step = 10;
-var user_id = 1;
+
+var main_timeout = null;
 
 jQuery(function () {
-    place_avatar({
-        "id": user_id,
-        "sprite": "hero.png",
-        "state": 0,
-        "x": 100,
-        "y": 200,
-    });
+    place_avatar(user);
     $(window).bind('keydown.mud', handle_key_down)
              .bind('keyup.mud', handle_key_up);
     var input = document.createElement('input');
@@ -21,16 +16,16 @@ jQuery(function () {
             .attr('type', 'text')
             .appendTo('body');
 
-//    mud_update();
+    update();
     game_loop();
 });
 
 function game_loop()
 {
-    var user = $('#avatar-' + user_id);
-    var oTop = user.attr('offsetTop');
-    var oLeft = user.attr('offsetLeft');
-    var state = user.attr('state');
+    var avatar = $('#avatar-' + user.user);
+    var oTop = avatar.attr('offsetTop');
+    var oLeft = avatar.attr('offsetLeft');
+    var state = avatar.attr('state');
     if (state & NORTH)
     {
         if (oTop > 20)
@@ -59,7 +54,7 @@ function game_loop()
             oLeft -= step;
         }
     }
-    user.css({
+    avatar.css({
         left: oLeft + 'px',
         top: oTop + 'px'
     });
@@ -72,7 +67,7 @@ function place_avatar(data)
     var bg = "transparent url(images/" + data.sprite + ") no-repeat " +
                              get_frame_x(data.state) + " 0";
     $(avatar).addClass('avatar')
-             .attr('id', 'avatar-' + data.id)
+             .attr('id', 'avatar-' + data.user)
              .attr('state', data.state)
              .css({
                  background: bg,
@@ -107,9 +102,9 @@ function make_speech_bubble()
     return bubble;
 }
 
-function say(user, text)
+function say(avatar, text)
 {
-    var bubble = user.find('.speech-bubble');
+    var bubble = avatar.find('.speech-bubble');
     bubble.find('.text').text(text);
     bubble.show();
     var delay = 3000 + (text.split(' ').length * 250);
@@ -118,7 +113,7 @@ function say(user, text)
 
 function enter_text()
 {
-    var bubble = $('#avatar-' + user_id + ' .speech-bubble');
+    var bubble = $('#avatar-' + user.user + ' .speech-bubble');
     var text = bubble.find('.text');
     text.text('');
     bubble.show();
@@ -139,7 +134,7 @@ function enter_text()
             $.ajax({
                 'type': 'POST',
                 'url': 'http://localhost/~andy.driver/pagezero/mud',
-                'data': {'user': 1, 'says': $(this).val()},
+                'data': {'user': user.user, 'says': $(this).val()},
                 'dataType': 'json',
                 'success': refresh
             });
@@ -165,7 +160,7 @@ function get_frame_x(state, frame)
 
 function update()
 {
-    jQuery.get('http://localhost/~andy.driver/pagezero/mud', {},
+    jQuery.getJSON('http://localhost/~andy.driver/pagezero/mud', {},
         refresh);
 }
 
@@ -174,22 +169,25 @@ function refresh(json)
     for (i in json.neighbours)
     {
         var avatar = json.neighbours[i];
-        var sprite = $('#avatar-' + avatar.id);
+        var sprite = $('#avatar-' + avatar.user);
         if (sprite.length == 0)
         {
             place_avatar(avatar);
-            sprite = $('#avatar-' + avatar.id);
-        }
-        if (avatar.says)
-        {
-            say(sprite, avatar.says);
+            sprite = $('#avatar-' + avatar.user);
         }
     }
+    for (i in json.chat)
+    {
+        var msg = json.chat[i];
+        say($('#avatar-' + msg.user), msg.msg);
+    }
+    clearTimeout(main_timeout);
+    main_timeout = setTimeout(update, 1000);
 }
 
 function handle_key_down(e)
 {
-    state = $('#avatar-' + user_id).attr('state');
+    state = $('#avatar-' + user.user).attr('state');
     switch (e.keyCode) {
         case 38: // up arrow
             if (!(state & SOUTH))
@@ -221,13 +219,13 @@ function handle_key_down(e)
         default:
             return true;
     }
-    $('#avatar-' + user_id).attr('state', state);
+    $('#avatar-' + user.user).attr('state', state);
     return false;
 }
 
 function handle_key_up(e)
 {
-    state = $('#avatar-' + user_id).attr('state');
+    state = $('#avatar-' + user.user).attr('state');
     switch (e.keyCode) {
         case 38:
             if (state & NORTH)
@@ -256,6 +254,6 @@ function handle_key_up(e)
         default:
             return true;
     }
-    $('#avatar-' + user_id).attr('state', state);
+    $('#avatar-' + user.user).attr('state', state);
     return false;
 }

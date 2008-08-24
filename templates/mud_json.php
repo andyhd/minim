@@ -2,10 +2,16 @@
 $others = array();
 foreach ($neighbours->items as $avatar)
 {
-    $others[] = array_merge($avatar->to_array(), array('says' => 'hi!'));
+    $others[] = $avatar->to_array();
+}
+$msgs = array();
+foreach ($chat->items as $msg)
+{
+    $msgs[] = $msg->to_array();
 }
 echo json_encode(array(
-    'user' => (int)$user,
-    'area' => $area->id,
+    'user' => $user->user,
+    'area' => $area,
     'neighbours' => $others,
+    'chat' => $msgs
 )) ?>

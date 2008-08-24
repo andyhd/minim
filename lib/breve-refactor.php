@@ -47,7 +47,7 @@ class BreveModel
                 return FALSE;
             }
             $ret = $field->setValue($value);
-            if (!$ret)
+            if ($ret === FALSE)
             {
                 minim()->log("Couldn't set $name to ".print_r($value, TRUE));
             }

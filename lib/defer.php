@@ -266,6 +266,10 @@ SQL;
             {
                 $this->_fill_cache();
             }
+            if (sizeof($this->_cache) < 1)
+            {
+                return NULL;
+            }
             return $this->_cache[0];
         }
     }

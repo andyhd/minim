@@ -5,16 +5,18 @@ require_once minim()->lib('defer');
 require_once minim()->models('user');
 require_once minim()->models('mud');
 
-// get the user from the session
-$user_id = (int) @$_SESSION['user_id'];
-if (!$user_id and @$_GET['user'])
+$last_update = @$_COOKIE['last_update'];
+if (!$last_update)
 {
-    $user_id = $_SESSION['user_id'] = (int) $_GET['user'];
+    $last_update = '0';
 }
-$user = breve('MudUser')->filter(array('user__eq' => $user_id))->first;
+
+// get the user from the session
+$user = breve('MudUser')->filter(array('user__eq' => $_REQUEST['user']))->first;
 $chat = breve('MudChat')->filter(array(
     'area__eq' => $user->location,
-    'at__gte' => $user->last_update
+    'user__ne' => $user->user,
+    'at__gte' => $last_update
 ));
 
 // get the area
@@ -27,10 +29,12 @@ $neighbours = breve('MudUser')->filter(array(
 ));
 
 // set the user's last update time to now
-$now = (int)((mktime() + array_sum(explode(' ', microtime()))) * 100.0);
+$ms = microtime();
+$cs = (int)($ms * 1000);
+$now = date('YmdHis') . str_pad($cs, 3, '0', STR_PAD_LEFT);
 minim()->log('now = ' + $now);
-$user->last_update = $now;
-$user->save();
+$last_update = $now;
+setCookie('last_update', $now);
 
 // called via AJAX?
 $template = 'mud';
@@ -54,4 +58,5 @@ minim()->render($template, array(
     'area' => $area->id,
     'neighbours' => $neighbours,
     'chat' => $chat,
+    'last_update' => $now
 ));

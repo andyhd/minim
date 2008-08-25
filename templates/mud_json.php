@@ -13,5 +13,6 @@ echo json_encode(array(
     'user' => $user->user,
     'area' => $area,
     'neighbours' => $others,
-    'chat' => $msgs
+    'chat' => $msgs,
+    'last_update' => $last_update
 )) ?>

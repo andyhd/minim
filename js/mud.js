@@ -160,12 +160,27 @@ function get_frame_x(state, frame)
 
 function update()
 {
-    jQuery.getJSON('http://localhost/~andy.driver/pagezero/mud', {},
-        refresh);
+    jQuery.getJSON('http://localhost/~andy.driver/pagezero/mud',
+                   {'user': user.user},
+                   refresh);
 }
 
 function refresh(json)
 {
+/*    var cookies = [];
+    var out = [];
+    var parts = document.cookie.split(/;/);
+    for (var i in parts)
+    {
+        var tuple = parts[i].split(/=/);
+        var key = tuple[0].replace(/^\s*([^\s])\s*$/, '\1');
+        var val = tuple[1].replace(/^\s*([^\s])\s*$/, '\1');
+        if (tuple[0] == "last_update")
+        {
+            out.push(tuple[0] + ' -> ' + tuple[1]);
+        }
+    }
+    console.log(out.join(', '));*/
     for (i in json.neighbours)
     {
         var avatar = json.neighbours[i];
@@ -182,7 +197,7 @@ function refresh(json)
         say($('#avatar-' + msg.user), msg.msg);
     }
     clearTimeout(main_timeout);
-    main_timeout = setTimeout(update, 1000);
+    main_timeout = setTimeout(update, 500);
 }
 
 function handle_key_down(e)

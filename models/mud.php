@@ -10,7 +10,7 @@ breve()->register('MudUser')
        ->field('state', breve()->int(array('not_null' => TRUE)))
        ->field('sprite', breve()->text(array('not_null' => TRUE,
                                              'maxlength' => 255)))
-       ->field('last_update', breve()->int());
+       ->field('last_update', breve()->text());
 
 breve()->register('MudArea')
        ->table('mud_area')
@@ -25,4 +25,4 @@ breve()->register('MudChat')
        ->field('user', breve()->int(array('not_null' => TRUE)))
        ->field('area', breve()->int(array('not_null' => TRUE)))
        ->field('msg', breve()->text(array('not_null' => TRUE)))
-       ->field('at', breve()->timestamp(array('auto_now' => TRUE)));
+       ->field('at', breve()->text(array('not_null' => TRUE)));

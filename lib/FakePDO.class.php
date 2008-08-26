@@ -17,7 +17,7 @@ class FakePDO
         {
             $host .= ":$unix_socket";
         }
-        $this->dbh = mysql_connect($host, $user, $pass);
+        $this->dbh = mysql_pconnect($host, $user, $pass);
         if (!$this->dbh)
         {
             die('FakePDO: Could not connect: '.mysql_error());
@@ -40,6 +40,11 @@ class FakePDO
         $stmt =& new FakePDOStatement($sql);
         $stmt->dbh =& $this->dbh;
         return $stmt;
+    }
+
+    function close()
+    {
+        mysql_close($this->dbh);
     }
 }
 

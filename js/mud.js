@@ -59,6 +59,8 @@ function game_loop()
         left: oLeft + 'px',
         top: oTop + 'px'
     });
+    user.x = oLeft;
+    user.y = oTop;
 
     if (input_timeout)
     {
@@ -168,9 +170,13 @@ function get_frame_x(state, frame)
 
 function update()
 {
-    jQuery.getJSON('http://localhost/~andy.driver/pagezero/mud',
-                   {'user': user.user},
-                   refresh);
+    $.ajax({
+        'type': 'GET',
+        'url': 'http://localhost/~andy.driver/pagezero/mud',
+        'data': {'user': user.user, 'x': user.x, 'y': user.y},
+        'dataType': 'json',
+        'success': refresh
+    });
 }
 
 function refresh(json)
@@ -184,6 +190,14 @@ function refresh(json)
             place_avatar(avatar);
             sprite = $('#avatar-' + avatar.user);
         }
+        var oLeft = sprite.attr('offsetLeft');
+        oLeft = (oLeft == avatar.x ? oLeft : avatar.x);
+        var oTop = sprite.attr('offsetTop');
+        oTop = (oTop == avatar.y ? oTop : avatar.y);
+        sprite.css({
+            'left': oLeft + 'px',
+            'top': oTop + 'px'
+        });
     }
     for (i in json.chat)
     {

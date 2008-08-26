@@ -12,7 +12,8 @@ if (!$last_update)
 }
 
 // get the user from the session
-$user = breve('MudUser')->filter(array('user__eq' => $_REQUEST['user']))->first;
+$_user = $_REQUEST['user'];
+$user = breve('MudUser')->filter(array('user__eq' => $_user['user']))->first;
 $chat = breve('MudChat')->filter(array(
     'area__eq' => $user->location,
     'user__ne' => $user->user,
@@ -35,6 +36,16 @@ $now = date('YmdHis') . str_pad($cs, 3, '0', STR_PAD_LEFT);
 minim()->log('now = ' + $now);
 $last_update = $now;
 setCookie('last_update', $now);
+
+// if the user's x and y coords have changed, update
+$x = @$_REQUEST['x'];
+$y = @$_REQUEST['y'];
+if (($x and $x != $user->x) or ($y and $y != $user->y))
+{
+    $user->x = $x;
+    $user->y = $y;
+    $user->save();
+}
 
 // called via AJAX?
 $template = 'mud';
@@ -60,3 +71,5 @@ minim()->render($template, array(
     'chat' => $chat,
     'last_update' => $now
 ));
+
+//minim()->db()->close();

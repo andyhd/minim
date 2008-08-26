@@ -5,7 +5,8 @@ var WEST = 8;
 
 var step = 10;
 
-var main_timeout = null;
+var input_timeout = null;
+var refresh_timeout = null;
 
 jQuery(function () {
     place_avatar(user);
@@ -40,7 +41,7 @@ function game_loop()
             oTop += step;
         }
     }
-    else if (state & EAST)
+    if (state & EAST)
     {
         if (oLeft < window.innerWidth - 20)
         {
@@ -58,7 +59,12 @@ function game_loop()
         left: oLeft + 'px',
         top: oTop + 'px'
     });
-    setTimeout(game_loop, 60);
+
+    if (input_timeout)
+    {
+        clearTimeout(input_timeout);
+    }
+    input_timeout = setTimeout(game_loop, 60);
 }
 
 function place_avatar(data)
@@ -122,12 +128,13 @@ function enter_text()
     var first = true;
     var ui = $('#user-input');
     ui.val('')
+      .unbind('keypress')
       .keypress(function (e) {
           if (first)
           {
             // discard first keypress event, because it's the 's'
             first = false;
-            return true;
+            return false;
           }
           if (e.keyCode == 13)
           {
@@ -138,6 +145,7 @@ function enter_text()
                 'dataType': 'json',
                 'success': refresh
             });
+
             $(this).blur();
             $(window).bind('keydown.mud', handle_key_down)
                      .bind('keyup.mud', handle_key_up);
@@ -167,20 +175,6 @@ function update()
 
 function refresh(json)
 {
-/*    var cookies = [];
-    var out = [];
-    var parts = document.cookie.split(/;/);
-    for (var i in parts)
-    {
-        var tuple = parts[i].split(/=/);
-        var key = tuple[0].replace(/^\s*([^\s])\s*$/, '\1');
-        var val = tuple[1].replace(/^\s*([^\s])\s*$/, '\1');
-        if (tuple[0] == "last_update")
-        {
-            out.push(tuple[0] + ' -> ' + tuple[1]);
-        }
-    }
-    console.log(out.join(', '));*/
     for (i in json.neighbours)
     {
         var avatar = json.neighbours[i];
@@ -196,8 +190,11 @@ function refresh(json)
         var msg = json.chat[i];
         say($('#avatar-' + msg.user), msg.msg);
     }
-    clearTimeout(main_timeout);
-    main_timeout = setTimeout(update, 500);
+    if (refresh_timeout)
+    {
+        clearTimeout(refresh_timeout);
+    }
+    refresh_timeout = setTimeout(update, 500);
 }
 
 function handle_key_down(e)

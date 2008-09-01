@@ -24,10 +24,5 @@ Neighbours: <ul>
     <li><?php echo $avatar->user ?></li>
 <?php endforeach ?>
 </ul>
-Chat: <ul>
-<?php foreach ($chat->items as $msg): ?>
-    <li><?php echo $msg->user ?> says: <?php echo $msg->msg ?> at <?php echo $msg->at ?></li>
-<?php endforeach ?>
-</ul>
 <textarea id="output"></textarea>
 <?php minim()->end_block('page_content') ?>

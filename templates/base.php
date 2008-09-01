@@ -30,6 +30,13 @@
   <div id="wrapper">
    <div id="masthead">
     <h1>PageZero</h1>
+    <div class="logged_in">
+<?php if (minim()->user()): ?>
+     Logged in as <strong><?php echo minim()->user()->name ?></strong> - <a href="<?php echo minim()->url_for('logout') ?>">Log out</a>
+<?php else: ?>
+     <a href="<?php echo minim()->url_for('login') ?>">Log in</a> - <a href="<?php echo minim()->url_for('sign-up') ?>">Sign up</a>
+<?php endif ?>
+    </div>
     <p><?php random_engrish() ?></p>
     <form method="get" action="search" id="mh_search">
      <label for="mh_search_input">Search</label>

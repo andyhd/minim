@@ -1,9 +1,14 @@
 RewriteEngine On
 RewriteBase /~andy.driver/pagezero
 RewriteRule ^$ views/home.php [QSA,L]
+RewriteRule ^login$ views/login.php [QSA,L]
+RewriteRule ^logout$ views/logout.php [QSA,L]
+RewriteRule ^sign-up$ views/sign-up.php [QSA,L]
 RewriteRule ^blog$ views/blog.php [QSA,L]
 RewriteRule ^blog/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/(?P<slug>[-a-z0-9]+)$ views/blog-post.php?year=$1&month=$2&day=$3&slug=$4 [QSA,L]
 RewriteRule ^mud$ views/mud.php [QSA,L]
+RewriteRule ^mud-say$ views/mud-say.php [QSA,L]
+RewriteRule ^mud-update$ views/mud-update.php [QSA,L]
 RewriteRule ^admin/blog/delete/(?P<id>\d+)$ views/admin/blog-post.php?id=$1&action=delete [QSA,L]
 RewriteRule ^admin/blog/edit(?:/(?P<id>\d+))?$ views/admin/blog-post.php?id=$1&action=edit [QSA,L]
 RewriteRule ^admin/blog(?:/(?P<page>\d+))?$ views/admin/blog.php?page=$1 [QSA,L]

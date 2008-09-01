@@ -10,7 +10,7 @@ foreach ($chat->items as $msg)
     $msgs[] = $msg->to_array();
 }
 echo json_encode(array(
-    'user' => $user->user,
+    'user' => $user->to_array(),
     'area' => $area,
     'neighbours' => $others,
     'chat' => $msgs,

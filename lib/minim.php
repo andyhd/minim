@@ -276,11 +276,23 @@ JAVASCRIPT;
             extract($_params);
             $_pat = $_map['url_pattern'];
             # replace optional params first
+            preg_match_all(',\(\?P<(.*?)>.*?\),', $_pat, $_m);
+            foreach ($_m[1] as $_k)
+            {
+                if (array_key_exists($_k, $_params))
+                {
+                    unset($_params[$_k]);
+                }
+            }
             $_rev = preg_replace(',\(\?\:/\(\?P<(.*?)>.*?\)\)\?,e',
                 'isset($$1) ? "/{$$1}" : ""', $_pat);
             $this->log("Replaced optional params: $_rev");
             $_rev = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_rev);
             $_rev = $this->webroot.ltrim(rtrim($_rev, '/$'), '^');
+            if ($_params)
+            {
+                $_rev .= '?'.http_build_query($_params); 
+            }
             $this->log("Mapped to URL: $_rev");
             return $_rev;
         }
@@ -332,6 +344,20 @@ JAVASCRIPT;
             }
         }
         return $messages;
+    }
+
+    function user()
+    {
+        static $user;
+        if ($user === null)
+        {
+            $user = @$_SESSION['user'];
+            if (!$user)
+            {
+                $user = false;
+            }
+        }
+        return $user;
     }
 
     function form()

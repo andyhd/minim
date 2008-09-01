@@ -1,3 +1,4 @@
+// constants & globals {{{
 var NORTH = 1;
 var SOUTH = 2;
 var EAST = 4;
@@ -7,7 +8,9 @@ var step = 10;
 
 var input_timeout = null;
 var refresh_timeout = null;
+// }}}
 
+// {{{ init
 jQuery(function () {
     place_avatar(user);
     $(window).bind('keydown.mud', handle_key_down)
@@ -17,11 +20,11 @@ jQuery(function () {
             .attr('type', 'text')
             .appendTo('body');
 
-    update();
+    update_loop();
     game_loop();
-});
+}); // }}}
 
-function game_loop()
+function game_loop() // {{{
 {
     var avatar = $('#avatar-' + user.user);
     var oTop = avatar.attr('offsetTop');
@@ -67,9 +70,15 @@ function game_loop()
         clearTimeout(input_timeout);
     }
     input_timeout = setTimeout(game_loop, 60);
+} // }}}
+
+function update_loop()
+{
+    update();
+    refresh_timeout = setTimeout(update_loop, 500);
 }
 
-function place_avatar(data)
+function place_avatar(data) // {{{
 {
     var avatar = document.createElement('div');
     var bg = "transparent url(images/" + data.sprite + ") no-repeat " +
@@ -84,9 +93,9 @@ function place_avatar(data)
              })
              .appendTo('body');
     $(avatar).append(make_speech_bubble());
-}
+} // }}}
 
-function make_speech_bubble()
+function make_speech_bubble() // {{{
 {
     var t = document.createElement('div');
     $(t).addClass('t')
@@ -108,71 +117,87 @@ function make_speech_bubble()
              .append(b)
              .hide();
     return bubble;
-}
+} // }}}
 
-function say(avatar, text)
+function say(avatar, msg) // {{{
 {
-    var bubble = avatar.find('.speech-bubble');
-    bubble.find('.text').text(text);
+    var bubble = $('#avatar-' + avatar + ' .speech-bubble');
+    console.log(avatar + ' says "' + msg + '" (' + (msg ? 'true' : 'false') + ')');
+    if (msg)
+    {
+        bubble.find('.text').text(msg);
+    }
     bubble.show();
-    var delay = 3000 + (text.split(' ').length * 250);
-    setTimeout(function () { bubble.hide(); }, delay);
-}
+    console.log(bubble);
+    if (msg)
+    {
+        // hide the message after enough time to read it
+        var delay = 3000 + (text.split(' ').length * 250);
+        setTimeout(function () { bubble.hide(); }, delay);
+        return;
+    }
 
-function enter_text()
-{
-    var bubble = $('#avatar-' + user.user + ' .speech-bubble');
-    var text = bubble.find('.text');
-    text.text('');
-    bubble.show();
+    // temporarily remove keyboard controls to allow typing
     $(window).unbind('keydown.mud')
              .unbind('keyup.mud');
-    var first = true;
+    
+    // enable user input field
     var ui = $('#user-input');
     ui.val('')
-      .unbind('keypress')
-      .keypress(function (e) {
-          if (first)
-          {
-            // discard first keypress event, because it's the 's'
-            first = false;
-            return false;
-          }
-          if (e.keyCode == 13)
-          {
-            $.ajax({
-                'type': 'POST',
-                'url': 'http://localhost/~andy.driver/pagezero/mud',
-                'data': {'user': user.user, 'says': $(this).val()},
-                'dataType': 'json',
-                'success': refresh
-            });
+      .unbind('keypress');
+    ui.keypress(enter_text)
+      .focus()
+      .attr('fresh', 'true');
+} // }}}
 
-            $(this).blur();
-            $(window).bind('keydown.mud', handle_key_down)
-                     .bind('keyup.mud', handle_key_up);
-            setTimeout(function() { bubble.hide(); }, 3000);
-          }
-          text.text($(this).val() + String.fromCharCode(e.which));
-          return true;
-      })
-      .focus();
+function enter_text(e) {
+    console.log(e.which);
+
+    if ($(this).attr('fresh') == 'true' && e.which == 115)
+    {
+        // discard first keypress event, because it's the 's'
+        $(this).attr('fresh', 'false');
+        return false;
+    }
+
+    // when the user is done typing, post to server
+    if (e.which == 13)
+    {
+        $.ajax({
+            'type': 'POST',
+            'url': 'http://localhost/~andy.driver/pagezero/mud-say',
+            'data': {'user': user.user, 'says': $(this).val()},
+        });
+  
+        // re-enable game keyboard controls
+        $(this).blur();
+        $(window).bind('keydown.mud', handle_key_down)
+                 .bind('keyup.mud', handle_key_up);
+        setTimeout(function() {
+            $('#avatar-' + user.user + ' .speech-bubble').hide();
+        }, 3000);
+    }
+
+    // update speech bubble text
+    $('#avatar-' + user.user + ' .speech-bubble .text').text($(this).val() +
+        String.fromCharCode(e.which));
+    return true;
 }
 
-function get_frame_x(state, frame)
+function get_frame_x(state, frame) // {{{
 {
     if (!frame)
     {
         frame = 0;
     }
     return frame;
-}
+} // }}}
 
 function update()
 {
     $.ajax({
         'type': 'GET',
-        'url': 'http://localhost/~andy.driver/pagezero/mud',
+        'url': 'http://localhost/~andy.driver/pagezero/mud-update',
         'data': {'user': user.user, 'x': user.x, 'y': user.y},
         'dataType': 'json',
         'success': refresh
@@ -194,24 +219,22 @@ function refresh(json)
         oLeft = (oLeft == avatar.x ? oLeft : avatar.x);
         var oTop = sprite.attr('offsetTop');
         oTop = (oTop == avatar.y ? oTop : avatar.y);
-        sprite.css({
+        sprite.animate({
             'left': oLeft + 'px',
             'top': oTop + 'px'
-        });
+        }, 'slow');
     }
+    var out = [];
     for (i in json.chat)
     {
         var msg = json.chat[i];
-        say($('#avatar-' + msg.user), msg.msg);
+        out.push(msg.user + ': "' + msg.msg + '"');
+        say(msg.user, msg.msg);
     }
-    if (refresh_timeout)
-    {
-        clearTimeout(refresh_timeout);
-    }
-    refresh_timeout = setTimeout(update, 500);
+    //console.log(json.last_update + ': ' + out);
 }
 
-function handle_key_down(e)
+function handle_key_down(e) // {{{
 {
     state = $('#avatar-' + user.user).attr('state');
     switch (e.keyCode) {
@@ -240,16 +263,16 @@ function handle_key_down(e)
             }
             break;
         case 83: // 's'
-            enter_text();
+            say(user.user);
             break;
         default:
             return true;
     }
     $('#avatar-' + user.user).attr('state', state);
     return false;
-}
+} // }}}
 
-function handle_key_up(e)
+function handle_key_up(e) // {{{
 {
     state = $('#avatar-' + user.user).attr('state');
     switch (e.keyCode) {
@@ -282,4 +305,4 @@ function handle_key_up(e)
     }
     $('#avatar-' + user.user).attr('state', state);
     return false;
-}
+} // }}}

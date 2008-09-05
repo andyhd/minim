@@ -17,8 +17,11 @@ body {
 
 #masthead h1 {
     font: bold 300% "Dronecat", sans-serif;
+    text-indent: -9999em;
+    background: transparent url(../images/pagezero-logo.png) no-repeat 0 0;
     color: #ddd;
     width: 950px;
+    height: 32px;
     padding-bottom: 0.7em;
 }
 

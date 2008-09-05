@@ -113,7 +113,6 @@ function make_speech_bubble() // {{{
 function say(avatar, msg) // {{{
 {
     var bubble = $('#avatar-' + avatar + ' .speech-bubble');
-    console.log(avatar + ' says "' + msg + '" (' + (msg ? 'true' : 'false') + ')');
     if (msg)
     {
         bubble.find('.text').text(msg);
@@ -184,21 +183,19 @@ function get_frame_x(state, frame) // {{{
 
 function update() // {{{
 {
-    console.log('updating...');
     $.ajax({
         "type": "GET",
         "url": "http://localhost/~andy.driver/pagezero/mud-update",
         "data": "user=" + user.user,
         "dataType": "json",
         "success": function (o) { react(o); update(); },
-        "error": function (xhr, msg, e) { console.log('error: ' + msg); update(); },
+        "error": function (xhr, msg, e) { update(); },
     });
 } // }}}
 
 function react(json) // {{{
 {
     last_id = json.last_id;
-    console.log(last_id + ': ' + json.result.length);
     for (i in json.result)
     {
         var msg = json.result[i];

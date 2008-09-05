@@ -19,5 +19,5 @@ $neighbours = breve('MudUser')->filter(array(
 minim()->render('mud', array(
     'user' => $avatar,
     'area' => $area->id,
-    'neighbours' => $neighbours,
+    'neighbours' => $neighbours->to_array(),
 ));

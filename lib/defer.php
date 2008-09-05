@@ -273,6 +273,16 @@ SQL;
             return $this->_cache[0];
         }
     }
+
+    function to_array()
+    {
+        $a = array();
+        foreach ($this->items as $item)
+        {
+            $a[] = $item->to_array();
+        }
+        return $a;
+    }
 }
 
 class BreveFilter

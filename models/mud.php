@@ -26,3 +26,15 @@ breve()->register('MudChat')
        ->field('area', breve()->int(array('not_null' => TRUE)))
        ->field('msg', breve()->text(array('not_null' => TRUE)))
        ->field('at', breve()->text(array('not_null' => TRUE)));
+
+breve()->register('MudUpdate')
+       ->table('mud_update')
+       ->field('id', breve()->int(array('not_null' => TRUE,
+                                         'autoincrement' => TRUE)))
+       ->field('at', breve()->text(array('not_null' => TRUE,
+                                         'max_length' => 20)))
+       ->field('type', breve()->int(array('not_null' => TRUE)))
+       ->field('user', breve()->int(array('not_null' => TRUE)))
+       ->field('area', breve()->int(array('not_null' => TRUE)))
+       ->field('msg', breve()->text(array('not_null' => TRUE,
+                                          'maxlength' => 255)));

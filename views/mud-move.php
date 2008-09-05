@@ -5,16 +5,28 @@ require_once minim()->lib('defer');
 require_once minim()->lib('mud');
 require_once minim()->models('mud');
 
+minim()->debug = TRUE;
+
 // get the user from the session
-$user = $_REQUEST['user']; //minim()->user();
+$user = @$_REQUEST['user']; //minim()->user();
 
 $avatar = breve('MudUser')->filter(array('user__eq' => $user))->first;
 
-$text = $_REQUEST['says'];
+$last_id = update_timestamp();
+
+$avatar->x = $_REQUEST['x'];
+$avatar->y = $_REQUEST['y'];
+$avatar->save();
 $msg = breve('MudUpdate')->from(array(
+    'at' => $last_id,
     'user' => $user,
     'area' => $avatar->location,
-    'msg' => $text,
-    'at' => update_timestamp(),
-    'type' => 1
-))->save();
+    'msg' => "[{$avatar->x},{$avatar->y}]",
+    'type' => 0
+));
+$msg->save();
+
+if (minim()->debug)
+{
+    print '<pre class="debug">'.join("\n", minim()->log_msgs)."</pre>";
+}

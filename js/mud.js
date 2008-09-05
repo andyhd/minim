@@ -5,9 +5,6 @@ var EAST = 4;
 var WEST = 8;
 
 var step = 10;
-
-var input_timeout = null;
-var refresh_timeout = null;
 // }}}
 
 // {{{ init
@@ -20,8 +17,14 @@ jQuery(function () {
             .attr('type', 'text')
             .appendTo('body');
 
-    update_loop();
-    game_loop();
+    // place neighbours
+    for (i in neighbours)
+    {
+        place_avatar(neighbours[i]);
+    }
+
+    setInterval(game_loop, 60);
+    update();
 }); // }}}
 
 function game_loop() // {{{
@@ -64,19 +67,7 @@ function game_loop() // {{{
     });
     user.x = oLeft;
     user.y = oTop;
-
-    if (input_timeout)
-    {
-        clearTimeout(input_timeout);
-    }
-    input_timeout = setTimeout(game_loop, 60);
 } // }}}
-
-function update_loop()
-{
-    update();
-    refresh_timeout = setTimeout(update_loop, 500);
-}
 
 function place_avatar(data) // {{{
 {
@@ -128,11 +119,10 @@ function say(avatar, msg) // {{{
         bubble.find('.text').text(msg);
     }
     bubble.show();
-    console.log(bubble);
     if (msg)
     {
         // hide the message after enough time to read it
-        var delay = 3000 + (text.split(' ').length * 250);
+        var delay = 3000 + (msg.split(' ').length * 250);
         setTimeout(function () { bubble.hide(); }, delay);
         return;
     }
@@ -150,9 +140,8 @@ function say(avatar, msg) // {{{
       .attr('fresh', 'true');
 } // }}}
 
-function enter_text(e) {
-    console.log(e.which);
-
+function enter_text(e) // {{{
+{
     if ($(this).attr('fresh') == 'true' && e.which == 115)
     {
         // discard first keypress event, because it's the 's'
@@ -164,9 +153,9 @@ function enter_text(e) {
     if (e.which == 13)
     {
         $.ajax({
-            'type': 'POST',
-            'url': 'http://localhost/~andy.driver/pagezero/mud-say',
-            'data': {'user': user.user, 'says': $(this).val()},
+            "type": "GET",
+            "url": "http://localhost/~andy.driver/pagezero/mud-say",
+            "data": "user=" + user.user + "&says=\"" + $(this).val() + "\"",
         });
   
         // re-enable game keyboard controls
@@ -182,7 +171,7 @@ function enter_text(e) {
     $('#avatar-' + user.user + ' .speech-bubble .text').text($(this).val() +
         String.fromCharCode(e.which));
     return true;
-}
+} // }}}
 
 function get_frame_x(state, frame) // {{{
 {
@@ -193,46 +182,53 @@ function get_frame_x(state, frame) // {{{
     return frame;
 } // }}}
 
-function update()
+function update() // {{{
 {
+    console.log('updating...');
     $.ajax({
-        'type': 'GET',
-        'url': 'http://localhost/~andy.driver/pagezero/mud-update',
-        'data': {'user': user.user, 'x': user.x, 'y': user.y},
-        'dataType': 'json',
-        'success': refresh
+        "type": "GET",
+        "url": "http://localhost/~andy.driver/pagezero/mud-update",
+        "data": "user=" + user.user,
+        "dataType": "json",
+        "success": function (o) { react(o); update(); },
+        "error": function (xhr, msg, e) { console.log('error: ' + msg); update(); },
     });
-}
+} // }}}
 
-function refresh(json)
+function react(json) // {{{
 {
-    for (i in json.neighbours)
+    last_id = json.last_id;
+    console.log(last_id + ': ' + json.result.length);
+    for (i in json.result)
     {
-        var avatar = json.neighbours[i];
-        var sprite = $('#avatar-' + avatar.user);
-        if (sprite.length == 0)
+        var msg = json.result[i];
+        switch (msg.type)
         {
-            place_avatar(avatar);
-            sprite = $('#avatar-' + avatar.user);
+            case 0: // avatar move
+                console.log('user ' + msg.user + ' moved to ' + msg.msg);
+                eval('var coords = ' + msg.msg);
+                var avatar = $('#avatar-' + msg.user);
+                avatar.animate({
+                    'left': coords[0] + 'px',
+                    'top': coords[1] + 'px'
+                }, 'slow');
+                break;
+            case 1: // avatar say
+                console.log('user ' + msg.user + ' said ' + msg.msg);
+                say(msg.user, eval(msg.msg));
+                break;
+            case 2: // avatar enter
+                console.log('user ' + msg.user + ' entered');
+                eval('var avatar = ' + msg.msg);
+                place_avatar(avatar);
+                break;
+            case 3: // avatar exit
+                console.log('user ' + msg.user + ' exited');
+                $('#avatar-' + msg.user).remove();
+                break;
         }
-        var oLeft = sprite.attr('offsetLeft');
-        oLeft = (oLeft == avatar.x ? oLeft : avatar.x);
-        var oTop = sprite.attr('offsetTop');
-        oTop = (oTop == avatar.y ? oTop : avatar.y);
-        sprite.animate({
-            'left': oLeft + 'px',
-            'top': oTop + 'px'
-        }, 'slow');
     }
-    var out = [];
-    for (i in json.chat)
-    {
-        var msg = json.chat[i];
-        out.push(msg.user + ': "' + msg.msg + '"');
-        say(msg.user, msg.msg);
-    }
-    //console.log(json.last_update + ': ' + out);
-}
+} // }}}
 
 function handle_key_down(e) // {{{
 {
@@ -304,5 +300,10 @@ function handle_key_up(e) // {{{
             return true;
     }
     $('#avatar-' + user.user).attr('state', state);
+    $.ajax({
+        "type": "GET",
+        "url": "http://localhost/~andy.driver/pagezero/mud-move",
+        "data": {"user": user.user, "x": user.x, "y": user.y},
+    });
     return false;
 } // }}}

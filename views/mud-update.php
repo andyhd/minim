@@ -1,4 +1,6 @@
 <?php
+header('Content-Type: text/plain');
+
 require_once '../lib/minim.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('defer');
@@ -6,44 +8,47 @@ require_once minim()->lib('mud');
 require_once minim()->models('mud');
 
 // get the user from the session
-$user = $_GET['user']; //minim()->user();
-
+$user = @$_GET['user']; //minim()->user();
 $avatar = breve('MudUser')->filter(array('user__eq' => $user))->first;
 
-// get any chat messages since last update
-$chat = breve('MudChat')->filter(array(
-    'area__eq' => $avatar->location,
-    'user__ne' => $user,
-    'at__gte' => get_last_update()
-));
-
-// get the area
-$area = breve('MudArea')->get($avatar->location)->first;
-
-// get the user's neighbours
-$neighbours = breve('MudUser')->filter(array(
-    'user__ne' => $user,
-    'location__eq' => $avatar->location
-));
-
-// set the user's last update time to now
-$last_update = update_timestamp();
-
-// if the user's x and y coords have changed, update
-$x = @$_REQUEST['x'];
-$y = @$_REQUEST['y'];
-if (($x and $x != $avatar->x) or ($y and $y != $avatar->y))
+$last_id = @$_SESSION['last_id'];
+if (!$last_id)
 {
-    $avatar->x = $x;
-    $avatar->y = $y;
-    $avatar->save();
+    $last_id = update_timestamp();
 }
 
-header('Content-Type: text/json');
-minim()->render('mud_json', array(
-    'user' => $avatar,
-    'area' => $area->id,
-    'neighbours' => $neighbours,
-    'chat' => $chat,
-    'last_update' => $last_update
-));
+$msgs = array();
+$start = time();
+while (!$msgs and (time() - $start) < 1)
+{
+    // get any changes since last update
+    $msgs = breve('MudUpdate')->filter(array(
+        'area__eq' => $avatar->location,
+        'user__ne' => $user,
+        'at__gte' => $last_id
+    ))->to_array();
+
+    if ($msgs)
+    {
+        $last_id = update_timestamp();
+        $_SESSION['last_id'] = $last_id;
+
+        // output json
+        echo json_encode(array(
+            'result' => $msgs,
+            'last_id' => $last_id
+        )), "\n";
+        
+        flush();
+        break;
+    }
+    usleep(500000); // 0.5s polling interval
+}
+if (!$msgs)
+{
+    echo json_encode(array(
+        'result' => array(),
+        'last_id' => $last_id,
+        'debug' => join("\n", minim()->log_msgs)
+    ));
+}

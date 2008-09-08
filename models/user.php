@@ -4,4 +4,5 @@ breve()->register('User')
        ->field('id', breve()->int(array('not_null' => TRUE,
                                         'autoincrement' => TRUE)))
        ->field('name', breve()->text(array('maxlength' => 100)))
-       ->field('email', breve()->text(array('maxlength' => 255)));
+       ->field('email', breve()->text(array('maxlength' => 255)))
+       ->field('password_hash', breve()->text(array('maxlength' => 32)));

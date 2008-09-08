@@ -29,7 +29,11 @@
 <?php minim()->def_block('content') ?>
   <div id="wrapper">
    <div id="masthead">
-    <h1>PageZero</h1>
+<?php if (@$logo_is_h1): ?>
+    <h1 id="logo">PageZero</h1>
+<?php else: ?>
+    <div id="logo">PageZero</div>
+<?php endif ?>
     <div class="logged_in">
 <?php if (minim()->user()): ?>
      Logged in as <strong><?php echo minim()->user()->name ?></strong> - <a href="<?php echo minim()->url_for('logout') ?>">Log out</a>

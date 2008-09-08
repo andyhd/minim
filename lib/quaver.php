@@ -61,6 +61,12 @@ class MinimForm
         return $this;
     }
 
+    function passwordField($name, $params=array())
+    {
+        $this->_fields[$name] = new MinimPassword($name, $params);
+        return $this;
+    }
+
     function dateField($name, $params=array())
     {
         $this->_fields[$name] = new MinimDate($name, $params);
@@ -210,6 +216,16 @@ class MinimText extends MinimInput
     {
         return <<<PHP
 <input id="{$this->_id}" type="text" name="{$this->_name}" value="{$this->getValue()}"{$this->_class}>
+PHP;
+    }
+}
+
+class MinimPassword extends MinimInput
+{
+    function render()
+    {
+        return <<<PHP
+<input id="{$this->_id}" type="password" name="{$this->_name}"{$this->_class}>
 PHP;
     }
 }

@@ -10,6 +10,7 @@ $this->map_url('^/$', 'home')
      ->map_url('^/mud-say$', 'mud-say')
      ->map_url('^/mud-update$', 'mud-update')
      ->map_url('^/mud-move$', 'mud-move')
+     ->map_url('^/admin$', 'admin/default')
      ->map_url('^/admin/blog/delete/(?P<id>\d+)$', 'admin/blog-post', 'delete')
      ->map_url('^/admin/blog/edit(?:/(?P<id>\d+))?$', 'admin/blog-post', 'edit')
      ->map_url('^/admin/blog(?:/(?P<page>\d+))?$', 'admin/blog');

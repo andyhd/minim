@@ -14,8 +14,8 @@
 <?php endif ?>
     <div>
      <?php echo $form->next->render() ?>
-     <?php echo $form->name->label ?>
-     <?php echo $form->name->render() ?>
+     <?php echo $form->email->label ?>
+     <?php echo $form->email->render() ?>
     </div>
     <div>
      <?php echo $form->password->label ?>

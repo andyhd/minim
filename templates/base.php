@@ -36,7 +36,7 @@
 <?php endif ?>
     <div class="logged_in">
 <?php if (minim()->user()): ?>
-     Logged in as <strong><?php echo minim()->user()->name ?></strong> - <a href="<?php echo minim()->url_for('logout') ?>">Log out</a>
+     Logged in as <strong><?php $user = minim()->user(); echo $user['name'] ?></strong> - <a href="<?php echo minim()->url_for('logout') ?>">Log out</a>
 <?php else: ?>
      <a href="<?php echo minim()->url_for('login') ?>">Log in</a> - <a href="<?php echo minim()->url_for('sign-up') ?>">Sign up</a>
 <?php endif ?>

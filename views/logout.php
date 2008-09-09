@@ -2,7 +2,10 @@
 require_once '../lib/minim.php';
 
 // unset user cookie
-unset($_COOKIE['user']);
+if (minim()->user())
+{
+    unset($_SESSION['user']);
+}
 
 $continue = @$_GET['continue'];
 if (!$continue)

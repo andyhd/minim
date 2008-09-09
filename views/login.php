@@ -7,24 +7,27 @@ require_once minim()->models('user');
 
 $form = minim()->form(array('id' => 'login-form'))
                ->hiddenField('next', array('initial' => @$_REQUEST['continue']))
-               ->textField('name', array('label' => 'Username'))
+               ->textField('email', array('label' => 'Email address'))
                ->passwordField('password');
 minim()->log(print_r($form, TRUE));
 
 $errors = NULL;
-if ($_SERVER['REQUEST_METHOD'] == 'post')
+if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
 {
     $form->from($_POST);
     if ($form->isValid())
     {
         $user = breve('User')->filter(array(
-            'name' => $form->name->getValue(),
-            'password_hash' => md5($form->password->getValue())
+            'email__eq' => $form->email->getValue(),
+            'password_hash__eq' => md5($form->password->getValue())
         ));
-        if ($user)
+        if ($user->first)
         {
-            $_SESSION['user'] = $user->id;
-            $next = $form->continue->getValue();
+            $_SESSION['user'] = array(
+                'id' => $user->first->id,
+                'name' => $user->first->name
+            );
+            $next = $form->next->getValue();
             if (!$next)
             {
                 $next = 'home';
@@ -43,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'post')
 }
 
 minim()->render('login', array(
-    'username' => @$_POST['name'],
+    'email' => @$_POST['email'],
     'form' => $form,
     'errors' => $errors
 ));

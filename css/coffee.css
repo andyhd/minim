@@ -3,6 +3,7 @@ body {
 }
 
 #wrapper {
+    position: relative;
     height: 100%;
     width: 950px;
     margin: 0 auto;
@@ -23,6 +24,15 @@ body {
     width: 950px;
     height: 32px;
     padding-bottom: 0.7em;
+}
+
+#masthead .logged_in {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 85%;
+    color: #888;
+    padding: 3px 1em 3px 0;
 }
 
 #masthead p {

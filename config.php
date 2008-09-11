@@ -13,7 +13,10 @@ $this->map_url('^/$', 'home')
      ->map_url('^/admin$', 'admin/default')
      ->map_url('^/admin/blog/delete/(?P<id>\d+)$', 'admin/blog-post', 'delete')
      ->map_url('^/admin/blog/edit(?:/(?P<id>\d+))?$', 'admin/blog-post', 'edit')
-     ->map_url('^/admin/blog(?:/(?P<page>\d+))?$', 'admin/blog');
+     ->map_url('^/admin/blog(?:/(?P<page>\d+))?$', 'admin/blog')
+     ->map_url('^/admin/models/BlogComment$', 'admin/BlogComment-list');
+
+include 'admin-urls.php';
 
 $config = array(
     'database' => array(

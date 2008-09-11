@@ -77,8 +77,5 @@ foreach ($foo->maps as $map)
     fputs($fp, " [QSA,L]\n");
 }
 
-// admin rule last allows previous more specific rules to override
-fputs($fp, "RewriteRule ^".(!$base ? '/' : '')."admin(?:/(.*))?$ views/admin.php?path=$1 [QSA,L]\n");
-
 fclose($fp);
 

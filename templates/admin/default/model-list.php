@@ -22,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($models as $model): ?>
+        <?php foreach ($models->items as $model): ?>
         <tr>
           <?php foreach ($model_fields as $field): ?>
           <td><?php echo $model->$field ?></td>
@@ -31,4 +31,5 @@
         <?php endforeach ?>
       </tbody>
     </table>
+    <?php echo paginate($models) ?>
 <?php minim()->end_block('page_content') ?>

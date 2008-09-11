@@ -11,4 +11,10 @@
       <li><?php echo $msg ?></li>
     <?php endforeach ?>
     </ul>
+    <h3>Models</h3>
+    <ul>
+      <?php foreach ($models as $model => $file): ?>
+      <li><a href="<?php echo minim()->url_for('admin/model-list', array('model' => $model)) ?>"><?php echo $model ?></a></li>
+      <?php endforeach ?>
+    </ul>
 <?php minim()->end_block('page_content') ?>

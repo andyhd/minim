@@ -45,29 +45,14 @@ while ($dl = readdir($dh))
 
 minim()->log("Loaded models:".print_r($model_files, TRUE));
 
-$map = "<?php\n";
-foreach ($model_files as $file => $models)
-{
-    foreach ($models as $name)
-    {
-        minim()->log("Building admin views for $");
-        
-        $list_view = file_get_contents("$root/views/admin/model-list.tpl.php");
-        $list_view = str_replace('{model}', $name, $list_view);
-        $list_view = str_replace('{file}', $file, $list_view);
-        file_put_contents("$root/views/admin/$name-list.php", $list_view);
+// add to url map
+$map .= <<<HTML
+<?php
+\$this->map_url('^/admin/models/(?<model>[a-z]+)$', 'admin/model-list')
+     ->map_url('^/admin/models/(?<model>[a-z]+)/(?P<id>\d+)$', 'admin/model-edit');
+?>
 
-        $edit_view = file_get_contents("$root/views/admin/model-edit.tpl.php");
-        $edit_view = str_replace('{model}', $name, $edit_view);
-        $edit_view = str_replace('{file}', $file, $edit_view);
-        file_put_contents("$root/views/admin/$name-edit.php", $edit_view);
-
-        // add to url map
-        $map .= <<<PHP
-\$this->map_url('^/admin/models/$name$', 'admin/$name-list')
-      ->map_url('^/admin/models/$name/(?P<id>\d+)$', 'admin/$name-edit');
-
-PHP;
+HTML;
     }
 }
 

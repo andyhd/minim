@@ -511,6 +511,36 @@ class Breve
         {
             return $this->_managers[$model];
         }
+        else
+        {
+            minim()->log("Model $model not loaded, attempting autoload...");
+            // check each model file for the model
+            $model_dir = minim()->root."/models";
+            $dh = opendir($model_dir);
+            while ($file = readdir($dh))
+            {
+                if (substr($file, -4) == '.php')
+                {
+                    minim()->log("Checking in $model_dir/$file...");
+                    $contents = file_get_contents("$model_dir/$file");
+
+                    // look for a model registration call
+                    $pat = <<<re
+/breve\\(\\)->register\\(\\s*(['"])$model\\1\\s*\\)/x
+re;
+                    if (preg_match($pat, $contents))
+                    {
+                        minim()->log("Found a model");
+                        // try loading the model
+                        include "$model_dir/$file";
+                        if (array_key_exists($model, $this->_managers))
+                        {
+                            return $this->_managers[$model];
+                        }
+                    }
+                }
+            }
+        }
 
         $nullVar = NULL;
         return $nullVar;

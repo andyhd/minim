@@ -14,19 +14,52 @@
     <table class="model_list">
       <thead>
         <tr>
-          <?php foreach ($model_fields as $field): ?>
-          <th scope="col">
-            <?php echo $field ?>
-          </th>
-          <?php endforeach ?>
+          <?php
+$row = '';
+foreach ($model_fields as $field)
+{
+    if ($field == 'id')
+    {
+        continue;
+    }
+    else
+    {
+        $heading = $field;
+    }
+    $row .= "<th scope=\"col\">$heading</th>";
+}
+echo $row;
+?>
+          <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <?php foreach ($models->items as $model): ?>
         <tr>
-          <?php foreach ($model_fields as $field): ?>
-          <td><?php echo $model->$field ?></td>
-          <?php endforeach ?>
+          <?php
+$row = '';
+foreach ($model_fields as $field)
+{
+    $data = '';
+    if ($field == 'id')
+    {
+        continue;
+    }
+    elseif ($model->_fields[$field] instanceof BreveTimestamp)
+    {
+        $data .= date('d M, Y @ H:i', $model->$field);
+    }
+    else
+    {
+        $data .= $model->$field;
+    }
+    $row .= "<td>$data</td>";
+}
+echo $row;
+?>
+          <td><a href="<?php echo minim()->url_for('admin/model-edit', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Edit</a></td>
+          <td><a href="<?php echo minim()->url_for('admin/model-delete', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Delete</a></td>
         </tr>
         <?php endforeach ?>
       </tbody>

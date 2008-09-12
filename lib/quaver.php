@@ -19,15 +19,21 @@ class MinimForm
         if ($this->_model)
         {
             $manager = breve()->manager($model);
+            $have_data = array_key_exists('instance', $params);
             foreach ($manager->_fields as $name => $field)
             {
+                $args = array();
+                if ($have_data)
+                {
+                    $args['initial'] = $params['instance']->$name;
+                }
                 switch (get_class($field))
                 {
                     case 'BreveTimestamp':
-                        $this->dateField($name);
+                        $this->dateField($name, $args);
                         break;
                     default:
-                        $this->textField($name);
+                        $this->textField($name, $args);
                 }
             }
         }

@@ -1,6 +1,7 @@
 <?php
 breve()->register('BlogPost')
        ->table('post')
+       ->default_sort('-posted')
        ->field('id',      breve()->int(array('autoincrement' => TRUE)))
        ->field('title',   breve()->text(array('maxlength' => 100,
                                               'required' => TRUE,
@@ -18,6 +19,7 @@ breve()->register('BlogPost')
 
 breve()->register('BlogComment')
        ->table('comment')
+       ->default_sort('-posted')
        ->field('id',      breve()->int(array('autoincrement' => TRUE)))
        ->field('post_id', breve()->int(array('not_null' => TRUE)))
        ->field('content', breve()->text(array('required' => TRUE,

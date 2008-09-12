@@ -12,11 +12,18 @@ if ($model == NULL)
     minim()->render_404();
 }
 
-$paginator = new BrevePaginator($model->all(), 'admin/model-list', array(
+$models = $model->all();
+if ($model->default_sort())
+{
+    $models->order_by($model->default_sort());
+}
+
+$paginator = new BrevePaginator($models, 'admin/model-list', array(
     'model' => $model_name
 ));
 
 minim()->render('admin/default/model-list', array(
+    'model_name' => $model_name,
     'model_name_plural' => "{$model_name}s",
     'model_fields' => array_keys($model->_fields),
     'models' => $paginator

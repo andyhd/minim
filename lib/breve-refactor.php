@@ -6,6 +6,7 @@ class BreveModel
     var $_errors;
     var $_validated;
     var $_json;
+    var $_default_sort;
 
     function BreveModel($name)
     {
@@ -371,11 +372,13 @@ class BreveManager
     var $_model;
     var $_table;
     var $_fields;
+    var $_default_sort;
 
     function BreveManager($model)
     {
         $this->_model = $model;
         $this->_fields = array();
+        $this->_default_sort = NULL;
     }
 
     function &table($name=NULL)
@@ -408,6 +411,16 @@ class BreveManager
             'id__eq' => $id,
         ));
         return $ms;
+    }
+
+    function default_sort($sort = NULL)
+    {
+        if ($sort)
+        {
+            $this->_default_sort = $sort;
+            return $this;
+        }
+        return $this->_default_sort;
     }
 
     function &all()

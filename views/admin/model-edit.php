@@ -22,7 +22,7 @@ if (!$model)
     return;
 }
 
-$form = minim()->form($model_name, $model->to_array());
+$form = minim()->form($model_name, array('instance' => $model));
 
 $errors = NULL;
 if (strtolower($_SERVER['REQUEST_METHOD'] == 'post'))

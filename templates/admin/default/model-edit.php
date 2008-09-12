@@ -20,12 +20,12 @@
     </ul>
 <?php endif ?>
 <?php foreach ($form->_fields as $field => $val): ?>
-    <div>
+    <div class="form-row">
       <?php echo $form->$field->label ?>
       <?php echo $form->$field->render() ?>
     </div>
 <?php endforeach ?>
-    <div>
+    <div class="form-row">
       <input type="submit" class="submit" value="Save">
     </div>
     </form>

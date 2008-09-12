@@ -32,6 +32,16 @@ class MinimForm
                     case 'BreveTimestamp':
                         $this->dateField($name, $args);
                         break;
+                    case 'BreveText':
+                        if (!$field->getAttribute('maxlength'))
+                        {
+                            $this->textArea($name, $args);
+                        }
+                        else
+                        {
+                            $this->textField($name, $args);
+                        }
+                        break;
                     default:
                         $this->textField($name, $args);
                 }

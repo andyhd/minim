@@ -1,15 +1,15 @@
-<?php minim()->extend('base') ?>
+<?php minim('templates')->extend('base') ?>
 
-<?php minim()->def_block('title') ?>Home<?php minim()->end_block('title') ?>
+<?php minim('templates')->def_block('title') ?>Home<?php minim('templates')->end_block('title') ?>
 
-<?php minim()->def_block('page_content') ?>
+<?php minim('templates')->def_block('page_content') ?>
     <p>Content goes here.</p>
-<?php minim()->end_block('page_content') ?>
+<?php minim('templates')->end_block('page_content') ?>
 
 <?php include_once minim()->lib('flickr') ?>
 <?php //include_once minim()->lib('twitter') ?>
 
-<?php minim()->def_block('page_related') ?>
+<?php minim('templates')->def_block('page_related') ?>
     <div class="column left-col">
      <div class="box">
 <?php flickr_grid() ?>
@@ -20,4 +20,4 @@
 <?php //twitter_feed() ?>
      </div>
     </div>
-<?php minim()->end_block('page_related') ?>
+<?php minim('templates')->end_block('page_related') ?>

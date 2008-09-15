@@ -1,6 +1,6 @@
 <?php
-require_once '../lib/minim.php';
+require_once '../config.php';
 
-minim()->render('home', array(
+minim('templates')->render('home', array(
     'logo_is_h1' => true
 ));

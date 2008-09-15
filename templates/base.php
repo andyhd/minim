@@ -1,32 +1,32 @@
-<?php minim()->extend('root') ?>
+<?php minim('templates')->extend('root') ?>
 
-<?php minim()->def_block('title') ?><?php minim()->block('title') ?> - PageZero<?php minim()->end_block('title') ?>
+<?php minim('templates')->def_block('title') ?><?php minim('templates')->block('title') ?> - PageZero<?php minim('templates')->end_block('title') ?>
 
-<?php minim()->def_block('meta') ?>
+<?php minim('templates')->def_block('meta') ?>
   <link rel="shortcut icon" type="image/gif" href="<?php echo minim()->webroot ?>/images/favicon.gif">
-<?php minim()->block('page_meta') ?>
-<?php minim()->end_block('meta') ?>
+<?php minim('templates')->block('page_meta') ?>
+<?php minim('templates')->end_block('meta') ?>
 
-<?php minim()->def_block('css') ?>
+<?php minim('templates')->def_block('css') ?>
   <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/reset-fonts.css">
   <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/coffee.css">
-<?php minim()->block('page_css') ?>
-<?php minim()->end_block('css') ?>
+<?php minim('templates')->block('page_css') ?>
+<?php minim('templates')->end_block('css') ?>
 
-<?php minim()->def_block('js_head') ?>
+<?php minim('templates')->def_block('js_head') ?>
   <script type="text/javascript" src="<?php echo minim()->webroot ?>/js/jquery-1.2.6.min.js"></script>
-<?php minim()->block('page_js_head') ?>
-<?php minim()->end_block('js_head') ?>
+<?php minim('templates')->block('page_js_head') ?>
+<?php minim('templates')->end_block('js_head') ?>
 
-<?php minim()->def_block('js_foot') ?>
+<?php minim('templates')->def_block('js_foot') ?>
   <script type="text/javascript" src="<?php echo minim()->webroot ?>/js/label_inside.js"></script>
-<?php minim()->block('page_js_foot') ?>
-<?php minim()->end_block('js_foot') ?>
+<?php minim('templates')->block('page_js_foot') ?>
+<?php minim('templates')->end_block('js_foot') ?>
 
 <?php include_once minim()->lib('random_engrish') ?>
 <?php include_once minim()->lib('navigation_tabs') ?>
 
-<?php minim()->def_block('content') ?>
+<?php minim('templates')->def_block('content') ?>
   <div id="wrapper">
    <div id="masthead">
 <?php if (@$logo_is_h1): ?>
@@ -36,9 +36,9 @@
 <?php endif ?>
     <div class="logged_in">
 <?php if (minim()->user()): ?>
-     Logged in as <strong><?php $user = minim()->user(); echo $user['name'] ?></strong> - <a href="<?php echo minim()->url_for('logout') ?>">Log out</a>
+     Logged in as <strong><?php $user = minim()->user(); echo $user['name'] ?></strong> - <a href="<?php echo minim('routing')->url_for('logout') ?>">Log out</a>
 <?php else: ?>
-     <a href="<?php echo minim()->url_for('login') ?>">Log in</a> - <a href="<?php echo minim()->url_for('sign-up') ?>">Sign up</a>
+     <a href="<?php echo minim('routing')->url_for('login') ?>">Log in</a> - <a href="<?php echo minim('routing')->url_for('sign-up') ?>">Sign up</a>
 <?php endif ?>
     </div>
     <p><?php random_engrish() ?></p>
@@ -49,16 +49,16 @@
     </form>
    </div>
    <div id="content">
-<?php minim()->block('page_content') ?>
+<?php minim('templates')->block('page_content') ?>
    </div>
    <div id="sub-content">
     <ul id="navigation">
 <?php navigation() ?>
     </ul>
-<?php minim()->block('page_related') ?>
+<?php minim('templates')->block('page_related') ?>
    </div>
    <div id="footer">
     <p>&copy; 2008 Andy Driver - powered by Minim</p>
    </div>
   </div>
-<?php minim()->end_block('content') ?>
+<?php minim('templates')->end_block('content') ?>

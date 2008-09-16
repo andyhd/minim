@@ -8,7 +8,7 @@ class Minim_Log implements Minim_Plugin
     {
         $this->_start_time = array_sum(explode(' ', microtime()));
         $this->_msgs = array();
-        register_shutdown_function(array($this, 'shutdown'));
+        register_shutdown_function(array(&$this, 'shutdown'));
     } // }}}
 
     function debug($msg) // {{{
@@ -30,6 +30,9 @@ class Minim_Log implements Minim_Plugin
     {
         $time = array_sum(explode(' ', microtime())) - $this->_start_time;
         $this->debug(sprintf("Took %.4fs", $time));
-        $this->dump();
+        if (isset($_REQUEST['debug']))
+        {
+            $this->dump();
+        }
     } // }}}
 }

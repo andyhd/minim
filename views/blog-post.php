@@ -3,8 +3,6 @@ require_once '../lib/minim.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('quaver');
 require_once minim()->lib('defer');
-require_once minim()->models('blog');
-require_once minim()->models('user');
 
 $date = sprintf("%04d-%02d-%02d", $_GET['year'], $_GET['month'], $_GET['day']);
 

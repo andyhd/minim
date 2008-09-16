@@ -233,7 +233,7 @@ SQL;
     function execute_query($query, $params)
     {
         // intended to be overridden to allow use of alternative backends
-        $s = minim()->db()->prepare($query);
+        $s = minim('db')->prepare($query);
         $s->execute($params);
         return $s;
     }

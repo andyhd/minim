@@ -99,5 +99,7 @@ function flickr_grid()
 {
     $flickr =& new Flickr();
     $images = $flickr->recentPhotos();
-    include minim()->template('_flickr');
+    minim('templates')->render('_flickr', array(
+        'images' => $images
+    ));
 }

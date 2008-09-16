@@ -3,7 +3,6 @@ require_once '../../lib/minim.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('defer');
 require_once minim()->lib('pagination');
-require_once minim()->models('blog');
 
 $action = @$_REQUEST['action'];
 $id = (int) @$_REQUEST['id'];

@@ -44,13 +44,13 @@ class BreveModel
         {
             if ($field->getAttribute('read_only'))
             {
-                minim()->log("$name field is read-only");
+                minim('log')->debug("$name field is read-only");
                 return FALSE;
             }
             $ret = $field->setValue($value);
             if ($ret === FALSE)
             {
-                minim()->log("Couldn't set $name to ".print_r($value, TRUE));
+                minim('log')->debug("Couldn't set $name to ".print_r($value, TRUE));
             }
             else
             {
@@ -84,7 +84,7 @@ class BreveModel
             return $field->getValue();
         }
         
-        minim()->log(get_class($this).": Can't get field $name - does not exist");
+        minim('log')->debug(get_class($this).": Can't get field $name - does not exist");
         return NULL;
     }
 
@@ -463,7 +463,7 @@ class BreveManager
     {
         if (!$instance->isValid())
         {
-            minim()->log("Cannot save invalid model");
+            minim('log')->debug("Cannot save invalid model");
             return FALSE;
         }
         $updates = array();
@@ -493,7 +493,7 @@ class BreveManager
         $ret = $s->execute($data);
         if (!$id)
         {
-            minim()->log("Setting id of new {$this->_model} to {$ret['last_insert_id']}"); 
+            minim('log')->debug("Setting id of new {$this->_model} to {$ret['last_insert_id']}"); 
             $instance->id = $ret['last_insert_id'];
         }
         return $ret;
@@ -554,7 +554,6 @@ class Breve
         }
 
         $this->_models = array();
-        minim()->log("Searching for models...");
         // check each model file
         $model_dir = minim()->root."/models";
         $dh = opendir($model_dir);
@@ -562,7 +561,6 @@ class Breve
         {
             if (substr($file, -4) == '.php')
             {
-                minim()->log("Checking in $model_dir/$file...");
                 $contents = file_get_contents("$model_dir/$file");
 
                 // look for a model registration call
@@ -571,7 +569,6 @@ class Breve
 regexp;
                 if (preg_match_all($pat, $contents, $match))
                 {
-                    minim()->log("Found model(s)");
                     foreach ($match[2] as $model)
                     {
                         $this->_models[$model] = $file;
@@ -579,6 +576,7 @@ regexp;
                 }
             }
         }
+        minim('log')->debug("Models available: ".print_r(array_keys($this->_models), TRUE));
         return $this->_models;
     }
 

@@ -12,11 +12,12 @@ class Minim_Database implements Minim_Plugin
     {
     } // }}}
 
-    function get_connection() // {{{
+    function &get_connection() // {{{
     {
         static $dbh;
         if (!$dbh)
         {
+            minim('log')->debug('DB: '.print_r($this, TRUE));
             $dsn = "mysql:dbname={$this->_name};host={$this->_host}";
             if (isset($this->_socket))
             {
@@ -42,7 +43,14 @@ class Minim_Database implements Minim_Plugin
         return $dbh;
     } // }}}
 
-    function host($host=NULL) // {{{
+    function &prepare($sql) // {{{
+    {
+        $conn = $this->get_connection();
+        $sth = $conn->prepare($sql);
+        return $sth;
+    } // }}}
+
+    function &host($host=NULL) // {{{
     {
         if ($host)
         {
@@ -52,7 +60,7 @@ class Minim_Database implements Minim_Plugin
         return $this->_host;
     } // }}}
 
-    function socket($socket=NULL) // {{{
+    function &socket($socket=NULL) // {{{
     {
         if ($socket)
         {
@@ -62,7 +70,7 @@ class Minim_Database implements Minim_Plugin
         return $this->_socket;
     } // }}}
 
-    function user($user=NULL) // {{{
+    function &user($user=NULL) // {{{
     {
         if ($user)
         {
@@ -72,7 +80,7 @@ class Minim_Database implements Minim_Plugin
         return $this->_user;
     } // }}}
 
-    function password($password=NULL) // {{{
+    function &password($password=NULL) // {{{
     {
         if ($password !== NULL)
         {
@@ -82,7 +90,7 @@ class Minim_Database implements Minim_Plugin
         return $this->_password;
     } // }}}
 
-    function name($name=NULL) // {{{
+    function &name($name=NULL) // {{{
     {
         if ($name)
         {

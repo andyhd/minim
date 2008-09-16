@@ -56,10 +56,6 @@ class Minim_TemplateEngine implements Minim_Plugin
         {
             $this->render($template, $_context);
         }
-        elseif ($GLOBALS['debug'])
-        {
-            minim('log')->dump();
-        }
         ob_end_flush();
     } // }}}
 

@@ -1,13 +1,13 @@
-<?php minim()->extend('base') ?>
+<?php minim('templates')->extend('base') ?>
 
-<?php minim()->def_block('title') ?>Admin<?php minim()->end_block('title') ?>
+<?php minim('templates')->def_block('title') ?>Admin<?php minim('templates')->end_block('title') ?>
 
-<?php minim()->def_block('body_class') ?>admin<?php minim()->end_block('body_class') ?>
+<?php minim('templates')->def_block('body_class') ?>admin<?php minim('templates')->end_block('body_class') ?>
 
-<?php minim()->def_block('page_content') ?>
+<?php minim('templates')->def_block('page_content') ?>
     <h1><?php echo $model_name_plural ?></h1>
     <ul class="messages">
-    <?php foreach (minim()->user_messages() as $msg): ?>
+    <?php foreach (minim('user_messaging')->get_messages() as $msg): ?>
       <li><?php echo $msg ?></li>
     <?php endforeach ?>
     </ul>
@@ -58,11 +58,11 @@ foreach ($model_fields as $field)
 }
 echo $row;
 ?>
-          <td><a href="<?php echo minim()->url_for('admin/model-edit', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Edit</a></td>
-          <td><a href="<?php echo minim()->url_for('admin/model-delete', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Delete</a></td>
+          <td><a href="<?php echo minim('routing')->url_for('admin/model-edit', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Edit</a></td>
+          <td><a href="<?php echo minim('routing')->url_for('admin/model-delete', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Delete</a></td>
         </tr>
         <?php endforeach ?>
       </tbody>
     </table>
-    <?php echo paginate($models) ?>
-<?php minim()->end_block('page_content') ?>
+    <?php echo minim('pagination')->paginate($models) ?>
+<?php minim('templates')->end_block('page_content') ?>

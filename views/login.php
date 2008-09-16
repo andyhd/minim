@@ -3,7 +3,6 @@ require_once '../lib/minim.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('defer');
 require_once minim()->lib('quaver');
-require_once minim()->models('user');
 
 $form = minim()->form(array('id' => 'login-form'))
                ->hiddenField('next', array('initial' => @$_REQUEST['continue']))

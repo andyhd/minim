@@ -70,7 +70,7 @@ class FakePDOStatement
             }
         }
         $sql = strtr($this->sql, $params);
-        minim()->log("Executing query: $sql");
+        minim('log')->debug("Executing query: $sql");
         $this->resultset = @mysql_query($sql, $this->dbh);
         if (!$this->resultset)
         {
@@ -107,7 +107,7 @@ class FakePDOStatement
         {
             $results[] = $row;
         }
-        minim()->log('Result set: '.print_r($results, TRUE));
+        minim('log')->debug('Result set: '.print_r($results, TRUE));
         return $results;
     }
 }

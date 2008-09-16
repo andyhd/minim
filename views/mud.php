@@ -2,7 +2,6 @@
 require_once '../lib/minim.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('defer');
-require_once minim()->models('mud');
 
 $user = $_GET['user']; //minim()->user();
 

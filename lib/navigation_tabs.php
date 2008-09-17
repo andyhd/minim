@@ -14,8 +14,6 @@ function navigation()
     {
         $current = 'blog';
     }
-    minim('templates')->render('_navigation', array(
-        'navigation_tabs' => $navigation_tabs,
-        'current' => $current
-    ));
+
+    include minim()->root."/templates/_navigation.php";
 }

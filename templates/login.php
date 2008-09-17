@@ -1,8 +1,8 @@
-<?php minim()->extend('base') ?>
+<?php $this->extend('base') ?>
 
-<?php minim()->def_block('title') ?>Login<?php minim()->end_block('title') ?>
+<?php $this->def_block('title') ?>Login<?php $this->end_block('title') ?>
 
-<?php minim()->def_block('page_content') ?>
+<?php $this->def_block('page_content') ?>
    <form method="post">
     <h1>Login</h1>
 <?php if ($errors): ?>
@@ -25,12 +25,12 @@
      <input type="submit" class="submit" value="Login">
     </div>
   </form>
-<?php minim()->end_block('page_content') ?>
+<?php $this->end_block('page_content') ?>
 
 <?php include_once minim()->lib('flickr') ?>
 <?php //include_once minim()->lib('twitter') ?>
 
-<?php minim()->def_block('page_related') ?>
+<?php $this->def_block('page_related') ?>
     <div class="column left-col">
      <div class="box">
 <?php flickr_grid() ?>
@@ -41,4 +41,4 @@
 <?php //twitter_feed() ?>
      </div>
     </div>
-<?php minim()->end_block('page_related') ?>
+<?php $this->end_block('page_related') ?>

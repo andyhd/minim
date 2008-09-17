@@ -1,10 +1,10 @@
-<?php minim()->extend('base') ?>
+<?php $this->extend('base') ?>
 
-<?php minim()->def_block('title') ?>Blog Admin<?php minim()->end_block('title') ?>
+<?php $this->def_block('title') ?>Blog Admin<?php $this->end_block('title') ?>
 
-<?php minim()->def_block('body_class') ?>admin<?php minim()->end_block('body_class') ?>
+<?php $this->def_block('body_class') ?>admin<?php $this->end_block('body_class') ?>
 
-<?php minim()->def_block('page_content') ?>
+<?php $this->def_block('page_content') ?>
     <h1>Manage Posts</h1>
     <ul class="messages">
     <?php foreach (minim()->user_messages() as $msg): ?>
@@ -35,4 +35,4 @@
       </table>
     </form>
     <?php echo paginate($posts) ?>
-<?php minim()->end_block('page_content') ?>
+<?php $this->end_block('page_content') ?>

@@ -1,10 +1,10 @@
-<?php minim('templates')->extend('base') ?>
+<?php $this->extend('base') ?>
 
-<?php minim('templates')->def_block('title') ?>Admin<?php minim('templates')->end_block('title') ?>
+<?php $this->def_block('title') ?>Admin<?php $this->end_block('title') ?>
 
-<?php minim('templates')->def_block('body_class') ?>admin<?php minim('templates')->end_block('body_class') ?>
+<?php $this->def_block('body_class') ?>admin<?php $this->end_block('body_class') ?>
 
-<?php minim('templates')->def_block('page_content') ?>
+<?php $this->def_block('page_content') ?>
     <h1><?php echo $model_name_plural ?></h1>
     <ul class="messages">
     <?php foreach (minim('user_messaging')->get_messages() as $msg): ?>
@@ -65,4 +65,4 @@ echo $row;
       </tbody>
     </table>
     <?php echo minim('pagination')->paginate($models) ?>
-<?php minim('templates')->end_block('page_content') ?>
+<?php $this->end_block('page_content') ?>

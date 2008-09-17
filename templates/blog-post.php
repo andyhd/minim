@@ -1,17 +1,17 @@
-<?php minim()->extend('base') ?>
+<?php $this->extend('base') ?>
 
-<?php minim()->def_block('title') ?><?php echo $post->title ?><?php minim()->end_block('title') ?>
+<?php $this->def_block('title') ?><?php echo $post->title ?><?php $this->end_block('title') ?>
 
-<?php minim()->def_block('page_content') ?>
+<?php $this->def_block('page_content') ?>
   <div class="post">
    <h2><?php echo $post->title ?></h2>
    <?php echo $post->content ?>
    <ol class="taglist">
    </ol>
   </div>
-<?php minim()->end_block('page_content') ?>
+<?php $this->end_block('page_content') ?>
 
-<?php minim()->def_block('page_related') ?>
+<?php $this->def_block('page_related') ?>
   <div id="comments">
 <?php foreach ($comments->items as $i => $comment): ?>
    <div class="box comment<?php echo $i+1 == count($comments->items) ? ' last-child' : '' ?>">
@@ -57,4 +57,4 @@
      <input type="submit" class="submit" value="Post comment">
     </div>
   </form>
-<?php minim()->end_block('page_related') ?>
+<?php $this->end_block('page_related') ?>

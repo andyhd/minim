@@ -1,8 +1,8 @@
-<?php minim('templates')->extend('base') ?>
+<?php $this->extend('base') ?>
 
-<?php minim('templates')->def_block('title') ?>Blog<?php minim('templates')->end_block('title') ?>
+<?php $this->def_block('title') ?>Blog<?php $this->end_block('title') ?>
 
-<?php minim('templates')->def_block('page_content') ?>
+<?php $this->def_block('page_content') ?>
   <ol class="blog-posts">
 <?php for ($i = 0; $i < 3 and $i < count($posts->items); $i++): $post = $posts->items[$i] ?>
    <li>
@@ -27,4 +27,4 @@
   <p>
    <a href="<?php minim('routing')->url_for("blog-archive") ?>">Older Posts</a>
   </p>
-<?php minim('templates')->end_block('page_content') ?>
+<?php $this->end_block('page_content') ?>

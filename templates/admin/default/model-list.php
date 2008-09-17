@@ -1,5 +1,7 @@
 <?php $this->extend('base') ?>
 
+<?php require_once minim()->lib('helpers') ?>
+
 <?php $this->def_block('title') ?>Admin<?php $this->end_block('title') ?>
 
 <?php $this->def_block('body_class') ?>admin<?php $this->end_block('body_class') ?>
@@ -36,7 +38,7 @@ echo $row;
       </thead>
       <tbody>
         <?php foreach ($models->items as $model): ?>
-        <tr>
+        <tr<?php echo alternate(' class="alt"', '') ?>>
           <?php
 $row = '';
 foreach ($model_fields as $field)
@@ -50,9 +52,13 @@ foreach ($model_fields as $field)
     {
         $data .= date('d M, Y @ H:i', $model->$field);
     }
+    elseif ($model->_fields[$field] instanceof BreveText and !$model->_fields[$field]->getAttribute('maxlength'))
+    {
+        $data .= htmlspecialchars(truncate($model->$field));
+    }
     else
     {
-        $data .= $model->$field;
+        $data .= htmlspecialchars($model->$field);
     }
     $row .= "<td>$data</td>";
 }

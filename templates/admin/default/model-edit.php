@@ -7,7 +7,7 @@
 <?php $this->def_block('page_content') ?>
     <h1>Edit <?php echo $model_name ?></h1>
     <ul class="messages">
-    <?php foreach (minim()->user_messages() as $msg): ?>
+    <?php foreach (minim('user_messaging')->get_messages() as $msg): ?>
       <li><?php echo $msg ?></li>
     <?php endforeach ?>
     </ul>

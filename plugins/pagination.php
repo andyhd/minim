@@ -180,13 +180,6 @@ class Minim_Paginator implements Minim_Plugin
             $next = minim('routing')->url_for($this->url, $params);
         }
         
-        minim('templates')->render('_pagination', array(
-            'prev' => $prev,
-            'next' => $next,
-            'url' => $url,
-            'from' => $from,
-            'to' => $to,
-            'page' => $page
-        ));
+        include minim()->root."/templates/_pagination.php";
     } // }}}
 }

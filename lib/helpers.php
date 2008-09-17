@@ -93,16 +93,16 @@ HTML;
     return sprintf('<ul class="pagination">%s</ul>', $out);
 }
 
-    function truncate($str, $limit=300) // {{{
+function truncate($str, $limit=300) // {{{
+{
+    // TODO - add unicode support (mb_strlen)
+    if (strlen($str) < $limit)
     {
-        // TODO - add unicode support (mb_strlen)
-        if (strlen($str) < $limit)
-        {
-            return $str;
-        }
+        return $str;
+    }
 
-        // cheat and use PHP's wordwrap() function to avoid splitting words
-        // TODO - add unicode support (?)
-        $lines = explode("\n", wordwrap($str, $limit));
-        return $lines[0] . '...'; // TODO - change to horizontal ellipsis
-    } // }}}
+    // cheat and use PHP's wordwrap() function to avoid splitting words
+    // TODO - add unicode support (?)
+    $lines = explode("\n", wordwrap($str, $limit));
+    return $lines[0] . '...'; // TODO - change to horizontal ellipsis
+} // }}}

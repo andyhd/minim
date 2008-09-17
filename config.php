@@ -24,6 +24,8 @@ minim('routing')
     ->map_url('^/admin/blog/edit(?:/(?P<id>\d+))?$', 'admin/blog-post', 'edit')
     ->map_url('^/admin/blog(?:/(?P<page>\d+))?$', 'admin/blog');
 
+include 'admin-urls.php';
+
 minim('db')
     ->host('localhost')
     ->socket('/tmp/mysql.sock')

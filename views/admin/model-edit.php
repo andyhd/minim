@@ -1,5 +1,5 @@
 <?php
-require_once '../../lib/minim.php';
+require_once '../../config.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('defer');
 require_once minim()->lib('quaver');
@@ -9,7 +9,7 @@ $model_name = @$_REQUEST['model'];
 $model = breve($model_name);
 if (!$model)
 {
-    minim()->render_404();
+    minim('templates')->render_404();
     return;
 }
 
@@ -18,11 +18,11 @@ $model = $model->filter(array(
 ))->first;
 if (!$model)
 {
-    minim()->render_404();
+    minim('templates')->render_404();
     return;
 }
 
-$form = minim()->form($model_name, array('instance' => $model));
+$form = minim('forms')->form($model_name, array('instance' => $model));
 
 $errors = NULL;
 if (strtolower($_SERVER['REQUEST_METHOD'] == 'post'))
@@ -33,8 +33,8 @@ if (strtolower($_SERVER['REQUEST_METHOD'] == 'post'))
         $model = breve($model_name)->from($form->getData());
         $model->save();
         
-        minim()->user_message("$model_name saved");
-        minim()->redirect('admin/model-list', $_GET);
+        minim('user_messaging')->info("$model_name saved");
+        minim('templates')->redirect('admin/model-list', $_GET);
     }
     else
     {
@@ -42,7 +42,7 @@ if (strtolower($_SERVER['REQUEST_METHOD'] == 'post'))
     }
 }
 
-minim()->render('admin/default/model-edit', array(
+minim('templates')->render('admin/default/model-edit', array(
     'model_name' => $model_name,
     'form' => $form,
     'errors' => $errors

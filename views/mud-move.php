@@ -1,5 +1,5 @@
 <?php
-require_once '../lib/minim.php';
+require_once '../config.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('defer');
 require_once minim()->lib('mud');
@@ -24,8 +24,3 @@ $msg = breve('MudUpdate')->from(array(
     'type' => 0
 ));
 $msg->save();
-
-if (minim()->debug)
-{
-    print '<pre class="debug">'.join("\n", minim()->log_msgs)."</pre>";
-}

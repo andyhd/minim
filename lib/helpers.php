@@ -2,7 +2,7 @@
 function url_for_blog_post($post)
 {
     list($year, $month, $day) = explode(" ", date("Y m d", $post->posted));
-    return minim()->url_for("blog-post", array(
+    return minim('routing')->url_for("blog-post", array(
         "year" => $year,
         "month" => $month,
         "day" => $day,

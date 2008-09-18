@@ -11,7 +11,7 @@
      <?php if ($post->teaser): ?>
       <?php echo $post->teaser ?>
      <?php else: ?>
-      <?php echo minim()->truncate($post->content, 300) ?>
+      <?php echo truncate($post->content, 300) ?>
      <?php endif ?>
      <ol class="taglist">
      </ol>

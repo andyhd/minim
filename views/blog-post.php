@@ -1,5 +1,5 @@
 <?php
-require_once '../lib/minim.php';
+require_once '../config.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('quaver');
 require_once minim()->lib('defer');
@@ -20,18 +20,18 @@ $comments = breve('BlogComment')
 
 if (!$post->items)
 {
-    minim()->render_404();
+    minim('templates')->render_404();
     return;
 }
 
 // build the comment form
-$form = minim()->form(array('id' => 'comment-form',
+$form = minim('forms')->form(array('id' => 'comment-form',
                             'class' => 'box'))
                ->hiddenField('post_id', array('initial' => $post->first->id))
                ->textField('name')
                ->textField('email', array('help' => 'Will not be published'))
                ->textArea('content', array('rows' => 6));
-minim()->log(print_r($form, TRUE));
+minim('log')->debug(print_r($form, TRUE));
 
 $errors = NULL;
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         $comment->author = $user->id;
         $comment->save();
 
-        minim()->user_message('Comment saved');
-        minim()->redirect('blog-post', $_GET);
+        minim('user_messaging')->info('Comment saved');
+        minim('templates')->redirect('blog-post', $_GET);
     }
     else
     {
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     }
 }
 
-minim()->render('blog-post', array(
+minim('templates')->render('blog-post', array(
     'post' => $post->items[0],
     'comments' => $comments,
     'form' => $form,

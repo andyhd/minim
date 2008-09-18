@@ -1,8 +1,7 @@
 <?php
-require_once '../../lib/minim.php';
+require_once '../../config.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('defer');
-require_once minim()->lib('pagination');
 
 $action = @$_REQUEST['action'];
 $id = (int) @$_REQUEST['id'];
@@ -14,7 +13,7 @@ if ($id)
     ));
     if (!$post->items)
     {
-        minim()->render_404();
+        minim('templates')->render_404();
     }
     $post = $post->items[0];
 }
@@ -26,8 +25,8 @@ else
 if ($action == 'delete')
 {
     $post->delete();
-    minim()->user_message("Deleted post \"{$post->title}\"");
-    minim()->redirect('admin/blog');
+    minim('user_messaging')->info("Deleted post \"{$post->title}\"");
+    minim('routing')->redirect('admin/blog');
 }
 
 $errors = NULL;
@@ -39,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     if ($post->isValid())
     {
         $post->save();
-        minim()->user_message("Saved post \"{$post->title}\"");
-        minim()->redirect('admin/blog');
+        minim('user_messaging')->info("Saved post \"{$post->title}\"");
+        minim('routing')->redirect('admin/blog');
     }
     else
     {
@@ -48,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     }
 }
 
-minim()->render('admin/blog-post-form', array(
+minim('templates')->render('admin/blog-post-form', array(
     'create' => is_null($post),
     'post' => $post,
     'errors' => $errors,

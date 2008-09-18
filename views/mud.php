@@ -1,5 +1,5 @@
 <?php
-require_once '../lib/minim.php';
+require_once '../config.php';
 require_once minim()->lib('breve-refactor');
 require_once minim()->lib('defer');
 
@@ -15,7 +15,7 @@ $neighbours = breve('MudUser')->filter(array(
     'location__eq' => $avatar->location
 ));
 
-minim()->render('mud', array(
+minim('templates')->render('mud', array(
     'user' => $avatar,
     'area' => $area->id,
     'neighbours' => $neighbours->to_array(),

@@ -1,5 +1,5 @@
 <?php
-require_once '../lib/minim.php';
+require_once '../config.php';
 
 // unset user cookie
 if (minim()->user())
@@ -13,4 +13,4 @@ if (!$continue)
     $continue = 'home';
 }
 
-minim()->redirect($continue);
+minim('routing')->redirect($continue);

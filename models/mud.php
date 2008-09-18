@@ -1,5 +1,5 @@
 <?php
-breve()->register('MudUser')
+breve()->register_model('MudUser')
        ->table('mud_user')
        ->field('id', breve()->int(array('not_null' => TRUE,
                                         'autoincrement' => TRUE)))
@@ -12,13 +12,13 @@ breve()->register('MudUser')
                                              'maxlength' => 255)))
        ->field('last_update', breve()->text());
 
-breve()->register('MudArea')
+breve()->register_model('MudArea')
        ->table('mud_area')
        ->field('id', breve()->int(array('not_null' => TRUE,
                                         'autoincrement' => TRUE)))
        ->field('map', breve()->text(array('not_null' => TRUE)));
 
-breve()->register('MudChat')
+breve()->register_model('MudChat')
        ->table('mud_chat')
        ->field('id', breve()->int(array('not_null' => TRUE,
                                         'autoincrement' => TRUE)))
@@ -27,7 +27,7 @@ breve()->register('MudChat')
        ->field('msg', breve()->text(array('not_null' => TRUE)))
        ->field('at', breve()->text(array('not_null' => TRUE)));
 
-breve()->register('MudUpdate')
+breve()->register_model('MudUpdate')
        ->table('mud_update')
        ->field('id', breve()->int(array('not_null' => TRUE,
                                          'autoincrement' => TRUE)))

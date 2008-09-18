@@ -1,8 +1,8 @@
 <?php
-breve()->register('User')
-       ->table('user')
-       ->field('id', breve()->int(array('not_null' => TRUE,
-                                        'autoincrement' => TRUE)))
-       ->field('name', breve()->text(array('maxlength' => 100)))
-       ->field('email', breve()->text(array('maxlength' => 255)))
-       ->field('password_hash', breve()->text(array('maxlength' => 32)));
+minim('orm')->register_model('User')
+            ->table('user')
+            ->int('id', array('not_null' => TRUE,
+                              'autoincrement' => TRUE))
+            ->text('name', array('maxlength' => 100))
+            ->text('email', array('maxlength' => 255))
+            ->text('password_hash', array('maxlength' => 32));

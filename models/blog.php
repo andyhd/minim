@@ -1,5 +1,5 @@
 <?php
-breve()->register('BlogPost')
+breve()->register_model('BlogPost')
        ->table('post')
        ->default_sort('-posted')
        ->field('id',      breve()->int(array('autoincrement' => TRUE)))
@@ -17,7 +17,7 @@ breve()->register('BlogPost')
        ->field('author',  breve()->int(array('not_null' => TRUE)))
        ->field('tags',    breve()->text(array('maxlength' => 255)));
 
-breve()->register('BlogComment')
+breve()->register_model('BlogComment')
        ->table('comment')
        ->default_sort('-posted')
        ->field('id',      breve()->int(array('autoincrement' => TRUE)))

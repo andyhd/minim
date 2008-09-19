@@ -48,11 +48,11 @@ foreach ($model_fields as $field)
     {
         continue;
     }
-    elseif ($model->_fields[$field] instanceof BreveTimestamp)
+    elseif ($model->_fields[$field]->_type == 'timestamp')
     {
         $data .= date('d M, Y @ H:i', $model->$field);
     }
-    elseif ($model->_fields[$field] instanceof BreveText and !$model->_fields[$field]->getAttribute('maxlength'))
+    elseif ($model->_fields[$field]->_type == 'text' and !$model->_fields[$field]->getAttribute('maxlength'))
     {
         $data .= htmlspecialchars(truncate($model->$field));
     }

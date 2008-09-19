@@ -1,5 +1,5 @@
 <?php
-class Minim_Paginator implements Minim_Plugin
+class Minim_Paginator implements Minim_Plugin, Iterator, Countable
 {
     var $source;
     var $per_page;
@@ -31,6 +31,7 @@ class Minim_Paginator implements Minim_Plugin
         if ($source)
         {
             $this->source = $source;
+            $this->page();
             return $this;
         }
         return $this->source;
@@ -71,15 +72,6 @@ class Minim_Paginator implements Minim_Plugin
         return $this->source->limit($start, $this->per_page);
     } // }}}
 
-    function __get($name) // {{{
-    {
-        if ($name == 'items')
-        {
-            $qs = $this->page();
-            return $qs->items;
-        }
-    } // }}}
-
     function max_page() // {{{
     {
         if (is_null($this->max_page))
@@ -94,7 +86,7 @@ class Minim_Paginator implements Minim_Plugin
         return $this->source->count();
     } // }}}
 
-    function prev($page=NULL) // {{{
+    function prev_page($page=NULL) // {{{
     {
         if (is_null($page))
         {
@@ -107,7 +99,7 @@ class Minim_Paginator implements Minim_Plugin
         return False;
     } // }}}
 
-    function next($page=NULL) // {{{
+    function next_page($page=NULL) // {{{
     {
         if (is_null($page))
         {
@@ -143,16 +135,16 @@ class Minim_Paginator implements Minim_Plugin
         }
         $prev = NULL;
         $next = NULL;
-        if ($this->prev())
+        if ($this->prev_page())
         {
-            if ($this->prev() == 1)
+            if ($this->prev_page() == 1)
             {
                 $params = $this->url_params;
             }
             else
             {
                 $params = array_merge($this->url_params, array(
-                    'page' => $this->prev()
+                    'page' => $this->prev_page()
                 ));
             }
             $prev = minim('routing')->url_for($this->url, $params);
@@ -172,14 +164,41 @@ class Minim_Paginator implements Minim_Plugin
             }
             $url[$i] = minim('routing')->url_for($this->url, $params);
         }
-        if ($this->next())
+        if ($this->next_page())
         {
             $params = array_merge($this->url_params, array(
-                'page' => $this->next()
+                'page' => $this->next_page()
             ));
             $next = minim('routing')->url_for($this->url, $params);
         }
         
         include minim()->root."/templates/_pagination.php";
+    } // }}}
+
+    // iterator methods
+    function &current() // {{{
+    {
+        $ret = $this->source()->current();
+        return $ret;
+    } // }}}
+
+    function next() // {{{
+    {
+        return $this->source()->next();
+    } // }}}
+
+    function valid() // {{{
+    {
+        return $this->source()->valid();
+    } // }}}
+
+    function rewind() // {{{
+    {
+        return $this->source()->rewind();
+    } // }}}
+
+    function key() // {{{
+    {
+        return $this->source()->key();
     } // }}}
 }

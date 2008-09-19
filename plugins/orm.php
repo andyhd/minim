@@ -295,7 +295,7 @@ class Minim_Orm_Text extends Minim_Orm_Field // {{{
     } // }}}
 } // }}}
 
-class Minim_Orm_Slug extends Minim_Orm_Text // {{{
+class Minim_Orm_Slug extends Minim_Orm_Field // {{{
 {
     function _slugify($value) // {{{
     {
@@ -1006,33 +1006,6 @@ class Minim_Orm implements Minim_Plugin // {{{
     } // }}}
 
     // query methods
-    function &_manager($model) // {{{
-    {
-        if (array_key_exists($model, $this->_managers))
-        {
-            return $this->_managers[$model];
-        }
-        else
-        {
-            if (!$this->_models)
-            {
-                // find models
-                $this->models_available();
-            }
-            if (array_key_exists($model, $this->_models))
-            {
-                include minim()->root."/models/{$this->_models[$model]}";
-                if (array_key_exists($model, $this->_managers))
-                {
-                    return $this->_managers[$model];
-                }
-            }
-        }
-
-        $nullVar = NULL;
-        return $nullVar;
-    } // }}}
-
     function &_available_models() // {{{
     {
         if (!$this->_models)
@@ -1083,6 +1056,8 @@ class Minim_Orm implements Minim_Plugin // {{{
                 }
             }
         }
+        $nullVar = NULL;
+        return $nullVar;
     } // }}}
 
     function foreignKey($params=array()) // {{{

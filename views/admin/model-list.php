@@ -3,7 +3,7 @@ require_once '../../config.php';
 
 $model_name = @$_REQUEST['model'];
 
-$model = minim('orm'->{$model_name};
+$model = minim('orm')->{$model_name};
 if ($model == NULL)
 {
     minim('templates')->render_404();

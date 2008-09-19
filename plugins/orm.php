@@ -675,7 +675,6 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
         list($query, $params) = $this->build_query();
         $s = $this->execute_query($query, $params);
         $this->_cache = $this->_results_to_objects($s);
-        $this->_count = count($this->_cache);
     } // }}}
 
     var $_max_existing = array();

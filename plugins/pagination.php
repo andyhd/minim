@@ -31,6 +31,7 @@ class Minim_Paginator implements Minim_Plugin, Iterator, Countable
         if ($source)
         {
             $this->source = $source;
+            $this->max_page();
             $this->page();
             return $this;
         }

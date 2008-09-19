@@ -2,13 +2,11 @@
 header('Content-Type: text/plain');
 
 require_once '../config.php';
-require_once minim()->lib('breve-refactor');
-require_once minim()->lib('defer');
 require_once minim()->lib('mud');
 
 // get the user from the session
 $user = @$_GET['user']; //minim()->user();
-$avatar = breve('MudUser')->filter(array('user__eq' => $user))->first;
+$avatar = minim('orm')->MudUser->filter(array('user__eq' => $user))->first;
 
 $last_id = @$_SESSION['last_id'];
 if (!$last_id)
@@ -21,7 +19,7 @@ $start = time();
 while (!$msgs and (time() - $start) < 1)
 {
     // get any changes since last update
-    $msgs = breve('MudUpdate')->filter(array(
+    $msgs = minim('orm')->MudUpdate->filter(array(
         'area__eq' => $avatar->location,
         'user__ne' => $user,
         'at__gte' => $last_id
@@ -48,6 +46,5 @@ if (!$msgs)
     echo json_encode(array(
         'result' => array(),
         'last_id' => $last_id,
-        'debug' => join("\n", minim()->log_msgs)
     ));
 }

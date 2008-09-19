@@ -1,12 +1,9 @@
 <?php
 require_once '../../config.php';
-require_once minim()->lib('breve-refactor');
-require_once minim()->lib('defer');
-require_once minim()->lib('quaver');
 
 $model_name = @$_REQUEST['model'];
 
-$model = breve($model_name);
+$model = minim('orm')->{$model_name};
 if (!$model)
 {
     minim('templates')->render_404();
@@ -30,7 +27,7 @@ if (strtolower($_SERVER['REQUEST_METHOD'] == 'post'))
     $form->from($_POST);
     if ($form->isValid())
     {
-        $model = breve($model_name)->from($form->getData());
+        $model = minim('orm')->{$model_name}->from($form->getData());
         $model->save();
         
         minim('user_messaging')->info("$model_name saved");

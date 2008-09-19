@@ -1,36 +1,34 @@
 <?php
 require_once '../config.php';
-require_once minim()->lib('breve-refactor');
-require_once minim()->lib('quaver');
-require_once minim()->lib('defer');
 
 $date = sprintf("%04d-%02d-%02d", $_GET['year'], $_GET['month'], $_GET['day']);
 
 // get the first post with a matching slug on the specified day
-$post = breve('BlogPost')
-->filter(array(
+$post = minim->('orm')->BlogPost->filter(array(
     'posted__range' => array("$date 00:00:00", "$date 23:59:59"),
     'slug__eq' => $_GET['slug']
-));
+))->first;
 
-// get all comments for the post
-$comments = breve('BlogComment')
-->filter(array('post_id__eq' => $post->first->id))
-->order_by('-posted');
-
-if (!$post->items)
+if (!$post)
 {
     minim('templates')->render_404();
     return;
 }
 
+// get all comments for the post
+$comments = minim('orm')->BlogComment->filter(array(
+    'post_id__eq' => $post->id
+))->order_by('-posted');
+
 // build the comment form
 $form = minim('forms')->form(array('id' => 'comment-form',
-                            'class' => 'box'))
-               ->hiddenField('post_id', array('initial' => $post->first->id))
-               ->textField('name')
-               ->textField('email', array('help' => 'Will not be published'))
-               ->textArea('content', array('rows' => 6));
+                                   'class' => 'box'))
+                      ->hiddenField('post_id', array(
+                          'initial' => $post->id))
+                      ->textField('name')
+                      ->textField('email', array(
+                          'help' => 'Will not be published'))
+                      ->textArea('content', array('rows' => 6));
 minim('log')->debug(print_r($form, TRUE));
 
 $errors = NULL;
@@ -40,9 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     $form->from($_POST);
     if ($form->isValid())
     {
-        $user = breve('User')->from($form->getData());
+        $user = minim('orm')->User->from($form->getData());
         $user->save();
-        $comment = breve('BlogComment')->from($form->getData());
+        $comment = minim('orm')->BlogComment->from($form->getData());
         $comment->author = $user->id;
         $comment->save();
 
@@ -56,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 }
 
 minim('templates')->render('blog-post', array(
-    'post' => $post->items[0],
+    'post' => $post,
     'comments' => $comments,
     'form' => $form,
     'errors' => $errors,

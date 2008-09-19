@@ -1,11 +1,11 @@
 <?php
 $others = array();
-foreach ($neighbours->items as $avatar)
+foreach ($neighbours as $avatar)
 {
     $others[] = $avatar->to_array();
 }
 $msgs = array();
-foreach ($chat->items as $msg)
+foreach ($chat as $msg)
 {
     $msgs[] = $msg->to_array();
 }

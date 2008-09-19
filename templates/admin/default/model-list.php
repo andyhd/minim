@@ -37,7 +37,7 @@ echo $row;
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($models->items as $model): ?>
+        <?php foreach ($models as $model): ?>
         <tr<?php echo alternate(' class="alt"', '') ?>>
           <?php
 $row = '';

@@ -1,7 +1,5 @@
 <?php
 require_once '../config.php';
-require_once minim()->lib('breve-refactor');
-require_once minim()->lib('defer');
 require_once minim()->lib('mud');
 
 minim()->debug = TRUE;
@@ -9,14 +7,14 @@ minim()->debug = TRUE;
 // get the user from the session
 $user = @$_REQUEST['user']; //minim()->user();
 
-$avatar = breve('MudUser')->filter(array('user__eq' => $user))->first;
+$avatar = minim('orm')->MudUser->filter(array('user__eq' => $user))->first;
 
 $last_id = update_timestamp();
 
 $avatar->x = $_REQUEST['x'];
 $avatar->y = $_REQUEST['y'];
 $avatar->save();
-$msg = breve('MudUpdate')->from(array(
+$msg = minim('orm')->MudUpdate->from(array(
     'at' => $last_id,
     'user' => $user,
     'area' => $avatar->location,

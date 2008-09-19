@@ -1,11 +1,9 @@
 <?php
 require_once '../../config.php';
-require_once minim()->lib('breve-refactor');
-require_once minim()->lib('defer');
 
 $model_name = @$_REQUEST['model'];
 
-$model = breve($model_name);
+$model = minim('orm'->{$model_name};
 if ($model == NULL)
 {
     minim('templates')->render_404();

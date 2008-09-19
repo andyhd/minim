@@ -425,11 +425,8 @@ class Minim_Orm_Manager // {{{
 
     function &get($id) // {{{
     {
-        $ms = new Minim_Orm_ModelSet($this->_model);
-        $ms->filter(array(
-            'id__eq' => $id,
-        ));
-        return $ms;
+        $mp = new Minim_Orm_ModelProxy($this->_model, $id);
+        return $mp;
     } // }}}
 
     function default_sort($sort = NULL) // {{{
@@ -516,6 +513,37 @@ class Minim_Orm_Manager // {{{
             $instance->id = $ret['last_insert_id'];
         }
         return $ret;
+    } // }}}
+} // }}}
+
+class Minim_Orm_ModelProxy // {{{
+{
+    var $_model;
+    var $_id;
+    var $_cache;
+    
+    function Minim_Orm_ModelProxy($model, $id) // {{{
+    {
+        $this->_model = minim('orm')->{$model};
+        $this->_id = $id;
+        $this->_cache = NULL;
+    } // }}}
+
+    function &__get($name) // {{{
+    {
+        if (array_key_exists($name, $this->_model->_fields))
+        {
+            if (!$this->_cache)
+            {
+                $this->_cache =& $this->_model
+                    ->filter(array('id__eq' => $this->_id))
+                    ->first;
+            }
+            $ret = $this->_cache->{$name};
+            return $ret;
+        }
+        $nullVar = NULL;
+        return $nullVar;
     } // }}}
 } // }}}
 

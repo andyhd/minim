@@ -23,7 +23,7 @@
           </tr>
         </thead>
         <tbody>
-<?php foreach ($posts->items as $post): ?>
+<?php foreach ($posts as $post): ?>
           <tr<?php echo alternate(' class="alt"', '') ?>>
             <td class="expand"><a href="<?php echo minim()->url_for('admin/blog-post:edit', array('id' => $post->id)) ?>"><?php echo $post->title ?></a></td>
             <td><?php echo $post->author ?></td>

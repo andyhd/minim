@@ -13,8 +13,8 @@
 
 <?php $this->def_block('page_related') ?>
   <div id="comments">
-<?php foreach ($comments->items as $i => $comment): ?>
-   <div class="box comment<?php echo $i+1 == count($comments->items) ? ' last-child' : '' ?>">
+<?php foreach ($comments as $i => $comment): ?>
+   <div class="box comment<?php echo $i+1 == count($comments) ? ' last-child' : '' ?>">
     <p class="attribution">
      <span class="author">
       <?php if ($comment->email): ?>

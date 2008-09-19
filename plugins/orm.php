@@ -547,7 +547,7 @@ class Minim_Orm_ModelProxy // {{{
     } // }}}
 } // }}}
 
-class Minim_Orm_ModelSet implements Iterator // {{{
+class Minim_Orm_ModelSet implements Iterator, Countable // {{{
 {
     var $_model;
     var $_filters;
@@ -675,6 +675,7 @@ class Minim_Orm_ModelSet implements Iterator // {{{
         list($query, $params) = $this->build_query();
         $s = $this->execute_query($query, $params);
         $this->_cache = $this->_results_to_objects($s);
+        $this->_count = count($this->_cache);
     } // }}}
 
     var $_max_existing = array();

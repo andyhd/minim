@@ -416,6 +416,10 @@ class Minim_Orm_Manager // {{{
             require_once $field['file'];
             $field_name = array_shift($args);
             $params = array_shift($args);
+            if (!$params)
+            {
+                $params = array();
+            }
             $this->_fields[$field_name] =& new $field['class']($name, $params);
             return $this;
         }

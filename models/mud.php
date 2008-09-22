@@ -1,40 +1,40 @@
 <?php
-breve()->register_model('MudUser')
-       ->table('mud_user')
-       ->field('id', breve()->int(array('not_null' => TRUE,
-                                        'autoincrement' => TRUE)))
-       ->field('user', breve()->int(array('not_null' => TRUE)))
-       ->field('location', breve()->int(array('not_null' => TRUE)))
-       ->field('x', breve()->int(array('not_null' => TRUE)))
-       ->field('y', breve()->int(array('not_null' => TRUE)))
-       ->field('state', breve()->int(array('not_null' => TRUE)))
-       ->field('sprite', breve()->text(array('not_null' => TRUE,
-                                             'maxlength' => 255)))
-       ->field('last_update', breve()->text());
+minim('orm')->register_model('MudUser')
+            ->table('mud_user')
+            ->int('id', array('not_null' => TRUE,
+                              'autoincrement' => TRUE))
+            ->int('user', array('not_null' => TRUE))
+            ->int('location', array('not_null' => TRUE))
+            ->int('x', array('not_null' => TRUE))
+            ->int('y', array('not_null' => TRUE))
+            ->int('state', array('not_null' => TRUE))
+            ->text('sprite', array('not_null' => TRUE,
+                                   'maxlength' => 255))
+            ->text('last_update');
 
-breve()->register_model('MudArea')
-       ->table('mud_area')
-       ->field('id', breve()->int(array('not_null' => TRUE,
-                                        'autoincrement' => TRUE)))
-       ->field('map', breve()->text(array('not_null' => TRUE)));
+minim('orm')->register_model('MudArea')
+            ->table('mud_area')
+            ->int('id', array('not_null' => TRUE,
+                              'autoincrement' => TRUE))
+            ->text('map', array('not_null' => TRUE));
 
-breve()->register_model('MudChat')
-       ->table('mud_chat')
-       ->field('id', breve()->int(array('not_null' => TRUE,
-                                        'autoincrement' => TRUE)))
-       ->field('user', breve()->int(array('not_null' => TRUE)))
-       ->field('area', breve()->int(array('not_null' => TRUE)))
-       ->field('msg', breve()->text(array('not_null' => TRUE)))
-       ->field('at', breve()->text(array('not_null' => TRUE)));
+minim('orm')->register_model('MudChat')
+            ->table('mud_chat')
+            ->int('id', array('not_null' => TRUE,
+                              'autoincrement' => TRUE))
+            ->int('user', array('not_null' => TRUE))
+            ->int('area', array('not_null' => TRUE))
+            ->text('msg', array('not_null' => TRUE))
+            ->text('at', array('not_null' => TRUE));
 
-breve()->register_model('MudUpdate')
-       ->table('mud_update')
-       ->field('id', breve()->int(array('not_null' => TRUE,
-                                         'autoincrement' => TRUE)))
-       ->field('at', breve()->text(array('not_null' => TRUE,
-                                         'max_length' => 20)))
-       ->field('type', breve()->int(array('not_null' => TRUE)))
-       ->field('user', breve()->int(array('not_null' => TRUE)))
-       ->field('area', breve()->int(array('not_null' => TRUE)))
-       ->field('msg', breve()->text(array('not_null' => TRUE,
-                                          'maxlength' => 255)));
+minim('orm')->register_model('MudUpdate')
+            ->table('mud_update')
+            ->int('id', array('not_null' => TRUE,
+                              'autoincrement' => TRUE))
+            ->text('at', array('not_null' => TRUE,
+                               'max_length' => 20))
+            ->int('type', array('not_null' => TRUE))
+            ->int('user', array('not_null' => TRUE))
+            ->int('area', array('not_null' => TRUE))
+            ->text('msg', array('not_null' => TRUE,
+                                'maxlength' => 255));

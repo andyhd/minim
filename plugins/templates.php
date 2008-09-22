@@ -36,7 +36,6 @@ class Minim_TemplateEngine implements Minim_Plugin
 
     function render($_name, $_context=array()) // {{{
     {
-        minim('log')->debug("RENDER CALLED");
         $_root = minim()->root;
         ob_start();
         $_filename = "$_root/templates/$_name.php";

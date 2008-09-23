@@ -1,10 +1,10 @@
 <?php $this->extend('base') ?>
 
-<?php $this->def_block('title') ?>Admin<?php $this->end_block('title') ?>
+<?php $this->set('title') ?>Admin<?php $this->end() ?>
 
-<?php $this->def_block('body_class') ?>admin<?php $this->end_block('body_class') ?>
+<?php $this->set('body_class') ?>admin<?php $this->end() ?>
 
-<?php $this->def_block('page_content') ?>
+<?php $this->set('page_content') ?>
     <h1>Edit <?php echo $model_name ?></h1>
     <ul class="messages">
     <?php foreach (minim('user_messaging')->get_messages() as $msg): ?>
@@ -29,4 +29,4 @@
       <input type="submit" class="submit" value="Save">
     </div>
     </form>
-<?php $this->end_block('page_content') ?>
+<?php $this->end() ?>

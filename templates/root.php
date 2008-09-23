@@ -3,13 +3,13 @@
             "http://www.w3.org/TR/html4/strict.dtd">
 <html>
  <head>
-  <title><?php $this->block('title') ?></title>
-<?php $this->block('meta') ?>
-<?php $this->block('css') ?>
-<?php $this->block('js_head') ?>
+  <title><?php $this->get('title') ?></title>
+<?php $this->get('meta') ?>
+<?php $this->get('css') ?>
+<?php $this->get('js_head') ?>
  </head>
- <body class="<?php $this->block('body_class') ?>">
-<?php $this->block('content') ?>
-<?php $this->block('js_foot') ?>
+ <body class="<?php $this->get('body_class') ?>">
+<?php $this->get('content') ?>
+<?php $this->get('js_foot') ?>
  </body>
 </html>

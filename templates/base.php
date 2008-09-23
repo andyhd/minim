@@ -1,32 +1,32 @@
 <?php $this->extend('root') ?>
 
-<?php $this->def_block('title') ?><?php $this->block('title') ?> - PageZero<?php $this->end_block('title') ?>
+<?php $this->set('title') ?><?php $this->get('title') ?> - PageZero<?php $this->end() ?>
 
-<?php $this->def_block('meta') ?>
+<?php $this->set('meta') ?>
   <link rel="shortcut icon" type="image/gif" href="<?php echo minim()->webroot ?>/images/favicon.gif">
-<?php $this->block('page_meta') ?>
-<?php $this->end_block('meta') ?>
+<?php $this->get('page_meta') ?>
+<?php $this->end() ?>
 
-<?php $this->def_block('css') ?>
+<?php $this->set('css') ?>
   <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/reset-fonts.css">
   <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/coffee.css">
-<?php $this->block('page_css') ?>
-<?php $this->end_block('css') ?>
+<?php $this->get('page_css') ?>
+<?php $this->end() ?>
 
-<?php $this->def_block('js_head') ?>
+<?php $this->set('js_head') ?>
   <script type="text/javascript" src="<?php echo minim()->webroot ?>/js/jquery-1.2.6.min.js"></script>
-<?php $this->block('page_js_head') ?>
-<?php $this->end_block('js_head') ?>
+<?php $this->get('page_js_head') ?>
+<?php $this->end() ?>
 
-<?php $this->def_block('js_foot') ?>
+<?php $this->set('js_foot') ?>
   <script type="text/javascript" src="<?php echo minim()->webroot ?>/js/label_inside.js"></script>
-<?php $this->block('page_js_foot') ?>
-<?php $this->end_block('js_foot') ?>
+<?php $this->get('page_js_foot') ?>
+<?php $this->end() ?>
 
 <?php include_once minim()->lib('random_engrish') ?>
 <?php include_once minim()->lib('navigation_tabs') ?>
 
-<?php $this->def_block('content') ?>
+<?php $this->set('content') ?>
   <div id="wrapper">
    <div id="masthead">
 <?php if (@$logo_is_h1): ?>
@@ -49,16 +49,16 @@
     </form>
    </div>
    <div id="content">
-<?php $this->block('page_content') ?>
+<?php $this->get('page_content') ?>
    </div>
    <div id="sub-content">
     <ul id="navigation">
 <?php navigation() ?>
     </ul>
-<?php $this->block('page_related') ?>
+<?php $this->get('page_related') ?>
    </div>
    <div id="footer">
     <p>&copy; 2008 Andy Driver - powered by Minim</p>
    </div>
   </div>
-<?php $this->end_block('content') ?>
+<?php $this->end() ?>

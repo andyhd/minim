@@ -4,20 +4,22 @@ class Minim_TemplateEngine implements Minim_Plugin
     // templating methods
     var $_blocks;
     var $_extends;
+    var $_def_stack;
 
     function Minim_TemplateEngine() // {{{
     {
         $this->_blocks = array();
         $this->_extends = array();
+        $this->_def_stack = array();
     } // }}}
 
-    function set_block($name, $contents) // {{{
+    function _set_block($name, $contents) // {{{
     {
         minim('log')->debug("Setting $name block");
         $this->_blocks[$name] = $contents;
     } // }}}
 
-    function get_block($name) // {{{
+    function _get_block($name) // {{{
     {
         if (array_key_exists($name, $this->_blocks))
         {
@@ -100,18 +102,20 @@ class Minim_TemplateEngine implements Minim_Plugin
         ));
     } // }}}
 
-    function def_block($name) // {{{
+    function set($name) // {{{
     {
+        array_push($this->_def_stack, $name);
         ob_start();
     } // }}}
 
-    function end_block($name) // {{{
+    function end() // {{{
     {
-        $this->set_block($name, ob_get_clean());
+        $name = array_pop($this->_def_stack);
+        $this->_set_block($name, ob_get_clean());
     } // }}}
 
-    function block($name) // {{{
+    function get($name) // {{{
     {
-        echo $this->get_block($name);
+        echo $this->_get_block($name);
     } // }}}
 }

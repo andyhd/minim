@@ -1,10 +1,10 @@
 <?php $this->extend('base') ?>
 
-<?php $this->def_block('title') ?>New Blog Post<?php $this->end_block('title') ?>
+<?php $this->set('title') ?>New Blog Post<?php $this->end() ?>
 
-<?php $this->def_block('body_class') ?>admin<?php $this->end_block('body_class') ?>
+<?php $this->set('body_class') ?>admin<?php $this->end() ?>
 
-<?php $this->def_block('page_content') ?>
+<?php $this->set('page_content') ?>
     <h1><?php if ($create): ?>New<?php else: ?>Edit<?php endif ?> Blog Post</h1>
     <?php if ($errors): ?>
     <ul class="errors">
@@ -31,4 +31,4 @@
         <input type="submit" value="Submit" class="submit">
       </div>
     </form>
-<?php $this->end_block('page_content') ?>
+<?php $this->end() ?>

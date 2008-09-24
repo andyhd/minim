@@ -89,4 +89,39 @@ class Minim_Routing implements Minim_Plugin
         header('Location: '.$this->url_for($page, $params));
         exit;
     } // }}}
+
+    function mod_rewrite_rules($base=NULL) // {{{
+    {
+        $rules = array();
+        if ($base)
+        {
+            $rules[] = "RewriteBase $base";
+        }
+        foreach ($this->_url_map as $map)
+        {
+            extract($map);
+            if ($base)
+            {
+                $url_pattern = preg_replace(',^\^/,', '^', $url_pattern);
+            }
+            $rule = "RewriteRule {$url_pattern} views/{$view}.php";
+            $params = array();
+            if (preg_match_all(',\(\?P<(.*?)>.*?\),', $url_pattern, $m))
+            {
+                foreach ($m[1] as $i => $param)
+                {
+                    // mod_rewrite doesn't do named params :(
+                    $params[] = "$param=$".($i + 1);
+                }
+                $rule .= "?".join('&', $params);
+            }
+            if ($action)
+            {
+                $prefix = $params ? '&' : '?';
+                $rule .= "{$prefix}action=$action";
+            }
+            $rules[] = "$rule [QSA,L]";
+        }
+        return $rules;
+    } // }}}
 }

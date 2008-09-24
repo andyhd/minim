@@ -1,5 +1,7 @@
 #!/usr/bin/php
 <?php
+require realpath(dirname(__FILE__)."/../config.php");
+
 if (!isset($argc) or $argc < 2)
 {
     print "Missing argument(s)\n";
@@ -26,56 +28,8 @@ if (isset($argv[2]))
 
 $fp = fopen($file, 'w');
 fputs($fp, "RewriteEngine On\n");
-if ($base)
-{
-    fputs($fp, "RewriteBase $base\n");
-}
 
-class Foo
-{
-    function Foo($configfile)
-    {
-        $this->maps = array();
-        include $configfile;
-    }
-
-    function map_url($pattern, $view, $action=null)
-    {
-        $this->maps[] = array(
-            'pat' => $pattern,
-            'view' => $view,
-            'action' => $action
-        );
-        return $this;
-    }
-}
-
-$foo = new Foo(realpath(dirname(__FILE__).'/../config.php'));
-foreach ($foo->maps as $map)
-{
-    extract($map);
-    if ($base)
-    {
-        $pat = preg_replace(',^\^/,', '^', $pat);
-    }
-    fputs($fp, "RewriteRule {$pat} views/{$view}.php");
-    $params = array();
-    if (preg_match_all(',\(\?P<(.*?)>.*?\),', $pat, $m))
-    {
-        foreach ($m[1] as $i => $param)
-        {
-            // mod_rewrite doesn't do named params :(
-            $params[] = "$param=$". ($i + 1);
-        }
-        fputs($fp, "?".join('&', $params));
-    }
-    if ($action)
-    {
-        $prefix = $params ? '&' : '?';
-        fputs($fp, "{$prefix}action=$action");
-    }
-    fputs($fp, " [QSA,L]\n");
-}
+$rules = minim('routing')->mod_rewrite_rules($base);
+fputs($fp, join("\n", $rules));
 
 fclose($fp);
-

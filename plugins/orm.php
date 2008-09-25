@@ -1068,11 +1068,11 @@ class Minim_Orm implements Minim_Plugin // {{{
     } // }}}
 
     // database creation methods
-    function create_database_tables() // {{{
+    function create_database_table($model) // {{{
     {
-        foreach ($this->_available_models() as $name => $file)
+        if (array_key_exists($model, $this->_available_models()))
         {
-            $model = $this->{$name};
+            $model = $this->{$model};
             $fields = array();
             foreach ($model->_fields as $name => $field)
             {
@@ -1099,14 +1099,16 @@ class Minim_Orm implements Minim_Plugin // {{{
                     default:
                         die("Unknown field type ({$field->_type}");
                 }
-                $fields[] = "`$name` $type $not_null $auto_increment $primary_key";
+                $fields[] = "`$name` $type $not_null $auto_incr $primary_key";
             }
             $fields = join(', ', $fields);
             $sql = <<<SQL
-CREATE TABLE `{$model->_table}` ($fields) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `{$model->_table}` ($fields) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 SQL;
             
             // execute sql
+            $s = minim('db')->prepare($sql);
+            $s->execute();
         }
     } // }}}
 } // }}}

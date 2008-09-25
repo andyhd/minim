@@ -37,7 +37,7 @@ class Minim_Database implements Minim_Plugin
             }
             if (function_exists('mysql_connect'))
             {
-                require minim()->lib('FakePDO.class');
+                require_once minim()->lib('FakePDO.class');
                 $dbh =& new FakePDO($dsn, $this->_user, $this->_password);
                 return $dbh;
             }

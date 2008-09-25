@@ -13,7 +13,7 @@
     <h1><?php $this->get('title') ?></h1>
     <ul class="messages">
     <?php foreach (minim('user_messaging')->get_messages() as $msg): ?>
-      <li><?php echo $msg ?></li>
+      <li><?php echo join(', ', $msg) ?></li>
     <?php endforeach ?>
     </ul>
     <?php $this->get('page_content') ?>

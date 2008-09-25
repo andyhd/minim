@@ -16,17 +16,17 @@ class Minim_UserMessages implements Minim_Plugin
 
     function info($msg) // {{{
     {
-        $this->msg($msg, Minim_UserMessages::INFO);
+        $this->_msg($msg, Minim_UserMessages::INFO);
     } // }}}
 
     function warn($msg) // {{{
     {
-        $this->msg($msg, Minim_UserMessages::WARN);
+        $this->_msg($msg, Minim_UserMessages::WARN);
     } // }}}
 
     function error($msg) // {{{
     {
-        $this->msg($msg, Minim_UserMessage::ERROR);
+        $this->_msg($msg, Minim_UserMessage::ERROR);
     } // }}}
 
     function get_messages() // {{{

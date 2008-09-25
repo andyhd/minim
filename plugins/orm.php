@@ -41,6 +41,11 @@
  *               ->get($id)
  *               ->delete();
  *
+ * Create database tables from models
+ * ----------------------------------
+ *
+ *   minim('orm')->create_database_tables();
+ *
  **/
 
 class Minim_DataObject // {{{
@@ -63,12 +68,12 @@ class Minim_DataObject // {{{
             $clone =& $field->copy();
             if ($field->_type == "slug")
             {
-                $from = $clone->getAttribute('from');
+                $from = $clone->attr('from');
                 if (is_null($from) or !array_key_exists($from, $this->_fields))
                 {
                     die("{$this->_model} has no field {$from} for slug");
                 }
-                $clone->setAttribute('from', &$this->_fields[$from]);
+                $clone->attr('from', &$this->_fields[$from]);
             }
             $this->_fields[$name] =& $clone;
         }
@@ -78,7 +83,7 @@ class Minim_DataObject // {{{
     {
         if ($field = $this->_getField($name))
         {
-            if ($field->getAttribute('read_only'))
+            if ($field->attr('read_only'))
             {
                 minim('log')->debug("$name field is read-only");
                 return FALSE;
@@ -186,7 +191,7 @@ class Minim_Orm_Field // {{{
 
     function setValue($value) // {{{
     {
-        if (!$this->getAttribute('read_only'))
+        if (!$this->attr('read_only'))
         {
             return $this->_value = $value;
         }
@@ -203,14 +208,13 @@ class Minim_Orm_Field // {{{
         return $this->getValue();
     } // }}}
 
-    function setAttribute($name, $value) // {{{
+    function attr($name, $value=NULL) // {{{
     {
-        $this->_attrs[$name] = $value;
-    } // }}}
-
-    function getAttribute($name) // {{{
-    {
-        if (array_key_exists($name, $this->_attrs))
+        if ($value !== NULL)
+        {
+            $this->_attrs[$name] = $value;
+        }
+        else if (array_key_exists($name, $this->_attrs))
         {
             return $this->_attrs[$name];
         }
@@ -219,8 +223,8 @@ class Minim_Orm_Field // {{{
 
     function isValid() // {{{
     {
-        if ($this->_value === NULL and ($this->getAttribute('not_null') or
-                                        $this->getAttribute('required')))
+        if ($this->_value === NULL and ($this->attr('not_null') or
+                                        $this->attr('required')))
         {
             return FALSE;
         }
@@ -246,7 +250,7 @@ class Minim_Orm_Int extends Minim_Orm_Field // {{{
         {
             return TRUE;
         }
-        if ($this->getAttribute('autoincrement') and is_null($this->_value))
+        if ($this->attr('autoincrement') and is_null($this->_value))
         {
             return TRUE;
         }
@@ -265,7 +269,7 @@ class Minim_Orm_Text extends Minim_Orm_Field // {{{
         }
         
         # TODO - add unicode support here (mb_strlen)
-        $maxlen = $this->getAttribute('maxlength');
+        $maxlen = $this->attr('maxlength');
         if ($maxlen and strlen($value) > $maxlen)
         {
             # TODO - add unicode support here (mb_substr)
@@ -280,13 +284,13 @@ class Minim_Orm_Text extends Minim_Orm_Field // {{{
     function isValid() // {{{
     {
         // TODO - add unicode support (mb_strlen)
-        $maxlen = $this->getAttribute('maxlength');
+        $maxlen = $this->attr('maxlength');
         $len = strlen($this->_value);
         if ($maxlen and $len > $maxlen)
         {
             return FALSE;
         }
-        if ($this->getAttribute('required') and $len < 1)
+        if ($this->attr('required') and $len < 1)
         {
             return FALSE;
         }
@@ -308,7 +312,7 @@ class Minim_Orm_Slug extends Minim_Orm_Field // {{{
 
     function setValue(&$value) // {{{
     {
-        $from = $this->getAttribute('from');
+        $from = $this->attr('from');
         if ($from)
         {
             return FALSE;
@@ -323,7 +327,7 @@ class Minim_Orm_Slug extends Minim_Orm_Field // {{{
     function getValue() // {{{
     {
         $value = parent::getValue();
-        $from = $this->getAttribute('from');
+        $from = $this->attr('from');
         if (!$value and $from)
         {
             return $this->_slugify($from->getValue());
@@ -333,7 +337,7 @@ class Minim_Orm_Slug extends Minim_Orm_Field // {{{
 
     function isValid() // {{{
     {
-        $from = $this->getAttribute('from');
+        $from = $this->attr('from');
         if ($from)
         {
             return $from->isValid();
@@ -368,7 +372,7 @@ class Minim_Orm_Timestamp extends Minim_Orm_Field // {{{
 
     function getValueForDb() // {{{
     {
-        if ($this->getAttribute('auto_now'))
+        if ($this->attr('auto_now'))
         {
             return date('Y-m-d H:i:s');
         }
@@ -1013,9 +1017,9 @@ class Minim_Orm implements Minim_Plugin // {{{
     {
         if (!$this->_models)
         {
-            $pat = '/minim\(([\'"])orm\1\)->register_model\(\s*([\'"])'.
+            $pat = '/minim\(([\'"])orm\1\)\s*->register_model\(\s*([\'"])'.
                    '([a-zA-Z]+)'.
-                   '\2\s*\)/x';
+                   '\2\s*\)/xm';
             
             // check each model file
             $model_dir = minim()->root."/models";
@@ -1063,8 +1067,46 @@ class Minim_Orm implements Minim_Plugin // {{{
         return $nullVar;
     } // }}}
 
-    function foreignKey($params=array()) // {{{
+    // database creation methods
+    function create_database_tables() // {{{
     {
-        return array('Minim_Orm_ForeignKey' => $params);
+        foreach ($this->_available_models() as $name => $file)
+        {
+            $model = $this->{$name};
+            $fields = array();
+            foreach ($model->_fields as $name => $field)
+            {
+                $not_null = $field->attr('not_null') ? 'NOT NULL' : '';
+                $auto_incr = $field->attr('autoincrement') ? ' AUTO_INCREMENT' : '';
+                $primary_key = $name == 'id' ? ' PRIMARY KEY' : '';
+                $type = '';
+                switch ($field->_type)
+                {
+                    case 'int':
+                        $type = 'INTEGER';
+                        break;
+                    case 'text':
+                    case 'slug':
+                        $type = 'TEXT';
+                        if ($max_length = $field->attr('maxlength'))
+                        {
+                            $type = "VARCHAR($max_length)";
+                        }
+                        break;
+                    case 'timestamp':
+                        $type = 'DATETIME';
+                        break;
+                    default:
+                        die("Unknown field type ({$field->_type}");
+                }
+                $fields[] = "`$name` $type $not_null $auto_increment $primary_key";
+            }
+            $fields = join(', ', $fields);
+            $sql = <<<SQL
+CREATE TABLE `{$model->_table}` ($fields) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+SQL;
+            
+            // execute sql
+        }
     } // }}}
 } // }}}

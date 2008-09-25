@@ -23,24 +23,26 @@ class Minim_Database implements Minim_Plugin
             {
                 $dsn .= ";unix_socket={$this->_socket}";
             }
-            if (FALSE) //class_exists('PDO'))
+            if (class_exists('PDO'))
             {
                 try
                 {
-                    $dbh = new PDO($dsn, $this->_user, $this->_password);
+                    $dbh =& new PDO($dsn, $this->_user, $this->_password);
+                    return $dbh;
                 }
                 catch (PDOException $e)
                 {
-                    die("Could not connect: ".$e->getMessage());
+                    minim('log')->debug("PDO error: ".$e->getMessage());
                 }
             }
-            else
+            if (function_exists('mysql_connect'))
             {
                 require minim()->lib('FakePDO.class');
-                $dbh = new FakePDO($dsn, $this->_user, $this->_password);
+                $dbh =& new FakePDO($dsn, $this->_user, $this->_password);
+                return $dbh;
             }
         }
-        return $dbh;
+        die('Failed to connect to DB');
     } // }}}
 
     function &prepare($sql) // {{{

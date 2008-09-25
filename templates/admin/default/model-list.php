@@ -52,7 +52,7 @@ foreach ($model_fields as $field)
     {
         $data .= date('d M, Y @ H:i', $model->$field);
     }
-    elseif ($model->_fields[$field]->_type == 'text' and !$model->_fields[$field]->getAttribute('maxlength'))
+    elseif ($model->_fields[$field]->_type == 'text' and !$model->_fields[$field]->attr('maxlength'))
     {
         $data .= htmlspecialchars(truncate($model->$field));
     }

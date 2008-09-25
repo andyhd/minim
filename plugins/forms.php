@@ -60,7 +60,7 @@ class Minim_Form // {{{
                         $this->dateField($name, $args);
                         break;
                     case 'text':
-                        if (!$field->getAttribute('maxlength'))
+                        if (!$field->attr('maxlength'))
                         {
                             $this->textArea($name, $args);
                         }

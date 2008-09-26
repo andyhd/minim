@@ -7,6 +7,7 @@ class Minim_Database implements Minim_Plugin
     var $_user;
     var $_password;
     var $_name;
+    var $_dbh;
 
     function Minim_Database() // {{{
     {
@@ -14,8 +15,7 @@ class Minim_Database implements Minim_Plugin
 
     function &get_connection() // {{{
     {
-        static $dbh;
-        if (!$dbh)
+        if (!$this->_dbh)
         {
             minim('log')->debug('DB: '.print_r($this, TRUE));
             $dsn = "mysql:dbname={$this->_name};host={$this->_host}";
@@ -27,22 +27,25 @@ class Minim_Database implements Minim_Plugin
             {
                 try
                 {
-                    $dbh =& new PDO($dsn, $this->_user, $this->_password);
-                    return $dbh;
+                    $this->_dbh =& new PDO($dsn, $this->_user, $this->_password);
                 }
                 catch (PDOException $e)
                 {
                     minim('log')->debug("PDO error: ".$e->getMessage());
                 }
             }
-            if (function_exists('mysql_connect'))
+            if (!$this->_dbh and function_exists('mysql_connect'))
             {
+                minim('log')->debug("Using FakePDO");
                 require_once minim()->lib('FakePDO.class');
-                $dbh =& new FakePDO($dsn, $this->_user, $this->_password);
-                return $dbh;
+                $this->_dbh =& new FakePDO($dsn, $this->_user, $this->_password);
+            }
+            if (!$this->_dbh)
+            {
+                die('Failed to connect to DB');
             }
         }
-        die('Failed to connect to DB');
+        return $this->_dbh;
     } // }}}
 
     function &prepare($sql) // {{{

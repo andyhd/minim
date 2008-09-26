@@ -15,10 +15,31 @@ if ($model->default_sort())
     $models->order_by($model->default_sort());
 }
 
-$paginator = minim('pagination')->source($models)
-                                ->base_url('admin/model-list', array(
+function paginator(&$models, $model_name)
+{
+    return minim('pagination')->source($models)
+                              ->base_url('admin/model-list', array(
                                     'model' => $model_name
                                 ));
+}
+
+try
+{
+    $paginator = paginator($models, $model_name);
+}
+catch (Exception $e)
+{
+    switch ($e->getCode())
+    {
+        case '42S02': // table does not exist
+            // create table automatically and try again
+            minim('orm')->create_database_table($model_name);
+            $paginator = paginator($models, $model_name);
+            break;
+        default:
+            throw $e;
+    }
+}
 
 minim('templates')->render('admin/default/model-list', array(
     'model_name' => $model_name,

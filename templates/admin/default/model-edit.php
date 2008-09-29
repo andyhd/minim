@@ -1,17 +1,8 @@
-<?php $this->extend('base') ?>
-
-<?php $this->set('title') ?>Admin<?php $this->end() ?>
-
-<?php $this->set('body_class') ?>admin<?php $this->end() ?>
+<?php $this->extend('admin/base') ?>
 
 <?php $this->set('page_content') ?>
-    <h1>Edit <?php echo $model_name ?></h1>
-    <ul class="messages">
-    <?php foreach (minim('user_messaging')->get_messages() as $msg): ?>
-      <li><?php echo $msg ?></li>
-    <?php endforeach ?>
-    </ul>
     <form id="model-edit-form" method="post" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
+      <input type="hidden" name="debug" value="1">
 <?php if ($errors): ?>
     <ul class="errors">
     <?php foreach ($errors as $error): ?>
@@ -30,3 +21,5 @@
     </div>
     </form>
 <?php $this->end() ?>
+
+<?php $this->set('title') ?>Admin<?php $this->end() ?>

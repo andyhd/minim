@@ -167,6 +167,18 @@ class Minim_DataObject // {{{
         }
         return $ar;
     } // }}}
+
+    function isValid() // {{{
+    {
+        foreach ($this->_fields as &$field)
+        {
+            if (!$field->isValid())
+            {
+                return FALSE;
+            }
+        }
+        return TRUE;
+    } // }}}
 } // }}}
 
 class Minim_Orm_Field // {{{
@@ -513,7 +525,7 @@ class Minim_Orm_Manager // {{{
             }
         }
         $sql = sprintf($sql, join(', ', $updates));
-        $s = minim()->db()->prepare($sql);
+        $s = minim('db')->prepare($sql);
         $ret = $s->execute($data);
         if (!$id)
         {

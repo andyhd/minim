@@ -1,18 +1,11 @@
-<?php $this->extend('base') ?>
+<?php $this->extend('admin/base') ?>
 
 <?php require_once minim()->lib('helpers') ?>
 
-<?php $this->set('title') ?>Admin<?php $this->end() ?>
-
-<?php $this->set('body_class') ?>admin<?php $this->end() ?>
+<?php $this->set('title') ?><?php echo $model_name_plural ?><?php $this->end() ?>
 
 <?php $this->set('page_content') ?>
-    <h1><?php echo $model_name_plural ?></h1>
-    <ul class="messages">
-    <?php foreach (minim('user_messaging')->get_messages() as $msg): ?>
-      <li><?php echo $msg ?></li>
-    <?php endforeach ?>
-    </ul>
+    <a href="<?php echo minim('routing')->url_for('admin/model-edit', array('model' => $model_name, 'id' => 'new')) ?>">Add new <?php echo $model_name ?></a>
     <table class="model_list">
       <thead>
         <tr>

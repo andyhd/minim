@@ -34,6 +34,7 @@ catch (Exception $e)
         case '42S02': // table does not exist
             // create table automatically and try again
             minim('orm')->create_database_table($model_name);
+            minim('user_messaging')->info("Created database table for $model_name");
             $paginator = paginator($models, $model_name);
             break;
         default:

@@ -2,7 +2,6 @@
 
 <?php $this->set('page_content') ?>
     <form id="model-edit-form" method="post" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
-      <input type="hidden" name="debug" value="1">
 <?php if ($errors): ?>
     <ul class="errors">
     <?php foreach ($errors as $error): ?>

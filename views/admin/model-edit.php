@@ -33,11 +33,9 @@ $form = minim('forms')->form($model_name, $params);
 $errors = NULL;
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
 {
-    minim('log')->debug('POST: '.print_r($_POST, TRUE));
     $form->from($_POST);
     if ($form->isValid())
     {
-        minim('log')->debug('Form is valid, saving model');
         $model = minim('orm')->{$model_name}->from($form->getData());
         $model->save();
         
@@ -46,7 +44,6 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     }
     else
     {
-        minim('log')->debug('Form is invalid');
         $errors = $form->errors();
         minim('user_messaging')->info("Errors in form");
     }

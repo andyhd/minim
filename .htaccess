@@ -16,5 +16,6 @@ RewriteRule ^admin/blog/edit(?:/(?P<id>\d+))?$ views/admin/blog-post.php?id=$1&a
 RewriteRule ^admin/blog(?:/(?P<page>\d+))?$ views/admin/blog.php?page=$1 [QSA,L]
 RewriteRule ^admin/routing$ views/admin/routing.php [QSA,L]
 RewriteRule ^admin/models$ views/admin/models.php [QSA,L]
-RewriteRule ^admin/models/(?P<model>[a-zA-Z]+)$ views/admin/model-list.php?model=$1 [QSA,L]
+RewriteRule ^admin/models/(?P<model>[a-zA-Z]+)/new$ views/admin/model-edit.php?model=$1&action=new [QSA,L]
 RewriteRule ^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)$ views/admin/model-edit.php?model=$1&id=$2 [QSA,L]
+RewriteRule ^admin/models/(?P<model>[a-zA-Z]+)$ views/admin/model-list.php?model=$1 [QSA,L]

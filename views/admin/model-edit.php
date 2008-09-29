@@ -3,23 +3,32 @@ require_once '../../config.php';
 
 $model_name = @$_REQUEST['model'];
 
-$model = minim('orm')->{$model_name};
-if (!$model)
+if ($_REQUEST['action'] == 'new')
 {
-    minim('templates')->render_404();
-    return;
+    $params = array();
+}
+else
+{
+    $model = minim('orm')->{$model_name};
+    if (!$model)
+    {
+        minim('templates')->render_404();
+        return;
+    }
+
+    $model = $model->filter(array(
+        'id__eq' => @$_REQUEST['id']
+    ))->first;
+    if (!$model)
+    {
+        minim('templates')->render_404();
+        return;
+    }
+
+    $params = array('instance' => $model);
 }
 
-$model = $model->filter(array(
-    'id__eq' => @$_REQUEST['id']
-))->first;
-if (!$model)
-{
-    minim('templates')->render_404();
-    return;
-}
-
-$form = minim('forms')->form($model_name, array('instance' => $model));
+$form = minim('forms')->form($model_name, $params);
 
 $errors = NULL;
 if (strtolower($_SERVER['REQUEST_METHOD'] == 'post'))
@@ -36,6 +45,7 @@ if (strtolower($_SERVER['REQUEST_METHOD'] == 'post'))
     else
     {
         $errors = $form->errors();
+        minim('user_messaging')->info("Errors in form");
     }
 }
 

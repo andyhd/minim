@@ -23,9 +23,6 @@
 <?php $this->get('page_js_foot') ?>
 <?php $this->end() ?>
 
-<?php include_once minim()->lib('random_engrish') ?>
-<?php include_once minim()->lib('navigation_tabs') ?>
-
 <?php $this->set('content') ?>
   <div id="wrapper">
    <div id="masthead">

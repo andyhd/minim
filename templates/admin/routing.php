@@ -5,11 +5,11 @@
 <?php $this->set('body_class') ?>routing<?php $this->end() ?>
 
 <?php $this->set('page_css') ?>
-<link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/admin.css">
+<?php $this->include_css('admin') ?>
 <?php $this->end() ?>
 
 <?php $this->set('page_js_foot') ?>
-<script type="text/javascript" src="<?php echo minim()->webroot ?>/js/map-url-form.js"></script>
+<?php $this->include_js('map-url-form') ?>
 <?php $this->end() ?>
 
 <?php $this->set('page_content') ?>

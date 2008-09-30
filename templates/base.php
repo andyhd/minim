@@ -8,18 +8,18 @@
 <?php $this->end() ?>
 
 <?php $this->set('css') ?>
-  <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/reset-fonts.css">
-  <link rel="stylesheet" type="text/css" href="<?php echo minim()->webroot ?>/css/coffee.css">
+<?php $this->include_css('reset-fonts') ?>
+<?php $this->include_css('coffee') ?>
 <?php $this->get('page_css') ?>
 <?php $this->end() ?>
 
 <?php $this->set('js_head') ?>
-  <script type="text/javascript" src="<?php echo minim()->webroot ?>/js/jquery-1.2.6.min.js"></script>
+<?php $this->include_js('jquery-1.2.6.min') ?>
 <?php $this->get('page_js_head') ?>
 <?php $this->end() ?>
 
 <?php $this->set('js_foot') ?>
-  <script type="text/javascript" src="<?php echo minim()->webroot ?>/js/label_inside.js"></script>
+<?php $this->include_js('label_inside') ?>
 <?php $this->get('page_js_foot') ?>
 <?php $this->end() ?>
 

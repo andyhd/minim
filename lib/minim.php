@@ -38,7 +38,7 @@ class Minim
     // plugin methods
     var $_plugins;
 
-    function init_plugins() // {{{
+    function _init_plugins() // {{{
     {
         if (!$this->_plugins)
         {
@@ -49,27 +49,9 @@ class Minim
             {
                 die("Plugins directory not found");
             }
-            $pat = '/class\s+([^\s]+)\s+implements\s+Minim_Plugin/m';
             while ($dl = readdir($dh))
             {
-                if (substr($dl, -4) == '.php')
-                {
-                    $file = "{$this->root}/plugins/$dl";
-                    $plugin = strtolower(substr($dl, 0, -4));
-                    $contents = file_get_contents($file);
-
-                    // check for Minim_Plugin implementors
-                    if (preg_match_all($pat, $contents, $m))
-                    {
-                        foreach ($m[1] as $class)
-                        {
-                            $this->_plugins[$plugin] = array(
-                                'file' => $file,
-                                'class' => $class
-                            );
-                        }
-                    }
-                }
+                $this->register_plugin("{$this->root}/plugins/$dl");
             }
             $this->get_plugin('log')->debug("Plugins available: ".
                 print_r(array_keys($this->_plugins), TRUE));
@@ -80,7 +62,7 @@ class Minim
     {
         if (!$this->_plugins)
         {
-            $this->init_plugins();
+            $this->_init_plugins();
         }
         $key = strtolower($plugin);
         if (array_key_exists($key, $this->_plugins))
@@ -94,6 +76,33 @@ class Minim
             return $plugin['instance'];
         }
         die("Plugin $plugin not found");
+    } // }}}
+
+    function register_plugin($file) // {{{
+    {
+        if (!$this->_plugins)
+        {
+            $this->_init_plugins();
+        }
+        if (substr($file, -4) == '.php')
+        {
+            $pat = '/class\s+([^\s]+)\s+implements\s+Minim_Plugin/m';
+            $plugin = strtolower(substr(basename($file), 0, -4));
+            $contents = file_get_contents($file);
+
+            // check for Minim_Plugin implementors
+            if (preg_match_all($pat, $contents, $m))
+            {
+                foreach ($m[1] as $class)
+                {
+                    $this->_plugins[$plugin] = array(
+                        'file' => $file,
+                        'class' => $class
+                    );
+                }
+            }
+        }
+        return $this;
     } // }}}
 
     // path methods

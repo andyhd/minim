@@ -118,4 +118,20 @@ class Minim_TemplateEngine implements Minim_Plugin
     {
         echo $this->_get_block($name);
     } // }}}
+
+    function include_css($name) // {{{
+    {
+        $file = minim()->webroot."/css/$name.css";
+        echo <<<HTML
+<link rel="stylesheet" type="text/css" href="$file">
+HTML;
+    } // }}}
+
+    function include_js($name) // {{{
+    {
+        $file = minim()->webroot."/js/$name.js";
+        echo <<<HTML
+<script type="text/javascript" src="$file"></script>
+HTML;
+    } // }}}
 }

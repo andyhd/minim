@@ -36,11 +36,11 @@ class Minim
     } // }}}
 
     // plugin methods
-    var $_plugins;
+    var $_plugins = NULL;
 
     function _init_plugins() // {{{
     {
-        if (!$this->_plugins)
+        if ($this->_plugins === NULL)
         {
             // get a list of available plugins
             $this->_plugins = array();
@@ -60,7 +60,7 @@ class Minim
 
     function &get_plugin($plugin) // {{{
     {
-        if (!$this->_plugins)
+        if ($this->_plugins === NULL)
         {
             $this->_init_plugins();
         }
@@ -80,7 +80,7 @@ class Minim
 
     function register_plugin($file) // {{{
     {
-        if (!$this->_plugins)
+        if ($this->_plugins === NULL)
         {
             $this->_init_plugins();
         }

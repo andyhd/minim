@@ -41,7 +41,7 @@
      <a href="<?php echo minim('routing')->url_for('login') ?>">Log in</a> - <a href="<?php echo minim('routing')->url_for('sign-up') ?>">Sign up</a>
 <?php endif ?>
     </div>
-    <p><?php random_engrish() ?></p>
+    <p>Some stuff</p>
     <form method="get" action="search" id="mh_search">
      <label for="mh_search_input">Search</label>
      <input name="search" id="mh_search_input" type="text" size="20" title="Search PageZero">
@@ -53,7 +53,8 @@
    </div>
    <div id="sub-content">
     <ul id="navigation">
-<?php navigation() ?>
+      <li<?php if (preg_match('/home.php$/', $_SERVER['SCRIPT_NAME'])) { ?> class="current"<?php } ?>><a href="<?php echo minim('routing')->url_for('home') ?>">Home</a></li>
+      <li<?php if (preg_match('/blog.*?.php$/', $_SERVER['SCRIPT_NAME'])) { ?> class="current"<?php } ?>><a href="<?php echo minim('routing')->url_for('blog') ?>">Blog</a></li>
     </ul>
 <?php $this->get('page_related') ?>
    </div>

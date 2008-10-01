@@ -59,7 +59,7 @@ class Minim_TemplateEngine implements Minim_Plugin
         // render any parent templates
         if ($template = array_pop($this->_extends))
         {
-            $this->render($template, $_context);
+            $this->render($template, $_context, $_root);
         }
         ob_end_flush();
     } // }}}

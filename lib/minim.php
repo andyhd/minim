@@ -78,27 +78,33 @@ class Minim
         die("Plugin $plugin not found");
     } // }}}
 
-    function register_plugin($file) // {{{
+    function register_plugin($dir) // {{{
     {
         if ($this->_plugins === NULL)
         {
             $this->_init_plugins();
         }
-        if (substr($file, -4) == '.php')
+        if (is_dir($dir))
         {
+            // search for plugin class
             $pat = '/class\s+([^\s]+)\s+implements\s+Minim_Plugin/m';
-            $plugin = strtolower(substr(basename($file), 0, -4));
-            $contents = file_get_contents($file);
+            $plugin = strtolower(basename($dir));
 
-            // check for Minim_Plugin implementors
-            if (preg_match_all($pat, $contents, $m))
+            $dh = opendir($dir);
+            while ($file = readdir($dh))
             {
-                foreach ($m[1] as $class)
+                $contents = file_get_contents("$dir/$file");
+
+                // check for Minim_Plugin implementors
+                if (preg_match_all($pat, $contents, $m))
                 {
-                    $this->_plugins[$plugin] = array(
-                        'file' => $file,
-                        'class' => $class
-                    );
+                    foreach ($m[1] as $class)
+                    {
+                        $this->_plugins[$plugin] = array(
+                            'file' => "$dir/$file",
+                            'class' => $class
+                        );
+                    }
                 }
             }
         }

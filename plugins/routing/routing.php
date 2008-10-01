@@ -22,7 +22,7 @@ class Minim_Routing implements Minim_Plugin
         return $nullvar;
     } // }}}
 
-    function map_url($url_pattern, $view, $action=null) // {{{
+    function map_url($url_pattern, $view, $action=NULL, $alt_path=NULL) // {{{
     {
         $map =& $this->_url_map_for($view, $action);
         if (is_null($map))
@@ -30,7 +30,8 @@ class Minim_Routing implements Minim_Plugin
             $this->_url_map[] = array(
                 'url_pattern' => $url_pattern,
                 'view' => $view,
-                'action' => $action
+                'action' => $action,
+                'alt_path' => $alt_path
             );
         }
         else
@@ -39,7 +40,8 @@ class Minim_Routing implements Minim_Plugin
             $map = array(
                 'url_pattern' => $url_pattern,
                 'view' => $view,
-                'action' => $action
+                'action' => $action,
+                'alt_path' => $alt_path
             );
             minim('log')->debug("Replacing URL map for $view:$action");
         }
@@ -104,7 +106,12 @@ class Minim_Routing implements Minim_Plugin
             {
                 $url_pattern = preg_replace(',^\^/,', '^', $url_pattern);
             }
-            $rule = "RewriteRule {$url_pattern} views/{$view}.php";
+            $path = 'views';
+            if ($alt_path)
+            {
+                $path = $alt_path;
+            }
+            $rule = "RewriteRule {$url_pattern} {$path}/{$view}.php";
             $params = array();
             if (preg_match_all(',\(\?P<(.*?)>.*?\),', $url_pattern, $m))
             {

@@ -36,9 +36,12 @@ class Minim_TemplateEngine implements Minim_Plugin
         array_push($this->_extends, $name);
     } // }}}
 
-    function render($_name, $_context=array()) // {{{
+    function render($_name, $_context=array(), $_root=NULL) // {{{
     {
-        $_root = minim()->root;
+        if ($_root === NULL)
+        {
+            $_root = minim()->root;
+        }
         ob_start();
         $_filename = "$_root/templates/$_name.php";
         if (is_readable($_filename))

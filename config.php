@@ -18,14 +18,7 @@ minim('routing')
     ->map_url('^/mud$', 'mud')
     ->map_url('^/mud-say$', 'mud-say')
     ->map_url('^/mud-update$', 'mud-update')
-    ->map_url('^/mud-move$', 'mud-move')
-    ->map_url('^/admin$', 'admin/default')
-    ->map_url('^/admin/blog/delete/(?P<id>\d+)$', 'admin/blog-post', 'delete')
-    ->map_url('^/admin/blog/edit(?:/(?P<id>\d+))?$', 'admin/blog-post', 'edit')
-    ->map_url('^/admin/blog(?:/(?P<page>\d+))?$', 'admin/blog')
-    ->map_url('^/admin/routing$', 'admin/routing');
-
-include 'admin-urls.php';
+    ->map_url('^/mud-move$', 'mud-move');
 
 minim('db')
     ->host('localhost')
@@ -33,3 +26,5 @@ minim('db')
     ->user('root')
     ->password('')
     ->name('pagezero');
+
+minim('admin')->enable();

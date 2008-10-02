@@ -13,14 +13,16 @@ class Minim_Admin implements Minim_Plugin
         $path = "{$this->root}/views";
         // set up admin urls
         minim('routing')
-            ->map_url('^/admin$', 'default', NULL, $path)
-            ->map_url('^/admin/models$', 'models', NULL, $path)
+            ->map_url('^/admin$', 'admin/default', NULL, "$path/default.php")
+            ->map_url('^/admin/models$', 'admin/models', NULL,
+                      "$path/models.php")
             ->map_url('^/admin/models/(?P<model>[a-zA-Z]+)/new$',
-                      'model-edit', 'new', $path)
+                      'admin/model-edit', 'new', "$path/model-edit.php")
             ->map_url('^/admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)$',
-                      'model-edit', NULL, $path)
+                      'admin/model-edit', NULL, "$path/model-edit.php")
             ->map_url('^/admin/models/(?P<model>[a-zA-Z]+)$',
-                      'model-list', NULL, $path)
-            ->map_url('^/admin/routing$', 'routing', NULL, $path);
+                      'admin/model-list', NULL, "$path/model-list.php")
+            ->map_url('^/admin/routing$', 'admin/routing', NULL,
+                      "$path/routing.php");
     } // }}}
 }

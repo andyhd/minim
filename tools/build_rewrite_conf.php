@@ -2,7 +2,7 @@
 <?php
 require realpath(dirname(__FILE__)."/../config.php");
 
-if (!isset($argc) or $argc < 2)
+if (!isset($argc) or $argc < 1)
 {
     print "Missing argument(s)\n";
     exit;
@@ -21,9 +21,9 @@ if (is_file($file))
 }
 
 $base = '';
-if (isset($argv[2]))
+if (isset(minim()->webroot))
 {
-    $base = $argv[2];
+    $base = minim()->webroot;
 }
 
 $fp = fopen($file, 'w');

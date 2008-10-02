@@ -1,5 +1,5 @@
 <?php
-require_once '../../config.php';
+require_once '../../../config.php';
 
 $model_name = @$_REQUEST['model'];
 
@@ -42,9 +42,9 @@ catch (Exception $e)
     }
 }
 
-minim('templates')->render('admin/default/model-list', array(
+minim('templates')->render('model-list', array(
     'model_name' => $model_name,
     'model_name_plural' => "{$model_name}s",
     'model_fields' => array_keys($model->_fields),
     'models' => $paginator
-));
+), minim('admin')->root);

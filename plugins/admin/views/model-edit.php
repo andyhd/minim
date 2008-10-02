@@ -1,9 +1,9 @@
 <?php
-require_once '../../config.php';
+require_once '../../../config.php';
 
 $model_name = @$_REQUEST['model'];
 
-if ($_REQUEST['action'] == 'new')
+if (@$_REQUEST['action'] == 'new')
 {
     $params = array();
 }
@@ -49,8 +49,8 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     }
 }
 
-minim('templates')->render('admin/default/model-edit', array(
+minim('templates')->render('model-edit', array(
     'model_name' => $model_name,
     'form' => $form,
     'errors' => $errors
-));
+), minim('admin')->root);

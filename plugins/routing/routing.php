@@ -75,7 +75,8 @@ class Minim_Routing implements Minim_Plugin
             $_rev = preg_replace(',\(\?\:/\(\?P<(.*?)>.*?\)\)\?,e',
                 'isset($$1) ? "/{$$1}" : ""', $_pat);
             $_rev = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_rev);
-            $_rev = minim()->webroot.ltrim(rtrim($_rev, '/$'), '^');
+            $_rev = ltrim(rtrim($_rev, '/$'), '^');
+            $_rev = minim()->webroot.$_rev;
             if ($_params)
             {
                 $_rev .= '?'.http_build_query($_params); 
@@ -106,12 +107,12 @@ class Minim_Routing implements Minim_Plugin
             {
                 $url_pattern = preg_replace(',^\^/,', '^', $url_pattern);
             }
-            $path = 'views';
+            $path = "views/{$view}.php";
             if ($alt_path)
             {
                 $path = $alt_path;
             }
-            $rule = "RewriteRule {$url_pattern} {$path}/{$view}.php";
+            $rule = "RewriteRule {$url_pattern} {$path}";
             $params = array();
             if (preg_match_all(',\(\?P<(.*?)>.*?\),', $url_pattern, $m))
             {

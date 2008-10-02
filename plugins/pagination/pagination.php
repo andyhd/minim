@@ -173,7 +173,7 @@ class Minim_Paginator implements Minim_Plugin, Iterator, Countable
             $next = minim('routing')->url_for($this->url, $params);
         }
         
-        include minim()->root."/templates/_pagination.php";
+        include realpath(dirname(__FILE__))."/templates/_pagination.php";
     } // }}}
 
     // iterator methods

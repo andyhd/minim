@@ -1,4 +1,4 @@
-<?php $this->extend('admin/base') ?>
+<?php $this->extend('base') ?>
 
 <?php $this->set('title') ?>Routing<?php $this->end() ?>
 

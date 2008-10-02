@@ -953,7 +953,8 @@ class Minim_Orm implements Minim_Plugin // {{{
         if (!$this->_field_types)
         {
             // get a list of available field_types
-            $pluginsdir = minim()->root.'/plugins';
+            // TODO - allow field types defined elsewhere
+            $pluginsdir = minim()->root.'/plugins/orm';
             $dh = opendir($pluginsdir);
             if (!$dh)
             {

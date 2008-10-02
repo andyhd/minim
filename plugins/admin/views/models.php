@@ -1,8 +1,8 @@
 <?php
-require_once '../../config.php';
+require_once '../../../config.php';
 
 $models = minim('orm')->_available_models();
 
-minim('templates')->render('admin/models', array(
+minim('templates')->render('models', array(
     'models' => $models,
-));
+), minim('admin')->root);

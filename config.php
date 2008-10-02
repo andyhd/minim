@@ -7,6 +7,8 @@ $GLOBALS['debug'] = @$_REQUEST['debug'];
 
 require 'lib/minim.php';
 
+minim()->webroot = '/~andy.driver/pagezero';
+
 minim('routing')
     ->map_url('^/$', 'home')
     ->map_url('^/login$', 'login')

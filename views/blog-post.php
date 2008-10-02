@@ -4,7 +4,7 @@ require_once '../config.php';
 $date = sprintf("%04d-%02d-%02d", $_GET['year'], $_GET['month'], $_GET['day']);
 
 // get the first post with a matching slug on the specified day
-$post = minim->('orm')->BlogPost->filter(array(
+$post = minim('orm')->BlogPost->filter(array(
     'posted__range' => array("$date 00:00:00", "$date 23:59:59"),
     'slug__eq' => $_GET['slug']
 ))->first;
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         $comment->save();
 
         minim('user_messaging')->info('Comment saved');
-        minim('templates')->redirect('blog-post', $_GET);
+        minim('routing')->redirect('blog-post', $_GET);
     }
     else
     {

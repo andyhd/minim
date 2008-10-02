@@ -4,7 +4,7 @@
 
 <?php $this->set('page_content') ?>
   <ol class="blog-posts">
-<?php for ($i = 0; $i < 3 and $i < count($posts); $i++): $post = $posts->items[$i] ?>
+<?php $i = 0; foreach ($posts as $post): ?>
    <li>
     <div class="post">
      <h2><a href="<?php echo url_for_blog_post($post) ?>"><?php echo $post->title ?></a></h2>
@@ -17,12 +17,12 @@
      </ol>
     </div>
    </li>
-<?php endfor ?>
+<?php $i++; if ($i == 3) break; endforeach ?>
   </ol>
   <ol class="titles">
-<?php for ($i = 3; $i < count($posts); $i++): $post = $posts->items[$i] ?>
+<?php $i = 0; foreach ($posts as $post): $i++; if ($i < 3) continue ?>
    <li><a href="<?php echo url_for_blog_post($post) ?>"><?php echo $post->title ?></a></li>
-<?php endfor ?>
+<?php endforeach ?>
   </ol>
   <p>
    <a href="<?php minim('routing')->url_for("blog-archive") ?>">Older Posts</a>

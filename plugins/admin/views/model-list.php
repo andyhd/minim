@@ -47,4 +47,4 @@ minim('templates')->render('model-list', array(
     'model_name_plural' => "{$model_name}s",
     'model_fields' => array_keys($model->_fields),
     'models' => $paginator
-), minim('admin')->root);
+));

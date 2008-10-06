@@ -1,4 +1,4 @@
 <?php
 require_once '../../../config.php';
 
-minim('templates')->render('default', array(), minim('admin')->root);
+minim('templates')->render('default', array());

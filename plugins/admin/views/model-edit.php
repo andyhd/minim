@@ -53,4 +53,4 @@ minim('templates')->render('model-edit', array(
     'model_name' => $model_name,
     'form' => $form,
     'errors' => $errors
-), minim('admin')->root);
+));

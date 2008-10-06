@@ -1,4 +1,4 @@
-<?php $this->extend('base') ?>
+<?php $this->extend('admin_base') ?>
 
 <?php require_once minim()->lib('helpers') ?>
 

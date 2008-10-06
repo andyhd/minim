@@ -1,4 +1,4 @@
-<?php $this->extend('base') ?>
+<?php $this->extend('admin_base') ?>
 
 <?php $this->set('page_content') ?>
     <form id="model-edit-form" method="post" action="<?php echo $_SERVER['REQUEST_URI'] ?>">

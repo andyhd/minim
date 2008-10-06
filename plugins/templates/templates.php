@@ -1,7 +1,7 @@
 <?php
 class Minim_TemplateEngine implements Minim_Plugin
 {
-    // templating methods
+    var $_template_paths;
     var $_blocks;
     var $_extends;
     var $_def_stack;
@@ -11,6 +11,9 @@ class Minim_TemplateEngine implements Minim_Plugin
         $this->_blocks = array();
         $this->_extends = array();
         $this->_def_stack = array();
+        $this->_template_paths = array(
+            minim()->root.'/templates/'
+        );
     } // }}}
 
     function _set_block($name, $contents) // {{{
@@ -36,30 +39,48 @@ class Minim_TemplateEngine implements Minim_Plugin
         array_push($this->_extends, $name);
     } // }}}
 
-    function render($_name, $_context=array(), $_root=NULL) // {{{
+    function _find_template($template) // {{{
     {
-        if ($_root === NULL)
+        foreach ($this->_template_paths as $path)
         {
-            $_root = minim()->root;
+            $filename = "$path/$template.php";
+            if (is_file($filename))
+            {
+                return $filename;
+            }
         }
+        return FALSE;
+    } // }}}
+
+    function append_path($path) // {{{
+    {
+        array_push($this->_template_paths, $path);
+    } // }}}
+
+    function prepend_path($path) // {{{
+    {
+        array_unshift($this->_template_paths, $path);
+    } // }}}
+
+    function render($_template, $_context=array()) // {{{
+    {
+        // find template by searching template path
+        $_filename = $this->_find_template($_template);
+        if (!is_readable($_filename))
+        {
+            die("Template $_template not found at $_filename");
+        }
+
+        minim('log')->debug("Rendering $_template template from $_filename");
+        minim('log')->debug("Context: " . print_r($_context, TRUE));
+        extract($_context);
         ob_start();
-        $_filename = "$_root/templates/$_name.php";
-        if (is_readable($_filename))
-        {
-            minim('log')->debug("Rendering $_name template");
-            minim('log')->debug("Context: " . print_r($_context, TRUE));
-            extract($_context);
-            include $_filename;
-        }
-        else
-        {
-            die("Template $_name not found at $_filename");
-        }
+        include $_filename;
 
         // render any parent templates
         if ($template = array_pop($this->_extends))
         {
-            $this->render($template, $_context, $_root);
+            $this->render($template, $_context);
         }
         ob_end_flush();
     } // }}}

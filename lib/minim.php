@@ -93,6 +93,10 @@ class Minim
             $dh = opendir($dir);
             while ($file = readdir($dh))
             {
+                if (substr($file, -4) != '.php')
+                {
+                    continue;
+                }
                 $contents = file_get_contents("$dir/$file");
 
                 // check for Minim_Plugin implementors

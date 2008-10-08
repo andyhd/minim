@@ -20,7 +20,10 @@ minim('routing')
     ->map_url('^/mud$', 'mud')
     ->map_url('^/mud-say$', 'mud-say')
     ->map_url('^/mud-update$', 'mud-update')
-    ->map_url('^/mud-move$', 'mud-move');
+    ->map_url('^/mud-move$', 'mud-move')
+    ->map_url('^/admin/models/BlogPost/(?P<id>\d+)$', 'admin/blog-post', 'edit')
+    ->map_url('^/admin/models/BlogPost/new$', 'admin/blog-post', 'new');
+
 
 minim('db')
     ->host('localhost')

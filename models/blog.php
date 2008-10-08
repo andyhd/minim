@@ -2,7 +2,8 @@
 minim('orm')->register_model('BlogPost')
             ->table('post')
             ->default_sort('-posted')
-            ->int('id', array('autoincrement' => TRUE))
+            ->int('id', array('autoincrement' => TRUE,
+                              'read_only' => TRUE))
             ->text('title', array('maxlength' => 100,
                                   'required' => TRUE,
                                   'not_null' => TRUE))
@@ -13,8 +14,10 @@ minim('orm')->register_model('BlogPost')
             ->text('content', array('required' => TRUE,
                                     'not_null' => TRUE))
             ->timestamp('posted', array('auto_now' => TRUE,
-                                        'not_null' => TRUE))
-            ->int('author', array('not_null' => TRUE))
+                                        'not_null' => TRUE,
+                                        'read_only' => TRUE))
+            ->int('author', array('not_null' => TRUE,
+                                  'read_only' => TRUE))
             ->text('tags', array('maxlength' => 255));
 
 minim('orm')->register_model('BlogComment')

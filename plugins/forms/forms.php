@@ -57,20 +57,33 @@ class Minim_Form // {{{
                 switch ($field->_type)
                 {
                     case 'timestamp':
-                        $this->dateField($name, $args);
-                        break;
-                    case 'text':
-                        if (!$field->attr('maxlength'))
+                        if (!$field->attr('read_only'))
                         {
-                            $this->textArea($name, $args);
+                            $this->dateField($name, $args);
+                            break; // fallthru if read-only
+                        }
+                    case 'text':
+                        if (!$field->attr('read_only'))
+                        {
+                            if (!$field->attr('maxlength'))
+                            {
+                                $this->textArea($name, $args);
+                            }
+                            else
+                            {
+                                $this->textField($name, $args);
+                            }
+                            break; // fallthru if read-only
+                        }
+                    default:
+                        if ($field->attr('read_only'))
+                        {
+                            $this->hiddenField($name, $args);
                         }
                         else
                         {
                             $this->textField($name, $args);
                         }
-                        break;
-                    default:
-                        $this->textField($name, $args);
                 }
             }
         }
@@ -245,6 +258,12 @@ PHP;
 
 class Minim_Hidden extends Minim_Input // {{{
 {
+    function __construct($name, $params)
+    {
+        parent::__construct($name, $params);
+        $this->label = '';
+    }
+
     function render()
     {
         return <<<PHP

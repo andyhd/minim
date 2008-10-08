@@ -10,15 +10,12 @@ if (@$_REQUEST['action'] == 'new')
 else
 {
     $model = minim('orm')->{$model_name};
-    if (!$model)
+    if ($model)
     {
-        minim('templates')->render_404();
-        return;
+        $model = $model->filter(array(
+            'id__eq' => @$_REQUEST['id']
+        ))->first;
     }
-
-    $model = $model->filter(array(
-        'id__eq' => @$_REQUEST['id']
-    ))->first;
     if (!$model)
     {
         minim('templates')->render_404();

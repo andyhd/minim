@@ -57,7 +57,7 @@ foreach ($model_fields as $field)
 }
 echo $row;
 ?>
-          <td><a href="<?php echo minim('routing')->url_for('admin/model-edit', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Edit</a></td>
+          <td><a href="<?php echo minim('routing')->url_for('admin/model-edit', array('model' => $model_name, 'id' => $model->id)) ?>" class="edit-link">Edit</a></td>
           <td><a href="<?php echo minim('routing')->url_for('admin/model-delete', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Delete</a></td>
         </tr>
         <?php endforeach ?>

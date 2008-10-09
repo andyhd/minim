@@ -9,7 +9,6 @@
       <thead>
         <tr>
           <th scope="col">Model</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>

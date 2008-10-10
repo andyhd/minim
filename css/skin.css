@@ -1,0 +1,119 @@
+body {
+    background: white url(../images/page-shadow.png) repeat-y center 0;
+}
+
+#masthead {
+    background: #f5f5f5; /* off white */
+    color: #222;
+}
+
+#masthead #logo {
+    background: transparent url(../images/pagezero-logo.png) no-repeat 0 0;
+    color: #ddd;
+}
+
+#masthead .logged_in {
+    color: #888;
+}
+
+#mh_search label {
+    background: transparent url(../images/search.png) no-repeat scroll 0 2px;
+}
+
+#content {
+    background: #f5f5f5;
+    color: #222;
+}
+
+#navigation {
+    list-style-type: none;
+    background: transparent url(../images/shadow.png) top left repeat-x;
+}
+
+#navigation li.current {
+  color: #111;
+  background: transparent url(../images/shadow.png) repeat-x scroll left bottom;
+}
+
+#navigation li a {
+  text-decoration: none;
+  background: transparent url(../images/shadow.png) repeat-x scroll left top;
+  color: #444;
+}
+
+#navigation li.current a {
+  background: #f5f5f5;
+}
+
+#sub-content {
+  background: #111 url(../images/black-stripes-background.png);
+}
+
+.box {
+  background: #111;
+  color: #ccc;
+}
+
+.box h2 {
+  color: #88f;
+}
+
+.img-grid ol {
+    list-style-type: none;
+}
+
+#comment-form h3 {
+    color: #aaa;
+}
+
+#comment-form label {
+    font-weight: bold;
+}
+
+#comment-form .help-text {
+    color: #aaa;
+}
+
+#comment-form .submit {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.post h2 {
+    font-weight: bold;
+}
+
+.author {
+    font-weight: bold;
+}
+
+.posted {
+    color: #aaa;
+}
+
+#footer p {
+    color: #aaa;
+}
+
+.admin th {
+    background: #555;
+    color: #ccc;
+    font-weight: bold;
+}
+
+.admin .alt td {
+    background: #ddd;
+}
+
+.admin .form-row label {
+    color: #555;
+}
+
+.admin .form-row .required {
+    font-weight: bold;
+}
+
+.admin .errors li {
+    color: #f00;
+    font-weight: bold;
+}

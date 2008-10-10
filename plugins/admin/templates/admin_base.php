@@ -7,7 +7,8 @@
 
 <?php $this->set('css') ?>
 <?php $this->include_css('reset-fonts') ?>
-<?php $this->include_css('coffee') ?>
+<?php $this->include_css('position') ?>
+<?php $this->include_css('skin') ?>
 <?php $this->get('page_css') ?>
 <?php $this->end() ?>
 

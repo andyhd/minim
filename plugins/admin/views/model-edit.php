@@ -12,9 +12,7 @@ else
     $model = minim('orm')->{$model_name};
     if ($model)
     {
-        $model = $model->filter(array(
-            'id__eq' => @$_REQUEST['id']
-        ))->first;
+        $model = $model->get(@$_REQUEST['id']);
     }
     if (!$model)
     {

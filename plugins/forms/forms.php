@@ -75,6 +75,12 @@ class Minim_Form // {{{
                             }
                             break; // fallthru if read-only
                         }
+                    case 'foreign_key':
+                        if (!$field->attr('read_only'))
+                        {
+                            $this->selectField($name, $args);
+                            break; // fallthru if read-only
+                        }
                     default:
                         if ($field->attr('read_only'))
                         {
@@ -132,6 +138,12 @@ class Minim_Form // {{{
     function textArea($name, $params=array()) // {{{
     {
         $this->_fields[$name] = new Minim_TextArea($name, $params);
+        return $this;
+    } // }}}
+
+    function selectField($name, $params=array()) // {{{
+    {
+        $this->_fields[$name] = new Minim_Select($name, $params);
         return $this;
     } // }}}
 
@@ -296,8 +308,9 @@ class Minim_Date extends Minim_Input // {{{
 {
     function render()
     {
+        $date = date('Y-m-d H:i:s', $this->getValue());
         return <<<PHP
-<input id="{$this->_id}" type="text" name="{$this->_name}" value="{$this->getValue()}"{$this->_class}>
+<input id="{$this->_id}" type="text" name="{$this->_name}" value="{$date}"{$this->_class}>
 PHP;
     }
 } // }}}
@@ -312,4 +325,40 @@ class Minim_TextArea extends Minim_Input // {{{
 <textarea id="{$this->_id}" name="{$this->_name}"{$rows}{$this->_class}>{$this->getValue()}</textarea>
 PHP;
     }
+} // }}}
+
+class Minim_Select extends Minim_Input // {{{
+{
+    var $_choices;
+
+    function __construct($name, $params) // {{{
+    {
+        parent::__construct($name, $params);
+        $this->_choices = array();
+        if (is_array(@$params['choices']))
+        {
+            $this->_choices = $params['choices'];
+        }
+    } // }}}
+
+    function render() // {{{
+    {
+        $options = '';
+        foreach ($this->_choices as $name => $value)
+        {
+            $selected = '';
+            if ($value == $this->_initial)
+            {
+                $selected = ' selected="selected"';
+            }
+            $options .= <<<PHP
+<option value="$value"$selected>$name</option>
+PHP;
+        }
+        return <<<PHP
+<select id="{$this->_id}" name="{$this->_name}"{$this->_class}>
+    $options
+</select>
+PHP;
+    } // }}}
 } // }}}

@@ -9,6 +9,7 @@
  *               ->table($table_name)
  *               ->default_sort($order)
  *               ->{$field_type}($name, $params_array)
+ *               ->foreign_key($name, $params_array)
  *               ...;
  *
  * Querying database - get a list of models:
@@ -52,12 +53,14 @@ class Minim_DataObject // {{{
 {
     var $_name;
     var $_fields;
+    var $_keys;
     var $_default_sort;
 
     function Minim_DataObject($name) // {{{
     {
         $this->_name = $name;
         $this->_fields = array();
+        $this->_keys = array();
     } // }}}
 
     function _setFields(&$fields) // {{{
@@ -75,7 +78,19 @@ class Minim_DataObject // {{{
                 }
                 $clone->attr('from', &$this->_fields[$from]);
             }
-            $this->_fields[$name] =& $clone;
+            if ($field->_type == 'foreign_key')
+            {
+                $key_field = $clone->attr('field');
+                $key = "{$name}_{$key_field}";
+                $this->_keys[$name] = $key;
+                $this->_fields[$key] =& new Minim_Orm_Int('int', array(
+                    'read_only' => TRUE
+                ));
+            }
+            else
+            {
+                $this->_fields[$name] =& $clone;
+            }
         }
     } // }}}
 
@@ -83,11 +98,11 @@ class Minim_DataObject // {{{
     {
         if ($field = $this->_getField($name))
         {
-            if ($field->attr('read_only'))
+/*            if ($field->attr('read_only'))
             {
                 minim('log')->debug("$name field is read-only");
                 return FALSE;
-            }
+            } */
             $ret = $field->setValue($value);
             if ($ret === FALSE)
             {
@@ -108,6 +123,12 @@ class Minim_DataObject // {{{
     {
         if (!array_key_exists($name, $this->_fields))
         {
+            // find a foreign key field that matches
+            if (array_key_exists($name, $this->_keys))
+            {
+                return $this->_fields[$this->_keys[$name]];
+            }
+
             $falsevar = FALSE;
             return $falsevar;
         }
@@ -203,11 +224,11 @@ class Minim_Orm_Field // {{{
 
     function setValue($value) // {{{
     {
-        if (!$this->attr('read_only'))
+/*        if ($this->attr('read_only'))
         {
-            return $this->_value = $value;
-        }
-        return FALSE;
+            return FALSE;
+        } */
+        return $this->_value = $value;
     } // }}}
 
     function getValue() // {{{
@@ -267,6 +288,59 @@ class Minim_Orm_Int extends Minim_Orm_Field // {{{
             return TRUE;
         }
 
+        return parent::isValid();
+    } // }}}
+} // }}}
+
+class Minim_Orm_Foreign_Key extends Minim_Orm_Field // {{{
+{
+    function setValue(&$value) // {{{
+    {
+        $model = $this->attr('model');
+        $field = $this->attr('field');
+        minim('log')->debug("FOREIGN KEY $model == {$value->_name}?");
+        if (@$value->_name != $model)
+        {
+            // Foreign key value must be an model object of the correct type
+            minim('log')->debug("FOREIGN KEY value must be a $model");
+            return FALSE;
+        }
+        if (!$value->$field)
+        {
+            // Related object must have matching field
+            minim('log')->debug("FOREIGN KEY $field not found in $model");
+            return FALSE;
+        }
+        return parent::setValue($value->$field);
+    } // }}}
+
+    function &getValue() // {{{
+    {
+        $value = parent::getValue();
+        $model = $this->attr('model');
+        $field = $this->attr('field');
+        if ($value and $model and $field)
+        {
+            $obj = minim('orm')->$model->filter(array($field."__eq" => $value));
+            return $obj->first;
+        }
+        return $value;
+    } // }}}
+
+    function isValid() // {{{
+    {
+        if ($this->_value !== NULL)
+        {
+            $model = $this->attr('model');
+            if (!$model)
+            {
+                return FALSE;
+            }
+            if (minim('orm')->$model->get($this->_value))
+            {
+                return TRUE;
+            }
+        }
         return parent::isValid();
     } // }}}
 } // }}}
@@ -476,12 +550,10 @@ class Minim_Orm_Manager // {{{
         $model =& new Minim_DataObject($this->_model);
         $model->_setFields($this->_fields);
 
-        if (!is_array($data))
+        if (is_array($data))
         {
-            return $model;
+            $model->_fromArray($data);
         }
-
-        $model->_fromArray($data);
 
         return $model;
     } // }}}
@@ -1096,6 +1168,7 @@ class Minim_Orm implements Minim_Plugin // {{{
                 switch ($field->_type)
                 {
                     case 'int':
+                    case 'foreign_key':
                         $type = 'INTEGER';
                         break;
                     case 'text':

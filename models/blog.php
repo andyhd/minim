@@ -23,8 +23,11 @@ minim('orm')->register_model('BlogPost')
 minim('orm')->register_model('BlogComment')
             ->table('comment')
             ->default_sort('-posted')
-            ->int('id', array('autoincrement' => TRUE))
-            ->int('post_id', array('not_null' => TRUE))
+            ->int('id', array('autoincrement' => TRUE,
+                              'read_only' => TRUE))
+//            ->int('post_id', array('not_null' => TRUE))
+            ->foreign_key('post', array('model' => 'BlogPost',
+                                        'field' => 'id'))
             ->text('content', array('required' => TRUE,
                                     'not_null' => TRUE))
             ->timestamp('posted', array('auto_now' => TRUE))

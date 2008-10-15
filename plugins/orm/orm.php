@@ -83,9 +83,7 @@ class Minim_DataObject // {{{
                 $key_field = $clone->attr('field');
                 $key = "{$name}_{$key_field}";
                 $this->_keys[$name] = $key;
-                $this->_fields[$key] =& new Minim_Orm_Int('int', array(
-                    'read_only' => TRUE
-                ));
+                $this->_fields[$key] =& $clone;
             }
             else
             {
@@ -123,12 +121,6 @@ class Minim_DataObject // {{{
     {
         if (!array_key_exists($name, $this->_fields))
         {
-            // find a foreign key field that matches
-            if (array_key_exists($name, $this->_keys))
-            {
-                return $this->_fields[$this->_keys[$name]];
-            }
-
             $falsevar = FALSE;
             return $falsevar;
         }
@@ -140,6 +132,12 @@ class Minim_DataObject // {{{
         if ($field = $this->_getField($name))
         {
             return $field->getValue();
+        }
+        
+        // find a foreign key field that matches
+        if (array_key_exists($name, $this->_keys))
+        {
+            return $this->_fields[$this->_keys[$name]]->getValue(TRUE);
         }
         
         minim('log')->debug(get_class($this).": Can't get field $name - does not exist");
@@ -296,33 +294,40 @@ class Minim_Orm_Foreign_Key extends Minim_Orm_Field // {{{
 {
     function setValue(&$value) // {{{
     {
+        // if value is an object of the related type, store its id
         $model = $this->attr('model');
-        $field = $this->attr('field');
-        minim('log')->debug("FOREIGN KEY $model == {$value->_name}?");
-        if (@$value->_name != $model)
+        if (is_object($value) and @$value->_name == $model)
         {
-            // Foreign key value must be an model object of the correct type
-            minim('log')->debug("FOREIGN KEY value must be a $model");
-            return FALSE;
+            $field = $this->attr('field');
+            $key = @$value->$field;
+            if ($key)
+            {
+                return parent::setValue($key);
+            }
+            else
+            {
+                minim('log')->debug("FOREIGN KEY $field not found in $model");
+                return FALSE;
+            }
         }
-        if (!$value->$field)
-        {
-            // Related object must have matching field
-            minim('log')->debug("FOREIGN KEY $field not found in $model");
-            return FALSE;
-        }
-        return parent::setValue($value->$field);
+
+        return parent::setValue($value);
     } // }}}
 
-    function &getValue() // {{{
+    function &getValue($as_model=FALSE) // {{{
     {
         $value = parent::getValue();
-        $model = $this->attr('model');
-        $field = $this->attr('field');
-        if ($value and $model and $field)
+        if ($as_model)
         {
-            $obj = minim('orm')->$model->filter(array($field."__eq" => $value));
-            return $obj->first;
+            $model = $this->attr('model');
+            $field = $this->attr('field');
+            if ($value and $model and $field)
+            {
+                $obj = minim('orm')->$model
+                                   ->filter(array("{$field}__eq" => $value))
+                                   ->first;
+                return $obj;
+            }
         }
         return $value;
     } // }}}
@@ -331,15 +336,7 @@ class Minim_Orm_Foreign_Key extends Minim_Orm_Field // {{{
     {
         if ($this->_value !== NULL)
         {
-            $model = $this->attr('model');
-            if (!$model)
-            {
-                return FALSE;
-            }
-            if (minim('orm')->$model->get($this->_value))
-            {
-                return TRUE;
-            }
+            return FALSE != $this->getValue(TRUE);
         }
         return parent::isValid();
     } // }}}

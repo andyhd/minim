@@ -76,8 +76,21 @@ class Minim_Form // {{{
                             break; // fallthru if read-only
                         }
                     case 'foreign_key':
+                        if ($have_data)
+                        {
+                            $key = $field->attr('field');
+                            $args['initial'] = $params['instance']->$name->$key;
+                        }
                         if (!$field->attr('read_only'))
                         {
+                            $model = $field->attr('model');
+                            $choices = array();
+                            foreach (minim('orm')->$model->all() as $obj)
+                            {
+                                $choice = "{$obj->_name}_{$obj->id}";
+                                $choices[$choice] = $obj->id;
+                            }
+                            $args['choices'] = $choices;
                             $this->selectField($name, $args);
                             break; // fallthru if read-only
                         }

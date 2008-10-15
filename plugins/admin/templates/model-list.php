@@ -45,6 +45,10 @@ foreach ($model_fields as $field)
     {
         $data .= date('d M, Y @ H:i', $model->$field);
     }
+    elseif (is_object($model->$field))
+    {
+        $data .= $model->$field->id;
+    }
     elseif (@$model->_fields[$field]->_type == 'text' and !@$model->_fields[$field]->attr('maxlength'))
     {
         $data .= htmlspecialchars(truncate($model->$field));

@@ -20,6 +20,13 @@ else
         return;
     }
 
+    if (@$_REQUEST['action'] == 'delete')
+    {
+        $model->delete();
+        minim('user_messaging')->info("Deleted $model_name #{$_REQUEST['id']}");
+        minim('routing')->redirect('admin/model-list', array());
+    }
+
     $params = array('instance' => $model);
 }
 

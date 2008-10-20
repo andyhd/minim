@@ -16,5 +16,6 @@ RewriteRule ^admin$ /Users/andy.driver/Sites/pagezero/plugins/admin/views/defaul
 RewriteRule ^admin/models$ /Users/andy.driver/Sites/pagezero/plugins/admin/views/models.php [QSA,L]
 RewriteRule ^admin/models/(?P<model>[a-zA-Z]+)/new$ /Users/andy.driver/Sites/pagezero/plugins/admin/views/model-edit.php?model=$1&action=new [QSA,L]
 RewriteRule ^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)$ /Users/andy.driver/Sites/pagezero/plugins/admin/views/model-edit.php?model=$1&id=$2 [QSA,L]
+RewriteRule ^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)/delete$ /Users/andy.driver/Sites/pagezero/plugins/admin/views/model-edit.php?model=$1&id=$2&action=delete [QSA,L]
 RewriteRule ^admin/models/(?P<model>[a-zA-Z]+)$ /Users/andy.driver/Sites/pagezero/plugins/admin/views/model-list.php?model=$1 [QSA,L]
 RewriteRule ^admin/routing$ /Users/andy.driver/Sites/pagezero/plugins/admin/views/routing.php [QSA,L]

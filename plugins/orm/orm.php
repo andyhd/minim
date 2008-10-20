@@ -174,7 +174,7 @@ class Minim_DataObject // {{{
 
     function delete() // {{{
     {
-        minim('orm')->{$this->_name}->delete($this);
+        minim('orm')->{$this->_name}->delete($this->id);
     } // }}}
 
     function to_array() // {{{
@@ -555,12 +555,11 @@ class Minim_Orm_Manager // {{{
         return $model;
     } // }}}
 
-    function delete(&$instance) // {{{
+    function delete($id) // {{{
     {
-        $id = $instance->getValue('id');
         $sql = "DELETE FROM {$this->_table} WHERE id=:id";
         $data = array(':id' => $id);
-        $s = minim()->db()->prepare($sql);
+        $s = minim('db')->prepare($sql);
         return $s->execute($data);
     } // }}}
 
@@ -618,21 +617,54 @@ class Minim_Orm_ModelProxy // {{{
         $this->_cache = NULL;
     } // }}}
 
+    function _fill_cache() // {{{
+    {
+        if (!$this->_cache)
+        {
+            $this->_cache = $this->_model
+                                 ->filter(array('id__eq' => $this->_id))
+                                 ->first;
+        }
+    } // }}}
+
     function &__get($name) // {{{
     {
         if (array_key_exists($name, $this->_model->_fields))
         {
-            if (!$this->_cache)
+            $this->_fill_cache();
+            if ($this->_cache)
             {
-                $this->_cache =& $this->_model
-                    ->filter(array('id__eq' => $this->_id))
-                    ->first;
+                $ret = $this->_cache->{$name};
+                return $ret;
             }
-            $ret = $this->_cache->{$name};
-            return $ret;
         }
         $nullVar = NULL;
         return $nullVar;
+    } // }}}
+
+    function __set($name, $value) // {{{
+    {
+        if (array_key_exists($name, $this->_model->_fields))
+        {
+            $this->_fill_cache();
+            return $this->_cache->{$name} = $value;
+        }
+    } // }}}
+
+    function __call($name, $args) // {{{
+    {
+        if ($name == 'save')
+        {
+            if ($this->_cache)
+            {
+                return $this->_cache->save();
+            }
+            return FALSE;
+        }
+        if ($name == 'delete')
+        {
+            return $this->_model->delete($this->_id);
+        }
     } // }}}
 } // }}}
 

@@ -1,11 +1,31 @@
 #!/usr/bin/php
 <?php
-require realpath(dirname(__FILE__)."/../config.php");
-
-if (!isset($argc) or $argc < 1)
+$options = getopt('c::');
+if (!isset($argc) or $argc < 1 or !$options)
 {
-    print "Missing argument(s)\n";
-    exit;
+    $syntax = <<<TEXT
+Syntax:  {$argv[0]} <file>
+Options: -c <config file>
+
+TEXT;
+    die($syntax);
+}
+
+if ($options['c'])
+{
+    $config = realpath($options['c']);
+    if ($config and is_file($config))
+    {
+        require $config;
+    }
+    else
+    {
+        die("Config file {$options['c']} not found");
+    }
+}
+else
+{
+    require 'config.php';
 }
 
 $file = $argv[1];

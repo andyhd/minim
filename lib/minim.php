@@ -26,11 +26,14 @@ class Minim
     function Minim() // {{{
     {
         $this->root = realpath(dirname(__FILE__).'/../');
-        $this->webroot = substr($_SERVER['PHP_SELF'], 0,
-            strpos($_SERVER['PHP_SELF'], '/views'));
+        $this->webroot = substr(@$_SERVER['PHP_SELF'], 0,
+            strpos(@$_SERVER['PHP_SELF'], '/views'));
         $this->isXhrRequest = strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) ==
                               'xmlhttprequest';
-        session_start();
+        if ($_SERVER)
+        {
+            session_start();
+        }
         // cache user messages so we don't erase new ones in the render phase
         $this->get_plugin('user_messaging')->get_messages();
     } // }}}

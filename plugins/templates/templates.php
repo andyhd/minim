@@ -12,7 +12,7 @@ class Minim_TemplateEngine implements Minim_Plugin
         $this->_extends = array();
         $this->_def_stack = array();
         $this->_template_paths = array(
-            minim()->root.'/templates/'
+            realpath(minim()->root.'/templates/')
         );
     } // }}}
 

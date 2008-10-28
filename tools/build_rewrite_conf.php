@@ -1,20 +1,27 @@
 #!/usr/bin/php
 <?php
-$options = getopt('c::');
-if (!isset($argc) or $argc < 1 or !$options)
+$options = getopt('c:f:h');
+if (@$options['h'])
 {
     $syntax = <<<TEXT
-Syntax:  {$argv[0]} <file>
+Syntax:  {$argv[0]}
 Options: -c <config file>
+         -f <output file>
 
 TEXT;
     die($syntax);
 }
 
-if ($options['c'])
+if (@$options['c'])
 {
     $config = realpath($options['c']);
-    if ($config and is_file($config))
+    if (!$config)
+    {
+        $config = realpath(join(DIRECTORY_SEPARATOR, array(
+            getcwd(), $options['c']
+        )));
+    }
+    if (is_file($config))
     {
         require $config;
     }
@@ -28,7 +35,14 @@ else
     require 'config.php';
 }
 
-$file = $argv[1];
+$file = realpath(@$options['f']);
+if (!$file)
+{
+    $file = realpath(join(DIRECTORY_SEPARATOR, array(
+        getcwd(), @$options['f']
+    )));
+}
+$fh = STDOUT;
 if (is_file($file))
 {
     print "$file already exists, overwrite? [yN] ";
@@ -38,6 +52,7 @@ if (is_file($file))
         print "Aborting\n";
         exit;
     }
+    $fh = fopen($file, 'w');
 }
 
 $base = '';
@@ -46,10 +61,7 @@ if (isset(minim()->webroot))
     $base = minim()->webroot;
 }
 
-$fp = fopen($file, 'w');
-fputs($fp, "RewriteEngine On\n");
+fputs($fh, "RewriteEngine On\n");
 
 $rules = minim('routing')->mod_rewrite_rules($base);
-fputs($fp, join("\n", $rules));
-
-fclose($fp);
+fputs($fh, join("\n", $rules));

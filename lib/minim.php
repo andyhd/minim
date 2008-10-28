@@ -30,7 +30,7 @@ class Minim
             strpos(@$_SERVER['PHP_SELF'], '/views'));
         $this->isXhrRequest = strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) ==
                               'xmlhttprequest';
-        if ($_SERVER)
+        if (!defined('STDOUT'))
         {
             session_start();
         }

@@ -1,6 +1,4 @@
 <?php
-require '../../../config.php';
-
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
 {
     

@@ -1040,12 +1040,19 @@ class Minim_Orm implements Minim_Plugin // {{{
     var $_models;
     var $_managers;
     var $_field_types;
+    var $_model_paths;
 
     function Minim_Orm() // {{{
     {
         $this->_models = array();
         $this->_managers = array();
         $this->_field_types = array();
+        $this->_model_paths = array();
+    } // }}}
+
+    function append_path($path) // {{{
+    {
+        array_push($this->_model_paths, $path);
     } // }}}
 
     // model construction methods
@@ -1136,20 +1143,22 @@ class Minim_Orm implements Minim_Plugin // {{{
                    '\2\s*\)/xm';
             
             // check each model file
-            $model_dir = minim()->root."/models";
-            $dh = opendir($model_dir);
-            while ($file = readdir($dh))
+            foreach ($this->_model_paths as $model_dir)
             {
-                if (substr($file, -4) == '.php')
+                $dh = opendir($model_dir);
+                while ($file = readdir($dh))
                 {
-                    $contents = file_get_contents("$model_dir/$file");
-
-                    // look for a model registration call
-                    if (preg_match_all($pat, $contents, $match))
+                    if (substr($file, -4) == '.php')
                     {
-                        foreach ($match[3] as $model)
+                        $contents = file_get_contents("$model_dir/$file");
+
+                        // look for a model registration call
+                        if (preg_match_all($pat, $contents, $match))
                         {
-                            $this->_models[$model] = $file;
+                            foreach ($match[3] as $model)
+                            {
+                                $this->_models[$model] = "$model_dir/$file";
+                            }
                         }
                     }
                 }
@@ -1170,7 +1179,7 @@ class Minim_Orm implements Minim_Plugin // {{{
             }
             else
             {
-                include minim()->root."/models/{$this->_models[$name]}";
+                include $this->_models[$name];
                 if (array_key_exists($name, $this->_managers))
                 {
                     return $this->_managers[$name];

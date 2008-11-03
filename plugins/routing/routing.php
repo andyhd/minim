@@ -87,6 +87,28 @@ class Minim_Routing implements Minim_Plugin
         return "#error:_mapping_not_found:_$_mapping";
     } // }}}
 
+    function resolve($url) // {{{
+    {
+        // apply url_map patterns in order until match found
+        foreach ($this->_url_map as $map)
+        {
+            extract($map);
+            if (preg_match(','.$url_pattern.',', $url, $params))
+            {
+                minim('log')->debug('Found URL map: '.print_r($map, TRUE).
+                                    print_r($params, TRUE));
+                // found a match, return actual path and params
+                $path = "views/{$view}.php";
+                if (isset($alt_path))
+                {
+                    $path = $alt_path;
+                }
+                return array($path, $params);
+            }
+        }
+        return array(FALSE, FALSE);
+    } // }}}
+
     function redirect($page, $params=array()) // {{{
     {
         header('Location: '.$this->url_for($page, $params));

@@ -11,9 +11,7 @@ class Minim_TemplateEngine implements Minim_Plugin
         $this->_blocks = array();
         $this->_extends = array();
         $this->_def_stack = array();
-        $this->_template_paths = array(
-            realpath(minim()->root.'/templates/')
-        );
+        $this->_template_paths = array();
     } // }}}
 
     function _set_block($name, $contents) // {{{

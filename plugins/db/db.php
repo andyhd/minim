@@ -17,7 +17,6 @@ class Minim_Database implements Minim_Plugin
     {
         if (!$this->_dbh)
         {
-            minim('log')->debug('DB: '.print_r($this, TRUE));
             $dsn = "mysql:dbname={$this->_name};host={$this->_host}";
             if (isset($this->_socket))
             {

@@ -11,7 +11,11 @@ class Minim_Admin implements Minim_Plugin
 
     function enable() // {{{
     {
-        $path = "{$this->root}/views";
+        // make root relative to minim root
+        $minim_root = minim()->root;
+        $root = substr($this->root, strpos($minim_root, $this->root) +
+                       strlen($minim_root));
+        $path = "../minim{$root}/views";
         // set up admin urls
         minim('routing')
             ->map_url('^/admin$', 'admin/default', NULL, "$path/default.php")

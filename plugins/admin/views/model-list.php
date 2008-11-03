@@ -1,6 +1,4 @@
 <?php
-require_once '../../../config.php';
-
 $model_name = @$_REQUEST['model'];
 
 $model = minim('orm')->{$model_name};

@@ -22,7 +22,8 @@ class Minim
     function Minim() // {{{
     {
         $this->root = realpath(dirname(__FILE__));
-        $this->webroot = dirname($_SERVER['SCRIPT_NAME']);
+        $this->webroot = substr(@$_SERVER['PHP_SELF'], 0,
+            strpos(@$_SERVER['PHP_SELF'], '/views'));
         $this->isXhrRequest = strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) ==
                               'xmlhttprequest';
         if (!defined('STDOUT'))

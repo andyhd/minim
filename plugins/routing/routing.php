@@ -103,6 +103,8 @@ class Minim_Routing implements Minim_Plugin
                 {
                     $path = $alt_path;
                 }
+                // append action to params
+                $params['action'] = $action;
                 return array($path, $params);
             }
         }
@@ -153,5 +155,37 @@ class Minim_Routing implements Minim_Plugin
             $rules[] = "$rule [QSA,L]";
         }
         return $rules;
+    } // }}}
+
+    function route_request() // {{{
+    {
+        // parse request URI
+        $parts = @parse_url($_SERVER['REQUEST_URI']);
+        if ($parts)
+        {
+            $path = str_replace(minim()->webroot, '', $parts['path']);
+        }
+        else
+        {
+            $path = '/';
+        }
+
+        // resolve URL
+        list($path, $params) = $this->resolve($path);
+        if (is_readable($path))
+        {
+            if ($params)
+            {
+                $_GET = array_merge($_GET, $params);
+                $_REQUEST = array_merge($_REQUEST, $params);
+            }
+            require_once($path);
+            return;
+        }
+
+        // 404
+        header('HTTP/1.1 404 Not Found');
+        minim('templates')->render_404();
+        exit;
     } // }}}
 }

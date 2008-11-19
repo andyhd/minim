@@ -935,9 +935,12 @@ SQL;
     function to_array() // {{{
     {
         $a = array();
-        foreach ($this->items as $item)
+        if ($this->items)
         {
-            $a[] = $item->to_array();
+            foreach ($this->items as $item)
+            {
+                $a[] = $item->to_array();
+            }
         }
         return $a;
     } // }}}

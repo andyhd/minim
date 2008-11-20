@@ -185,6 +185,14 @@ class Minim_Form // {{{
         return NULL;
     } // }}}
 
+    function __set($name, $value) // {{{
+    {
+        if (array_key_exists($name, $this->_fields))
+        {
+            return $this->_fields[$name]->_value = $value;
+        }
+    } // }}}
+
     function from($data) // {{{
     {
         foreach ($this->_fields as $name => &$field)

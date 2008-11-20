@@ -96,20 +96,23 @@ class Minim_DataObject // {{{
     {
         if ($field = $this->_getField($name))
         {
-/*            if ($field->attr('read_only'))
+            $ret = FALSE;
+            try
             {
-                minim('log')->debug("$name field is read-only");
-                return FALSE;
-            } */
-            $ret = $field->setValue($value);
-            if ($ret === FALSE)
+                $ret = $field->setValue($value);
+            }
+            catch (Minim_DataObject_Exception $e)
             {
-                minim('log')->debug("Couldn't set $name to ".print_r($value, TRUE));
+                minim('log')->debug("Couldn't set $name to ".
+                                    print_r($value, TRUE));
+                // TODO - handle gracefully
+                throw $e;
             }
             return $ret;
         }
 
-        die(get_class($this).": Can't set field $name - does not exist");
+        throw new Minim_DataObject_Exception(get_class($this).
+            ": Can't set field $name - does not exist");
     } // }}}
 
     function __set($name, $value) // {{{
@@ -222,10 +225,10 @@ class Minim_Orm_Field // {{{
 
     function setValue($value) // {{{
     {
-/*        if ($this->attr('read_only'))
+        if ($this->attr('read_only'))
         {
-            return FALSE;
-        } */
+            throw new Minim_DataObject_Exception('Read-only field');
+        }
         return $this->_value = $value;
     } // }}}
 
@@ -269,7 +272,7 @@ class Minim_Orm_Int extends Minim_Orm_Field // {{{
     {
         if (!is_numeric($value))
         {
-            return FALSE;
+            throw new Minim_DataObject_Exception('Value must be numeric');
         }
 
         return parent::setValue((int) $value);
@@ -306,8 +309,8 @@ class Minim_Orm_Foreign_Key extends Minim_Orm_Field // {{{
             }
             else
             {
-                minim('log')->debug("FOREIGN KEY $field not found in $model");
-                return FALSE;
+                throw new Minim_DataObject_Exception(
+                    "FOREIGN KEY $field not found in $model");
             }
         }
 
@@ -348,7 +351,8 @@ class Minim_Orm_Text extends Minim_Orm_Field // {{{
     {
         if (!is_string($value))
         {
-            return FALSE;
+            throw new Minim_DataObject_Exception(
+                'Value must be a string');
         }
         
         # TODO - add unicode support here (mb_strlen)
@@ -398,13 +402,15 @@ class Minim_Orm_Slug extends Minim_Orm_Field // {{{
         $from = $this->attr('from');
         if ($from)
         {
-            return FALSE;
+            throw new Minim_DataObject_Exception(
+                "Field value set automatically from $from");
         }
         if (is_string($value))
         {
             return parent::setValue($this->_slugify($value));
         }
-        return FALSE;
+        throw new Minim_DataObject_Exception(
+            "Value must be string");
     } // }}}
 
     function getValue() // {{{
@@ -439,14 +445,16 @@ class Minim_Orm_Timestamp extends Minim_Orm_Field // {{{
             $value = strtotime($value);
             if (!$value)
             {
-                return FALSE;
+                throw new Minim_DataObject_Exception(
+                    "$value not recognized as date string");
             }
         }
         elseif (is_int($value))
         {
             if ($value < 0)
             {
-                return FALSE;
+                throw new Minim_DataObject_Exception(
+                    "$value is out of range");
             }
         }
 
@@ -1239,3 +1247,5 @@ SQL;
         }
     } // }}}
 } // }}}
+
+class Minim_DataObject_Exception extends Exception {}

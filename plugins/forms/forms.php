@@ -62,6 +62,11 @@ class Minim_Form // {{{
                             $this->dateField($name, $args);
                             break; // fallthru if read-only
                         }
+                        else
+                        {
+                            $this->hiddenField($name, $args);
+                        }
+                        break;
                     case 'text':
                         if (!$field->attr('read_only'))
                         {
@@ -73,8 +78,12 @@ class Minim_Form // {{{
                             {
                                 $this->textField($name, $args);
                             }
-                            break; // fallthru if read-only
                         }
+                        else
+                        {
+                            $this->hiddenField($name, $args);
+                        }
+                        break;
                     case 'foreign_key':
                         if ($have_data)
                         {
@@ -92,8 +101,12 @@ class Minim_Form // {{{
                             }
                             $args['choices'] = $choices;
                             $this->selectField($name, $args);
-                            break; // fallthru if read-only
                         }
+                        else
+                        {
+                            $this->hiddenField($name, $args);
+                        }
+                        break;
                     default:
                         if ($field->attr('read_only'))
                         {

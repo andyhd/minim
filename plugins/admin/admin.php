@@ -18,18 +18,18 @@ class Minim_Admin implements Minim_Plugin
         $path = "../minim{$root}/views";
         // set up admin urls
         minim('routing')
-            ->map_url('^/admin$', 'admin/default', NULL, "$path/default.php")
-            ->map_url('^/admin/models$', 'admin/models', NULL,
+            ->map_url('^admin$', 'admin/default', NULL, "$path/default.php")
+            ->map_url('^admin/models$', 'admin/models', NULL,
                       "$path/models.php")
-            ->map_url('^/admin/models/(?P<model>[a-zA-Z]+)/new$',
+            ->map_url('^admin/models/(?P<model>[a-zA-Z]+)/new$',
                       'admin/model-edit', 'new', "$path/model-edit.php")
-            ->map_url('^/admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)$',
+            ->map_url('^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)$',
                       'admin/model-edit', NULL, "$path/model-edit.php")
-            ->map_url('^/admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)/delete$',
+            ->map_url('^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)/delete$',
                       'admin/model-edit', 'delete', "$path/model-edit.php")
-            ->map_url('^/admin/models/(?P<model>[a-zA-Z]+)$',
+            ->map_url('^admin/models/(?P<model>[a-zA-Z]+)$',
                       'admin/model-list', NULL, "$path/model-list.php")
-            ->map_url('^/admin/routing$', 'admin/routing', NULL,
+            ->map_url('^admin/routing$', 'admin/routing', NULL,
                       "$path/routing.php");
     } // }}}
 }

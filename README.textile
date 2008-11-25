@@ -50,7 +50,8 @@ h3. What plugins are there?
 
 * *Object Relational Mapper*.  I also dislike most ORM implementations in PHP,
   as they take away the flexibility of raw SQL.  This one is based loosely on
-  the Django ORM and provides lazy loading and caching to improve performance.
+  the Django ORM and provides lazy loading (and soon, caching) to improve
+  performance.
 * *URL routing*.  If you want to have pretty URLs in a structure that doesn't
   match your filesystem, I recommend learning mod_rewrite.  However, if you
   want to refer to your URLs by short names in the code (for your non-PHP-savvy

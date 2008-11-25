@@ -7,6 +7,9 @@ really just require/include but with some lightweight wrapper code.  There will
 be lots of plugins eventually, but each one builds on the same premise of the
 simplest thing that works.
 
+Minim is made available free of charge under the MIT license. For specific
+terms, please read the MIT_LICENSE file.
+
 h3. Not another PHP framework?
 
 Yeah, sorry.  It's a bit of a paradox; I don't like frameworks and yet here I

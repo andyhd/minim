@@ -1,0 +1,72 @@
+h2. What is this?
+
+Minim is a minimalist PHP web application framework.  The idea here is to have
+a bare minimum of features for your web application.  To that end, nearly every
+part of minim is a plugin.  You only need to enable the plugins you use.  It's
+really just require/include but with some lightweight wrapper code.  There will
+be lots of plugins eventually, but each one builds on the same premise of the
+simplest thing that works.
+
+h2. Not another PHP framework?
+
+Yeah, sorry.  It's a bit of a paradox; I don't like frameworks and yet here I
+am, adding another one to the pile.  So why am I doing this?  Having been a PHP
+web developer for a long time and having used quite a few different frameworks,
+I've built up a list of problems that none of them seem to tackle totally.
+In no particular order:
+
+* Don't force me to work a certain way. MVC is ok, but do I really have to put
+  all my files in the folders you specify? I have to subclass this and
+  implement that and all I want to do is output some text from the DB. 
+* Keep things as simple as possible, but no simpler. I know PHP is object
+  oriented now, but that doesn't mean you have to build a massive hierarchy of
+  classes and interfaces just to implement a blog. Seriously, leave that crap
+  to the Java developers.
+* PHP parses text source files. Don't have another parser just for
+  configuration. YAML is not more readable than PHP arrays. Just who are you
+  expecting to write your configuration files anyway? If they can't understand
+  PHP, can you trust them with configuration at all? 
+* PHP is already a template language. You already have conditional blocks,
+  loops and function calls for more complex stuff. Implementing a parser in a
+  template language is just stupid. Restricted template languages just
+  frustrate template writers when they run into that edge case you didn't
+  consider.
+
+h2. How do I use it?
+
+I've tried to avoid imposing any constraints on how to use Minim.  You should
+be able to simply add minim to your include_path and include/require it as
+needed.  Each plugin should be able to be used independently of Minim, so you
+only have to include what you need.
+
+Minim looks for models, view/controllers and templates in the directories you
+specify in configuration, so there's no enforced directory structure.
+
+Models are defined in a clear, declarative, fluent syntax. Templates are just
+PHP and HTML, no restrictions. In fact, you don't have to use separate
+templates or models, if you don't want to.
+
+h2. What plugins are there?
+
+* An Object Relational Mapper.  I also dislike most ORM implementations in PHP,
+  as they take away the flexibility of raw SQL.  This one is based loosely on
+  the Django ORM and provides lazy loading and caching to improve performance.
+* URL routing.  If you want to have pretty URLs in a structure that doesn't
+  match your filesystem, I recommend learning mod_rewrite.  However, if you
+  want to refer to your URLs by short names in the code (for your non-PHP-savvy
+  template editor's convenience) this plugin can help.
+* Template engine.  I know, I know, but it's not what you think.  This plugin
+  provides template hierarchy.  You can define a page specific template which
+  inherits from a template, which can inherit from another template, and so on.
+  It also provides some basic data encapsulation, so that your template editor
+  only has access to data relevant to the current template.
+* Admin site.  This one builds on the ORM to create a web interface to your
+  database.  It allows you to create, edit and delete your model data.
+* Forms.  Provides a simple way to define constraints for your form fields, and
+  validation of same.  Forms can also be defined by ORM models to save
+  repeating yourself.
+* Pagination.  Provides a simple way to paginate data.  Works with arrays, ORM
+  result sets and anything that implements the Iterator interface from SPL.
+
+More plugins are in development, including cookie management, email and
+i18n/l10n.

@@ -103,7 +103,7 @@ class Minim_DataObject // {{{
             }
             catch (Minim_DataObject_Exception $e)
             {
-                minim('log')->debug("Couldn't set $name to ".
+                error_log("Couldn't set $name to ".
                                     print_r($value, TRUE));
                 // TODO - handle gracefully
                 throw $e;
@@ -143,7 +143,7 @@ class Minim_DataObject // {{{
             return $this->_fields[$this->_keys[$name]]->getValue(TRUE);
         }
         
-        minim('log')->debug(get_class($this).": Can't get field $name - does not exist");
+        error_log(get_class($this).": Can't get field $name - does not exist");
         return NULL;
     } // }}}
 
@@ -575,7 +575,7 @@ class Minim_Orm_Manager // {{{
     {
         if (!$instance->isValid())
         {
-            minim('log')->debug("Cannot save invalid model");
+            error_log("Cannot save invalid model");
             return FALSE;
         }
         $updates = array();
@@ -605,7 +605,8 @@ class Minim_Orm_Manager // {{{
         $ret = $s->execute($data);
         if (!$id)
         {
-            minim('log')->debug("Setting id of new {$this->_model} to {$ret['last_insert_id']}"); 
+            error_log("Setting id of new {$this->_model} to ".
+                      $ret['last_insert_id']); 
             $instance->id = $ret['last_insert_id'];
         }
         return $ret;
@@ -1101,7 +1102,7 @@ class Minim_Orm implements Minim_Plugin // {{{
                     }
                 }
             }
-            minim('log')->debug("ORM field types available: ".
+            error_log("ORM field types available: ".
                 print_r(array_keys($this->_field_types), TRUE));
         }
         return $this->_field_types;
@@ -1174,8 +1175,8 @@ class Minim_Orm implements Minim_Plugin // {{{
                     }
                 }
             }
-            minim('log')->debug("Models available: ".
-                                print_r(array_keys($this->_models), TRUE));
+            error_log("Models available: ".print_r(array_keys($this->_models),
+                                                   TRUE));
         }
         return $this->_models;
     } // }}}

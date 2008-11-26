@@ -51,7 +51,7 @@ class Minim
             {
                 $this->register_plugin("{$this->root}/plugins/$dl");
             }
-            $this->get_plugin('log')->debug("Plugins available: ".
+            error_log("Plugins available: ".
                 print_r(array_keys($this->_plugins), TRUE));
         }
     } // }}}
@@ -157,6 +157,19 @@ class Minim
                 require_once($path);
             }
         }
+    } // }}}
+
+    function find($pattern, $path_list) // {{{
+    {
+        foreach ($path_list as $path)
+        {
+            $matches = glob(join(DIRECTORY_SEPARATOR, array($path, $pattern)));
+            if ($matches)
+            {
+                return $matches;
+            }
+        }
+        return FALSE;
     } // }}}
 }
 

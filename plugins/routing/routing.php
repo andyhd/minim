@@ -43,7 +43,7 @@ class Minim_Routing implements Minim_Plugin
                 'action' => $action,
                 'alt_path' => $alt_path
             );
-            minim('log')->debug("Replacing URL map for $view:$action");
+            error_log("Replacing URL map for $view:$action");
         }
         return $this;
     } // }}}
@@ -59,8 +59,8 @@ class Minim_Routing implements Minim_Plugin
 
         if ($_map)
         {
-            minim('log')->debug("Using URL map: $_mapping -> ".print_r($_map, TRUE));
-            minim('log')->debug("Params: ".print_r($_params, TRUE));
+            error_log("Using URL map: $_mapping -> ".print_r($_map, TRUE));
+            error_log("Params: ".print_r($_params, TRUE));
             extract($_params);
             $_pat = $_map['url_pattern'];
             # replace optional params first
@@ -81,7 +81,7 @@ class Minim_Routing implements Minim_Plugin
             {
                 $_rev .= '?'.http_build_query($_params); 
             }
-            minim('log')->debug("Mapped to URL: $_rev");
+            error_log("Mapped to URL: $_rev");
             return $_rev;
         }
         return "#error:_mapping_not_found:_$_mapping";
@@ -95,7 +95,7 @@ class Minim_Routing implements Minim_Plugin
             extract($map);
             if (preg_match(','.$url_pattern.',', $url, $params))
             {
-                minim('log')->debug('Found URL map: '.print_r($map, TRUE).
+                error_log('Found URL map: '.print_r($map, TRUE).
                                     print_r($params, TRUE));
                 // found a match, return actual path and params
                 $path = "views/{$view}.php";

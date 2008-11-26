@@ -2,26 +2,24 @@
 class Minim_Log implements Minim_Plugin
 {
     var $_start_time;
-    var $_msgs;
+    var $_logfile;
 
-    function Minim_Log() // {{{
+    function enable() // {{{
     {
+        $this->_logfile = tempnam('/tmp', 'minim_log_');
+        ini_set('error_log', $this->_logfile);
         $this->_start_time = array_sum(explode(' ', microtime()));
-        $this->_msgs = array();
         register_shutdown_function(array(&$this, 'shutdown'));
-    } // }}}
-
-    function debug($msg) // {{{
-    {
-        $this->_msgs[] = $msg;
     } // }}}
 
     function dump($html=TRUE) // {{{
     {
-        $dump = join("\n", $this->_msgs);
+        $msgs = file($this->_logfile);
+        $msgs = preg_replace('/^\[[^\]]+\] /', '', $msgs);
+        $dump = join('', $msgs);
         if ($html)
         {
-            $dump = "<pre>$dump</pre>";
+            $dump = '<pre>'.htmlspecialchars($dump).'</pre>';
         }
         print $dump;
     } // }}}
@@ -29,7 +27,7 @@ class Minim_Log implements Minim_Plugin
     function shutdown() // {{{
     {
         $time = array_sum(explode(' ', microtime())) - $this->_start_time;
-        $this->debug(sprintf("Took %.4fs", $time));
+        error_log(sprintf("Took %.4fs", $time));
         if (isset($_REQUEST['debug']))
         {
             $this->dump();

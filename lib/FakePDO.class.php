@@ -41,7 +41,7 @@ class FakePDO
         {
             $out = $sqlstate[$errno];
         }
-        minim('log')->debug("SQLSTATE for MySQL error number $errno = $out");
+        error_log("SQLSTATE for MySQL error number $errno = $out");
 
         return $out;
     }
@@ -144,7 +144,7 @@ class FakePDOStatement
             }
         }
         $sql = strtr($this->sql, $params);
-        minim('log')->debug("Executing query: $sql");
+        error_log("Executing query: $sql");
         $this->resultset = @mysql_query($sql, $this->dbh);
         if (!$this->resultset)
         {
@@ -181,7 +181,7 @@ class FakePDOStatement
         {
             $results[] = $row;
         }
-        minim('log')->debug('Result set: '.print_r($results, TRUE));
+        error_log('Result set: '.print_r($results, TRUE));
         return $results;
     }
 }

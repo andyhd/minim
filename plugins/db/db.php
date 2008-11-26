@@ -30,12 +30,12 @@ class Minim_Database implements Minim_Plugin
                 }
                 catch (PDOException $e)
                 {
-                    minim('log')->debug("PDO error: ".$e->getMessage());
+                    error_log("PDO error: ".$e->getMessage());
                 }
             }
             if (!$this->_dbh and function_exists('mysql_connect'))
             {
-                minim('log')->debug("Using FakePDO");
+                error_log("Using FakePDO");
                 require_once minim()->lib('FakePDO.class');
                 $this->_dbh =& new FakePDO($dsn, $this->_user, $this->_password);
             }

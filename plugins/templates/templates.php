@@ -2,6 +2,8 @@
 class Minim_TemplateEngine implements Minim_Plugin
 {
     var $_template_paths;
+    var $_css_paths;
+    var $_js_paths;
     var $_blocks;
     var $_extends;
     var $_def_stack;
@@ -12,11 +14,13 @@ class Minim_TemplateEngine implements Minim_Plugin
         $this->_extends = array();
         $this->_def_stack = array();
         $this->_template_paths = array();
+        $this->_css_paths = array();
+        $this->_js_paths = array();
     } // }}}
 
     function _set_block($name, $contents) // {{{
     {
-        minim('log')->debug("Setting $name block");
+        error_log("Setting $name block");
         $this->_blocks[$name] = $contents;
     } // }}}
 
@@ -24,61 +28,59 @@ class Minim_TemplateEngine implements Minim_Plugin
     {
         if (array_key_exists($name, $this->_blocks))
         {
-            minim('log')->debug("Fetching $name block");
+            error_log("Fetching $name block");
             return $this->_blocks[$name];
         }
-        minim('log')->debug("Block $name not found");
+        error_log("Block $name not found");
         return "";
     } // }}}
 
     function extend($name) // {{{
     {
-        minim('log')->debug("Extending $name template");
+        error_log("Extending $name template");
         array_push($this->_extends, $name);
-    } // }}}
-
-    function _find_template($template) // {{{
-    {
-        foreach ($this->_template_paths as $path)
-        {
-            $filename = "$path/$template.php";
-            if (is_file($filename))
-            {
-                return $filename;
-            }
-        }
-        return FALSE;
     } // }}}
 
     function append_path($path) // {{{
     {
-        array_push($this->_template_paths, $path);
+        array_push($this->_template_paths, realpath($path));
     } // }}}
 
     function prepend_path($path) // {{{
     {
-        array_unshift($this->_template_paths, $path);
+        array_unshift($this->_template_paths, realpath($path));
+    } // }}}
+
+    function append_css_path($path) // {{{
+    {
+        array_push($this->_css_paths, $path);
+    } // }}}
+
+    function append_js_path($path) // {{{
+    {
+        array_push($this->_js_paths, $path);
     } // }}}
 
     function render($_template, $_context=array()) // {{{
     {
         // find template by searching template path
-        $_filename = $this->_find_template($_template);
-        if (!is_readable($_filename))
+        $_files = minim()->find("$_template.php", $this->_template_paths);
+        if (!$_files)
         {
-            die("Template $_template not found at $_filename");
+            error_log("$_template not found in $_filename");
+            return FALSE;
         }
 
-        minim('log')->debug("Rendering $_template template from $_filename");
-        minim('log')->debug("Context: " . print_r($_context, TRUE));
+        error_log("Rendering $_template from {$_files[0]}");
+        error_log("Context: " . print_r($_context, TRUE));
         extract($_context);
         ob_start();
-        include $_filename;
+        include $_files[0];
 
         // render any parent templates
-        if ($template = array_pop($this->_extends))
+        if ($_parent = array_pop($this->_extends))
         {
-            $this->render($template, $_context);
+            $this->render($_parent, $_context);
         }
         ob_end_flush();
     } // }}}
@@ -143,17 +145,23 @@ class Minim_TemplateEngine implements Minim_Plugin
 
     function include_css($name) // {{{
     {
-        $file = minim()->webroot."/css/$name.css";
-        echo <<<HTML
-<link rel="stylesheet" type="text/css" href="$file">
+        $files = minim()->find("$name.css", $this->_css_paths);
+        if ($files)
+        {
+            echo <<<HTML
+<link rel="stylesheet" type="text/css" href="{$files[0]}">
 HTML;
+        }
     } // }}}
 
     function include_js($name) // {{{
     {
-        $file = minim()->webroot."/js/$name.js";
-        echo <<<HTML
-<script type="text/javascript" src="$file"></script>
+        $files = minim()->find("$name.js", $this->_js_paths);
+        if ($files)
+        {
+            echo <<<HTML
+<script type="text/javascript" src="{$files[0]}"></script>
 HTML;
+        }
     } // }}}
 }

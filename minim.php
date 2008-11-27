@@ -24,20 +24,18 @@ class Minim
 {
     var $root;
     var $webroot;
+    var $_plugin_paths;
 
     // constructor
     function Minim() // {{{
     {
         $this->root = realpath(dirname(__FILE__));
         $this->webroot = dirname($_SERVER['SCRIPT_NAME']);
+        $this->_plugin_paths = array(
+            realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR.'plugins'
+        );
         $this->isXhrRequest = strtolower(@$_SERVER['HTTP_X_REQUESTED_WITH']) ==
                               'xmlhttprequest';
-        if (!defined('STDOUT'))
-        {
-            session_start();
-        }
-        // cache user messages so we don't erase new ones in the render phase
-        $this->get_plugin('user_messaging')->get_messages();
     } // }}}
 
     // plugin methods
@@ -49,17 +47,22 @@ class Minim
         {
             // get a list of available plugins
             $this->_plugins = array();
-            $dh = opendir("{$this->root}/plugins");
-            if (!$dh)
+            $plugin_dirs = $this->find('[!.]*', $this->_plugin_paths);
+           
+            // register the plugins
+            $pat = '/class\s+([^\s]+)\s+implements\s+Minim_Plugin/m';
+            $matches = $this->grep($pat, $plugin_dirs);
+            foreach ($matches as $match)
             {
-                die("Plugins directory not found");
+                foreach ($match['matches'][1] as $class)
+                {
+                    $plugin = strtolower(basename($match['file'], '.php'));
+                    $this->_plugins[$plugin] = array(
+                        'file' => $match['file'],
+                        'class' => $class
+                    );
+                }
             }
-            while ($dl = readdir($dh))
-            {
-                $this->register_plugin("{$this->root}/plugins/$dl");
-            }
-            error_log("Plugins available: ".
-                print_r(array_keys($this->_plugins), TRUE));
         }
     } // }}}
 
@@ -80,44 +83,7 @@ class Minim
             }
             return $plugin['instance'];
         }
-        die("Plugin $plugin not found");
-    } // }}}
-
-    function register_plugin($dir) // {{{
-    {
-        if ($this->_plugins === NULL)
-        {
-            $this->_init_plugins();
-        }
-        if (is_dir($dir))
-        {
-            // search for plugin class
-            $pat = '/class\s+([^\s]+)\s+implements\s+Minim_Plugin/m';
-            $plugin = strtolower(basename($dir));
-
-            $dh = opendir($dir);
-            while ($file = readdir($dh))
-            {
-                if (substr($file, -4) != '.php')
-                {
-                    continue;
-                }
-                $contents = file_get_contents("$dir/$file");
-
-                // check for Minim_Plugin implementors
-                if (preg_match_all($pat, $contents, $m))
-                {
-                    foreach ($m[1] as $class)
-                    {
-                        $this->_plugins[$plugin] = array(
-                            'file' => "$dir/$file",
-                            'class' => $class
-                        );
-                    }
-                }
-            }
-        }
-        return $this;
+        throw new Exception("Plugin $plugin not found: ".print_r($this->_plugins, TRUE));
     } // }}}
 
     // path methods
@@ -188,6 +154,10 @@ class Minim
             {
                 while ($dl = readdir($dh))
                 {
+                    if ($dl{0} == '.')
+                    {
+                        continue;
+                    }
                     if ($contents = file_get_contents("$path/$dl"))
                     {
                         if (preg_match_all($pattern, $contents, $m))

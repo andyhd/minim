@@ -1153,24 +1153,12 @@ class Minim_Orm implements Minim_Plugin // {{{
                    '\2\s*\)/xm';
             
             // check each model file
-            foreach ($this->_model_paths as $model_dir)
+            $matches = minim()->grep($pat, $this->_model_paths);
+            foreach ($matches as $match)
             {
-                $dh = opendir($model_dir);
-                while ($file = readdir($dh))
+                foreach ($match['matches'][3] as $model)
                 {
-                    if (substr($file, -4) == '.php')
-                    {
-                        $contents = file_get_contents("$model_dir/$file");
-
-                        // look for a model registration call
-                        if (preg_match_all($pat, $contents, $match))
-                        {
-                            foreach ($match[3] as $model)
-                            {
-                                $this->_models[$model] = "$model_dir/$file";
-                            }
-                        }
-                    }
+                    $this->_models[$model] = $match['file'];
                 }
             }
             error_log("Models available: ".print_r(array_keys($this->_models),

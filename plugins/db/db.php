@@ -17,37 +17,36 @@ class Minim_Database implements Minim_Plugin
 
     function &get_connection() // {{{
     {
-        if ($this->_dbh)
-        {
-            return $this->_dbh;
-        }
-
-        $dsn = "{$this->_type}:dbname={$this->_name};host={$this->_host}";
-        if (isset($this->_socket))
-        {
-            $dsn .= ";unix_socket={$this->_socket}";
-        }
-        if (class_exists('PDO'))
-        {
-            try
-            {
-                $this->_dbh =& new PDO($dsn, $this->_user, $this->_password);
-            }
-            catch (PDOException $e)
-            {
-                error_log("PDO error: ".$e->getMessage());
-            }
-        }
-        if (!$this->_dbh and function_exists('mysql_connect'))
-        {
-            error_log("Using FakePDO");
-            require_once 'lib/FakePDO.class';
-            $this->_dbh =& new FakePDO($dsn, $this->_user, $this->_password);
-        }
         if (!$this->_dbh)
         {
-            die('Failed to connect to DB');
+            $dsn = "{$this->_type}:dbname={$this->_name};host={$this->_host}";
+            if (isset($this->_socket))
+            {
+                $dsn .= ";unix_socket={$this->_socket}";
+            }
+            if (class_exists('PDO'))
+            {
+                try
+                {
+                    $this->_dbh =& new PDO($dsn, $this->_user, $this->_password);
+                }
+                catch (PDOException $e)
+                {
+                    error_log("PDO error: ".$e->getMessage());
+                }
+            }
+            if (!$this->_dbh and function_exists('mysql_connect'))
+            {
+                error_log("Using FakePDO");
+                require_once 'minim/lib/FakePDO.class.php';
+                $this->_dbh =& new FakePDO($dsn, $this->_user, $this->_password);
+            }
+            if (!$this->_dbh)
+            {
+                die('Failed to connect to DB');
+            }
         }
+        return $this->_dbh;
     } // }}}
 
     function &prepare($sql) // {{{

@@ -163,7 +163,11 @@ class Minim_Routing implements Minim_Plugin
         $parts = @parse_url($_SERVER['REQUEST_URI']);
         if ($parts)
         {
-            $path = str_replace(minim()->webroot, '', $parts['path']);
+            $path = $parts['path'];
+            if (strpos($path, minim()->webroot) === 0)
+            {
+                $path = substr($path, strlen(minim()->webroot));
+            }
         }
         else
         {

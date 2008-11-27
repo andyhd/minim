@@ -67,7 +67,7 @@ class Minim_TemplateEngine implements Minim_Plugin
         $_files = minim()->find("$_template.php", $this->_template_paths);
         if (!$_files)
         {
-            error_log("$_template not found in $_filename");
+            error_log("$_template not found in template paths");
             return FALSE;
         }
 

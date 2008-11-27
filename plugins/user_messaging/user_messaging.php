@@ -5,6 +5,16 @@ class Minim_UserMessages implements Minim_Plugin
     const WARN = 1;
     const ERROR = 2;
 
+    function Minim_UserMessages() // {{{
+    {
+        if (!session_id())
+        {
+            session_start();
+        }
+        // cache user messages so we don't erase new ones in the render phase
+        $this->get_messages();
+    } // }}}
+
     function _msg($msg, $type=Minim_UserMessages::INFO) // {{{
     {
         if (defined('STDOUT'))

@@ -24,8 +24,6 @@ class Minim_Admin implements Minim_Plugin
             ->map_url('^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)/delete$',
                       'admin/model-edit', 'delete', "$path/model-edit.php")
             ->map_url('^admin/models/(?P<model>[a-zA-Z]+)$',
-                      'admin/model-list', NULL, "$path/model-list.php")
-            ->map_url('^admin/routing$', 'admin/routing', NULL,
-                      "$path/routing.php");
+                      'admin/model-list', NULL, "$path/model-list.php");
     } // }}}
 }

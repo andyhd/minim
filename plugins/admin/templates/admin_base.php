@@ -25,11 +25,7 @@
 <?php $this->set('content') ?>
   <div id="wrapper">
    <div id="masthead">
-<?php if (@$logo_is_h1): ?>
-    <h1 id="logo">PageZero</h1>
-<?php else: ?>
-    <div id="logo">PageZero</div>
-<?php endif ?>
+    <h1>Minim Admin</div>
     <div class="logged_in">
 <?php if (minim()->user()): ?>
      Logged in as <strong><?php $user = minim()->user(); echo $user['name'] ?></strong> - <a href="<?php echo minim('routing')->url_for('logout') ?>">Log out</a>
@@ -47,7 +43,6 @@
    <div id="content">
     <ul class="subnav">
       <li><a href="<?php echo minim('routing')->url_for('admin/default') ?>">Dashboard</a></li>
-      <li><a href="<?php echo minim('routing')->url_for('admin/routing') ?>">Routing</a></li>
       <li><a href="<?php echo minim('routing')->url_for('admin/models') ?>">Models</a></li>
     </ul>
     <h1><?php $this->get('title') ?></h1>

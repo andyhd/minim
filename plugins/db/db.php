@@ -1,6 +1,7 @@
 <?php
 class Minim_Database implements Minim_Plugin
 {
+    var $_type;
     var $_host;
     var $_port;
     var $_socket;
@@ -11,40 +12,42 @@ class Minim_Database implements Minim_Plugin
 
     function Minim_Database() // {{{
     {
+        $this->_type = 'mysql';
     } // }}}
 
     function &get_connection() // {{{
     {
-        if (!$this->_dbh)
+        if ($this->_dbh)
         {
-            $dsn = "mysql:dbname={$this->_name};host={$this->_host}";
-            if (isset($this->_socket))
+            return $this->_dbh;
+        }
+
+        $dsn = "{$this->_type}:dbname={$this->_name};host={$this->_host}";
+        if (isset($this->_socket))
+        {
+            $dsn .= ";unix_socket={$this->_socket}";
+        }
+        if (class_exists('PDO'))
+        {
+            try
             {
-                $dsn .= ";unix_socket={$this->_socket}";
+                $this->_dbh =& new PDO($dsn, $this->_user, $this->_password);
             }
-            if (class_exists('PDO'))
+            catch (PDOException $e)
             {
-                try
-                {
-                    $this->_dbh =& new PDO($dsn, $this->_user, $this->_password);
-                }
-                catch (PDOException $e)
-                {
-                    error_log("PDO error: ".$e->getMessage());
-                }
-            }
-            if (!$this->_dbh and function_exists('mysql_connect'))
-            {
-                error_log("Using FakePDO");
-                require_once minim()->lib('FakePDO.class');
-                $this->_dbh =& new FakePDO($dsn, $this->_user, $this->_password);
-            }
-            if (!$this->_dbh)
-            {
-                die('Failed to connect to DB');
+                error_log("PDO error: ".$e->getMessage());
             }
         }
-        return $this->_dbh;
+        if (!$this->_dbh and function_exists('mysql_connect'))
+        {
+            error_log("Using FakePDO");
+            require_once 'lib/FakePDO.class';
+            $this->_dbh =& new FakePDO($dsn, $this->_user, $this->_password);
+        }
+        if (!$this->_dbh)
+        {
+            die('Failed to connect to DB');
+        }
     } // }}}
 
     function &prepare($sql) // {{{
@@ -52,6 +55,16 @@ class Minim_Database implements Minim_Plugin
         $conn = $this->get_connection();
         $sth = $conn->prepare($sql);
         return $sth;
+    } // }}}
+
+    function &type($type=NULL) // {{{
+    {
+        if ($type)
+        {
+            $this->_type = $type;
+            return $this;
+        }
+        return $this->_type;
     } // }}}
 
     function &host($host=NULL) // {{{

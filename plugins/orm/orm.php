@@ -1053,6 +1053,7 @@ class Minim_Orm implements Minim_Plugin // {{{
     var $_managers;
     var $_field_types;
     var $_model_paths;
+    var $_field_type_paths;
 
     function Minim_Orm() // {{{
     {
@@ -1060,11 +1061,19 @@ class Minim_Orm implements Minim_Plugin // {{{
         $this->_managers = array();
         $this->_field_types = array();
         $this->_model_paths = array();
+        $this->_field_type_paths = array(
+            realpath(dirname(__FILE__))
+        );
     } // }}}
 
-    function append_path($path) // {{{
+    function add_model_path($path) // {{{
     {
         array_push($this->_model_paths, $path);
+    } // }}}
+
+    function add_fieldtype_path($path) // {{{
+    {
+        array_push($this->_field_type_paths, $path);
     } // }}}
 
     // model construction methods
@@ -1073,33 +1082,22 @@ class Minim_Orm implements Minim_Plugin // {{{
         if (!$this->_field_types)
         {
             // get a list of available field_types
-            // TODO - allow field types defined elsewhere
-            $pluginsdir = minim()->root.'/plugins/orm';
-            $dh = opendir($pluginsdir);
-            if (!$dh)
-            {
-                die("_available_field_types() - Plugins directory not found");
-            }
             $pat = '/class\s+([^\s]+)\s+extends\s+Minim_Orm_Field/m';
-            while ($dl = readdir($dh))
+            $matches = minim()->grep($pat, $this->_field_type_paths);
+            if (!$matches)
             {
-                if (substr($dl, -4) == '.php')
+                error_log("No field type definitions found");
+                return $this->_field_types;
+            }
+            foreach ($matches as $match)
+            {
+                foreach ($match['matches'][1] as $class)
                 {
-                    $file = "$pluginsdir/$dl";
-                    $contents = file_get_contents($file);
-
-                    // check for Minim_Orm_Field subclasses
-                    if (preg_match_all($pat, $contents, $m))
-                    {
-                        foreach ($m[1] as $class)
-                        {
-                            $type = strtolower(substr($class, 10));
-                            $this->_field_types[$type] = array(
-                                'file' => $file,
-                                'class' => $class
-                            );
-                        }
-                    }
+                    $type = strtolower(substr($class, 10));
+                    $this->_field_types[$type] = array(
+                        'file' => $match['file'],
+                        'class' => $class
+                    );
                 }
             }
             error_log("ORM field types available: ".

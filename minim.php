@@ -1,4 +1,8 @@
 <?php
+/**
+ * Syntax sugar function - provides interface to singleton instances of Minim
+ * class and lazy loaded plugins.
+ */
 function &minim($plugin=NULL) // {{{
 {
     static $instance;
@@ -13,6 +17,9 @@ function &minim($plugin=NULL) // {{{
     return $instance->get_plugin($plugin);
 } // }}}
 
+/**
+ * Provides plugin management and utility methods
+ */
 class Minim
 {
     var $root;
@@ -170,6 +177,31 @@ class Minim
             }
         }
         return FALSE;
+    } // }}}
+
+    function grep($pattern, $path_list) // {{{
+    {
+        $matches = array();
+        foreach ($path_list as $path)
+        {
+            if ($dh = opendir($path))
+            {
+                while ($dl = readdir($dh))
+                {
+                    if ($contents = file_get_contents("$path/$dl"))
+                    {
+                        if (preg_match_all($pattern, $contents, $m))
+                        {
+                            $matches[] = array(
+                                'file' => "$path/$dl",
+                                'matches' => $m
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        return $matches;
     } // }}}
 }
 

@@ -1,0 +1,2 @@
+<?php
+orm()->register('dummy');

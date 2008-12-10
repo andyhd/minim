@@ -1,20 +1,23 @@
 <?php
 /**
- * ORM plugin implements Data Objects, Managers, Model Sets, lazy loading
+ * An Object Relational Mapping plugin.
  *
- * Registering a new model:
- * ------------------------
+ * Implements Data Objects, Managers, Query Objects/Model Sets, lazy loading
  *
+ * <b>Registering a new model:</b>
+ * 
+ * <code>
  *   minim('orm')->register_model($model_name)
  *               ->table($table_name)
  *               ->default_sort($order)
  *               ->{$field_type}($name, $params_array)
  *               ->foreign_key($name, $params_array)
  *               ...;
+ * </code>
  *
- * Querying database - get a list of models:
- * -----------------------------------------
+ * <b>Querying database - get a list of models:</b>
  *
+ * <code>
  *   $models = minim('orm')->{$model}
  *                         ->all();
  *
@@ -23,17 +26,19 @@
  *                         ...
  *                         ->order_by($order)
  *                         ->limit($limit);
+ * </code>
  *
- * Accessing model values:
- * -----------------------
+ * <b>Accessing model values:</b>
  *
+ * <code>
  *   $value = minim('orm')->{$model}
  *                        ->get($id)
  *                        ->{$field_name};
+ * </code>
  *
- * Saving / Deleting models:
- * -------------------------
+ * <b>Saving / Deleting models:</b>
  *
+ * <code>
  *   minim('orm')->{$model}
  *               ->from($data_array)
  *               ->save();
@@ -41,164 +46,500 @@
  *   minim('orm')->{$model}
  *               ->get($id)
  *               ->delete();
+ * </code>
  *
- * Create database tables from models
- * ----------------------------------
+ * <b>Create database tables from models</b>
  *
+ * <code>
  *   minim('orm')->create_database_tables();
- *
+ * </code>
  **/
-
-class Minim_DataObject // {{{
+class Minim_Orm implements Minim_Plugin // {{{
 {
-    var $_name;
-    var $_fields;
-    var $_keys;
-    var $_default_sort;
 
-    function Minim_DataObject($name) // {{{
+    /**#@+
+     * @access private
+     */
+    var $_models;
+    var $_managers;
+    var $_field_types;
+    /**#@-*/
+
+    /**#@+
+     * @var array
+     */
+    var $model_paths;
+    var $field_type_paths;
+    /**#@-*/
+
+    function Minim_Orm() // {{{
     {
-        $this->_name = $name;
-        $this->_fields = array();
-        $this->_keys = array();
+        $this->_models = array();
+        $this->_managers = array();
+        $this->_field_types = array();
+        $this->model_paths = array();
+        $this->field_type_paths = array(
+            realpath(dirname(__FILE__))
+        );
     } // }}}
 
-    function _setFields(&$fields) // {{{
+    // model construction methods
+    /** @access private */
+    function &_available_field_types() // {{{
     {
-        // no references results in copies?
-        foreach ($fields as $name => $field)
+        if (!$this->_field_types)
         {
-            $clone =& $field->copy();
-            if ($field->_type == "slug")
+            // get a list of available field_types
+            $pat = '/class\s+([^\s]+)\s+extends\s+Minim_Orm_Field/m';
+            $matches = minim()->grep($pat, $this->_field_type_paths);
+            if (!$matches)
             {
-                $from = $clone->attr('from');
-                if (is_null($from) or !array_key_exists($from, $this->_fields))
-                {
-                    die("{$this->_model} has no field {$from} for slug");
-                }
-                $clone->attr('from', &$this->_fields[$from]);
+                error_log("No field type definitions found");
+                return $this->_field_types;
             }
-            if ($field->_type == 'foreign_key')
+            foreach ($matches as $match)
             {
-                $key_field = $clone->attr('field');
-                $key = "{$name}_{$key_field}";
-                $this->_keys[$name] = $key;
-                $this->_fields[$key] =& $clone;
+                foreach ($match['matches'][1] as $class)
+                {
+                    $type = strtolower(substr($class, 10));
+                    $this->_field_types[$type] = array(
+                        'file' => $match['file'],
+                        'class' => $class
+                    );
+                }
+            }
+            error_log("ORM field types available: ".
+                print_r(array_keys($this->_field_types), TRUE));
+        }
+        return $this->_field_types;
+    } // }}}
+
+    /** @access private */
+    function &_build_field($type, $args=array()) // {{{
+    {
+        if (!$this->_field_types)
+        {
+            $this->_discover_field_types();
+        }
+        $key = strtolower($type);
+        if (array_key_exists($key, $this->_field_types))
+        {
+            $field =& $this->_field_types[$key];
+            require_once $field['file'];
+            $instance =& new $field['class'];
+            return $instance;
+        }
+        die("ORM field type $type not found");
+    } // }}}
+
+    /** @ignore */
+    function &__call($name, $args) // {{{
+    {
+        if (array_key_exists($name, $this->_field_types))
+        {
+            $field =& $this->_build_field($name, $args);
+            return $field;
+        }
+        $nullVar = NULL;
+        return $nullVar;
+    } // }}}
+
+    function &register_model($model) // {{{
+    {
+        if (!array_key_exists($model, $this->_managers))
+        {
+            $this->_managers[$model] =& new Minim_Orm_Manager($model, $this);
+        }
+        return $this->_managers[$model];
+    } // }}}
+
+    // query methods
+    /* @access private */
+    function &_available_models() // {{{
+    {
+        if (!$this->_models)
+        {
+            $pat = '/minim\(([\'"])orm\1\)\s*->register_model\(\s*([\'"])'.
+                   '([a-zA-Z]+)'.
+                   '\2\s*\)/xm';
+            
+            // check each model file
+            $matches = minim()->grep($pat, $this->_model_paths);
+            foreach ($matches as $match)
+            {
+                foreach ($match['matches'][3] as $model)
+                {
+                    $this->_models[$model] = $match['file'];
+                }
+            }
+            error_log("Models available: ".print_r(array_keys($this->_models),
+                                                   TRUE));
+        }
+        return $this->_models;
+    } // }}}
+
+    /** @ignore */
+    function &__get($name) // {{{
+    {
+        if (array_key_exists($name, $this->_available_models()))
+        {
+            if (array_key_exists($name, $this->_managers))
+            {
+                return $this->_managers[$name];
             }
             else
             {
-                $this->_fields[$name] =& $clone;
+                include $this->_models[$name];
+                if (array_key_exists($name, $this->_managers))
+                {
+                    return $this->_managers[$name];
+                }
             }
         }
+        $nullVar = NULL;
+        return $nullVar;
     } // }}}
 
-    function setValue($name, $value) // {{{
+    // database creation methods
+    function create_database_table($model) // {{{
     {
-        if ($field = $this->_getField($name))
+        if (array_key_exists($model, $this->_available_models()))
         {
-            $ret = FALSE;
-            try
+            $model = $this->{$model};
+            $fields = array();
+            foreach ($model->_fields as $name => $field)
             {
-                $ret = $field->setValue($value);
+                $not_null = $field->attr('not_null') ? 'NOT NULL' : '';
+                $auto_incr = $field->attr('auto_increment') ? ' AUTO_INCREMENT' : '';
+                $primary_key = $field->attr('primary_key') ? ' PRIMARY KEY' : '';
+                $type = '';
+                switch ($field->_type)
+                {
+                    case 'int':
+                    case 'foreign_key':
+                        // TODO - allow non-integer foreign keys
+                        $type = 'INTEGER';
+                        break;
+                    case 'text':
+                    case 'slug':
+                        $type = 'TEXT';
+                        if ($max_length = $field->attr('max_length'))
+                        {
+                            $type = "VARCHAR($max_length)";
+                        }
+                        break;
+                    case 'timestamp':
+                        $type = 'DATETIME';
+                        break;
+                    default:
+                        die("Unknown field type ({$field->_type}");
+                }
+                $fields[] = "`$name` $type $not_null $auto_incr $primary_key";
             }
-            catch (Minim_DataObject_Exception $e)
-            {
-                error_log("Couldn't set $name to ".
-                                    print_r($value, TRUE));
-                // TODO - handle gracefully
-                throw $e;
-            }
-            return $ret;
+            $fields = join(', ', $fields);
+            $sql = <<<SQL
+CREATE TABLE IF NOT EXISTS `{$model->_table}` ($fields) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+SQL;
+
+            // execute sql
+            $s = minim('db')->prepare($sql);
+            $s->execute();
+        }
+    } // }}}
+} // }}}
+
+/**
+ * A DataObject is a flyweight value object, it should use the least memory
+ * possible. All manipulation of DataObjects is via their Manager.
+ */
+class Minim_DataObject // {{{
+{
+    var $_manager;
+    var $_fields;
+    var $_in_db;
+
+    function Minim_DataObject(&$manager) // {{{
+    {
+        $this->_manager =& $manager;
+        $this->_fields = array();
+        $this->_in_db = FALSE;
+    } // }}}
+
+    function set($name, $value) // {{{
+    {
+        if (array_key_exists($name, $this->_manager->_fields))
+        {
+            return $this->_fields[$name] = $value;
         }
 
-        throw new Minim_DataObject_Exception(get_class($this).
-            ": Can't set field $name - does not exist");
+        throw new Minim_DataObject_Exception(
+            "Can't set {$this->_manager->_model} field $name: does not exist");
     } // }}}
 
     function __set($name, $value) // {{{
     {
-        return $this->setValue($name, $value);
+        return $this->set($name, $value);
     } // }}}
 
-    function &_getField($name) // {{{
+    function get($name) // {{{
     {
-        if (!array_key_exists($name, $this->_fields))
+        if (array_key_exists($name, $this->_manager->_fields) and
+            array_key_exists($name, $this->_fields))
         {
-            $falsevar = FALSE;
-            return $falsevar;
+            return $this->_fields[$name];
         }
-        return $this->_fields[$name];
-    } // }}}
-
-    function getValue($name) // {{{
-    {
-        if ($field = $this->_getField($name))
-        {
-            return $field->getValue();
-        }
-        
-        // find a foreign key field that matches
-        if (array_key_exists($name, $this->_keys))
-        {
-            return $this->_fields[$this->_keys[$name]]->getValue(TRUE);
-        }
-        
-        error_log(get_class($this).": Can't get field $name - does not exist");
-        return NULL;
+        throw new Minim_DataObject_Exception(
+            "Can't get {$this->_manager->_model} field $name: does not exist");
     } // }}}
 
     function __get($name) // {{{
     {
-        return $this->getValue($name);
-    } // }}}
-
-    function _fromArray($data) // {{{
-    {
-        if (!is_array($data))
-        {
-            return $this;
-        }
-
-        foreach ($data as $key => $value)
-        {
-            if ($this->_getField($key))
-            {
-                $this->setValue($key, $value);
-            }
-        }
-
-        return $this;
+        return $this->get($name);
     } // }}}
 
     function save() // {{{
     {
-        minim('orm')->{$this->_name}->save($this);
+        $this->_in_db = $this->_manager->save($this);
     } // }}}
 
     function delete() // {{{
     {
-        minim('orm')->{$this->_name}->delete($this->id);
+        $this->_in_db = !$this->_manager->delete($this);
     } // }}}
 
     function to_array() // {{{
     {
-        $ar = array();
-        foreach ($this->_fields as $name => $field)
-        {
-            $ar[$name] = $field->getValue();
-        }
-        return $ar;
+        return $this->_fields;
     } // }}}
 
-    function isValid() // {{{
+    function is_valid() // {{{
     {
-        foreach ($this->_fields as &$field)
+        return $this->_manager->validate($this);
+    } // }}}
+} // }}}
+
+class Minim_Orm_Manager // {{{
+{
+    var $_orm;
+    var $_model;
+    var $_table;
+    var $_pk;
+    var $_fields;
+    var $_default_sort;
+
+    function Minim_Orm_Manager($model, &$orm) // {{{
+    {
+        $this->_orm = $orm;
+        $this->_model = $model;
+        $this->_fields = array();
+        $this->_table = NULL;
+        $this->_pk = NULL;
+        $this->_default_sort = NULL;
+    } // }}}
+
+    /**
+     * Model database table name getter/setter
+     */
+    function &table($name=NULL) // {{{
+    {
+        if (is_null($name))
         {
-            if (!$field->isValid())
+            // don't return a reference to $this->_table - might get corrupted
+            $copy = $this->_table;
+            return $copy;
+        }
+        $this->_table = $name;
+        return $this;
+    } // }}}
+
+    /**
+     * Enable field type name syntax for constructing and adding fields
+     * Eg: $manager->text($field_name, $params);
+     *     $manager->int($field_name, $params);
+     */
+    function &__call($name, $args) // {{{
+    {
+        // if there is a field type by this name
+        $field_types = $this->_orm->_available_field_types();
+        $key = strtolower($name);
+        if (array_key_exists($key, $field_types))
+        {
+            // include the file
+            $field =& $field_types[$key];
+            require_once $field['file'];
+
+            // first argument is always the field name
+            $field_name = array_shift($args);
+
+            // pass in the parameters
+            $params = array_shift($args);
+            if (!$params)
             {
-                return FALSE;
+                $params = array();
+            }
+
+            // check for primary key
+            if (array_key_exists('primary_key', $params))
+            {
+                $this->_pk = $field_name;
+            }
+
+            // get an instance of the field class
+            $this->_fields[$field_name] =& new $field['class']($name, $params);
+            return $this;
+        }
+
+        // no field type with this name
+        throw new Minim_DataObject_Exception("Field type $name not found");
+    } // }}}
+
+    /**
+     * Fetch a single record from the model database table, with the given
+     * primary key value
+     */
+    function &get($pk) // {{{
+    {
+        $mp = new Minim_Orm_ModelProxy($this->_model, $pk);
+        return $mp;
+    } // }}}
+
+    /**
+     * Default sort order getter/setter
+     */
+    function default_sort($sort = NULL) // {{{
+    {
+        if ($sort)
+        {
+            $this->_default_sort = $sort;
+            return $this;
+        }
+        return $this->_default_sort;
+    } // }}}
+
+    /**
+     * Fetch all records from model database table
+     */
+    function &all() // {{{
+    {
+        $ms = new Minim_Orm_ModelSet($this->_model);
+        return $ms;
+    } // }}}
+
+    /**
+     * Fetch all records from model database table that match given criteria
+     */
+    function &filter($kwargs=array()) // {{{
+    {
+        $ms = $this->all()->filter($kwargs);
+        return $ms;
+    } // }}}
+
+    /**
+     * Instantiate DataObject from array
+     */
+    function &from($data) // {{{
+    {
+        if (is_array($data))
+        {
+            // get blank instance
+            $model =& new Minim_DataObject($this);
+
+            // set values
+            foreach ($data as $key => $value)
+            {
+                // this will throw an exception if $key is not a valid field
+                $model->$key = $value;
+            }
+            error_log("Created {$this->_model} from ".print_r($data, TRUE));
+            return $model;
+        }
+        throw new Minim_DataObject_Exception(
+            "Can't create $this->_model from non-array");
+    } // }}}
+
+    /**
+     * Delete a DataObject by primary key
+     */
+    function delete($instance) // {{{
+    {
+        $sql = "DELETE FROM {$this->_table} WHERE {$this->_pk}=:pk";
+        $data = array(':pk' => $instance->get($this->_pk));
+        $s = minim('db')->prepare($sql);
+        return $s->execute($data);
+    } // }}}
+
+    /**
+     * Save DataObject to database
+     */
+    function save(&$instance) // {{{
+    {
+        $updates = array();
+        $data = array();
+
+        error_log("Saving: ".print_r($instance, TRUE));
+
+        // assume this is an INSERT
+        $sql = "INSERT INTO {$this->_table} SET %s";
+        $is_insert = TRUE;
+        $auto_increment = FALSE;
+        if ($this->_pk and $instance->get($this->_pk) === NULL and
+            $this->_fields[$this->_pk]->attr('auto_increment'))
+        {
+            // the primary key is automatically set
+            $auto_increment = TRUE;
+        }
+
+        foreach ($this->_fields as $name => &$field)
+        {
+            $value = $instance->get($name);
+            if (!$field->attr('primary_key'))
+            {
+                if ($value === NULL and $field->attr('not_null'))
+                {
+                    // TODO - add hooks for null value handlers
+#                    throw new Minim_DataObject_Exception(
+#                        "{$this->_model} $name value cannot be NULL");
+                }
+                $updates[] = "$name = :$name";
+                $data[":$name"] = $field->getValueForDb();
             }
         }
+
+        $sql = sprintf($sql, join(', ', $updates));
+        $s = minim('db')->prepare($sql);
+        try
+        {
+            $ret = $s->execute($data);
+        }
+        catch (Exception $e)
+        {
+            if ($e->getCode() == '23000')
+            {
+                // primary key already exists, so this is an UPDATE
+                $sql = "UPDATE {$this->_table} SET %s WHERE {$this->_pk}=:pk";
+                $data[':pk'] = $instance->get($this->_pk);
+                $s = minim('db')->prepare($sql);
+                $ret = $s->execute($data);
+                $is_insert = FALSE;
+            }
+            else
+            {
+                throw $e;
+            }
+        }
+
+        if ($is_insert and $auto_increment)
+        {
+            error_log("Setting $pk of new {$this->_model} to ".
+                      $ret['last_insert_id']); 
+            $instance->set($this->_pk, $ret['last_insert_id']);
+        }
+        return $ret;
+    } // }}}
+
+    function validate(&$instance) // {{{
+    {
+        // TODO
         return TRUE;
     } // }}}
 } // }}}
@@ -225,10 +566,6 @@ class Minim_Orm_Field // {{{
 
     function setValue($value) // {{{
     {
-        if ($this->attr('read_only'))
-        {
-            throw new Minim_DataObject_Exception('Read-only field');
-        }
         return $this->_value = $value;
     } // }}}
 
@@ -254,28 +591,22 @@ class Minim_Orm_Field // {{{
         }
         return NULL;
     } // }}}
-
-    function isValid() // {{{
-    {
-        if ($this->_value === NULL and ($this->attr('not_null') or
-                                        $this->attr('required')))
-        {
-            return FALSE;
-        }
-        return TRUE;
-    } // }}}
 } // }}}
 
 class Minim_Orm_Int extends Minim_Orm_Field // {{{
 {
     function setValue($value) // {{{
     {
-        if (!is_numeric($value))
+        if ($value !== NULL)
         {
-            throw new Minim_DataObject_Exception('Value must be numeric');
+            if (!is_numeric($value))
+            {
+                throw new Minim_DataObject_Exception('Value must be numeric');
+            }
+            $value = (int) $value;
         }
 
-        return parent::setValue((int) $value);
+        return parent::setValue($value);
     } // }}}
 
     function isValid() // {{{
@@ -284,7 +615,7 @@ class Minim_Orm_Int extends Minim_Orm_Field // {{{
         {
             return TRUE;
         }
-        if ($this->attr('autoincrement') and is_null($this->_value))
+        if ($this->attr('auto_increment') and is_null($this->_value))
         {
             return TRUE;
         }
@@ -349,20 +680,23 @@ class Minim_Orm_Text extends Minim_Orm_Field // {{{
 {
     function setValue($value) // {{{
     {
-        if (!is_string($value))
+        if ($value !== NULL)
         {
-            throw new Minim_DataObject_Exception(
-                'Value must be a string');
-        }
-        
-        # TODO - add unicode support here (mb_strlen)
-        $maxlen = $this->attr('maxlength');
-        if ($maxlen and strlen($value) > $maxlen)
-        {
-            # TODO - add unicode support here (mb_substr)
-            $value = substr($value, 0, $maxlen);
+            if (!is_string($value))
+            {
+                throw new Minim_DataObject_Exception(
+                    'Value must be a string');
+            }
+            
+            # TODO - add unicode support here (mb_strlen)
+            $maxlen = $this->attr('max_length');
+            if ($maxlen and strlen($value) > $maxlen)
+            {
+                # TODO - add unicode support here (mb_substr)
+                $value = substr($value, 0, $maxlen);
 
-            # Raise a WARNING?
+                # Raise a WARNING?
+            }
         }
 
         return parent::setValue($value);
@@ -371,13 +705,9 @@ class Minim_Orm_Text extends Minim_Orm_Field // {{{
     function isValid() // {{{
     {
         // TODO - add unicode support (mb_strlen)
-        $maxlen = $this->attr('maxlength');
+        $maxlen = $this->attr('max_length');
         $len = strlen($this->_value);
         if ($maxlen and $len > $maxlen)
-        {
-            return FALSE;
-        }
-        if ($this->attr('required') and $len < 1)
         {
             return FALSE;
         }
@@ -400,7 +730,7 @@ class Minim_Orm_Slug extends Minim_Orm_Field // {{{
     function setValue(&$value) // {{{
     {
         $from = $this->attr('from');
-        if ($from)
+        if ($value !== NULL and $from)
         {
             throw new Minim_DataObject_Exception(
                 "Field value set automatically from $from");
@@ -409,16 +739,20 @@ class Minim_Orm_Slug extends Minim_Orm_Field // {{{
         {
             return parent::setValue($this->_slugify($value));
         }
-        throw new Minim_DataObject_Exception(
-            "Value must be string");
+        if ($value !== NULL)
+        {
+            throw new Minim_DataObject_Exception(
+                "Value must be string");
+        }
     } // }}}
 
     function getValue() // {{{
     {
         $value = parent::getValue();
         $from = $this->attr('from');
-        if (!$value and $from)
+        if ($value === NULL and $from)
         {
+            error_log("Slug field: ".print_r($this, TRUE));
             return $this->_slugify($from->getValue());
         }
         return $value;
@@ -472,144 +806,6 @@ class Minim_Orm_Timestamp extends Minim_Orm_Field // {{{
             return date('Y-m-d H:i:s', $this->_value);
         }
         return NULL;
-    } // }}}
-} // }}}
-
-class Minim_Orm_Manager // {{{
-{
-    var $_model;
-    var $_table;
-    var $_fields;
-    var $_default_sort;
-
-    function Minim_Orm_Manager($model) // {{{
-    {
-        $this->_model = $model;
-        $this->_fields = array();
-        $this->_default_sort = NULL;
-    } // }}}
-
-    function &table($name=NULL) // {{{
-    {
-        if (is_null($name))
-        {
-            // don't return a reference to $this->_table - might get corrupted
-            $copy = $this->_table;
-            return $copy;
-        }
-        $this->_table = $name;
-        return $this;
-    } // }}}
-
-    function &__call($name, $args) // {{{
-    {
-        $field_types = minim('orm')->_available_field_types();
-        $key = strtolower($name);
-        if (array_key_exists($key, $field_types))
-        {
-            $field =& $field_types[$key];
-            require_once $field['file'];
-            $field_name = array_shift($args);
-            $params = array_shift($args);
-            if (!$params)
-            {
-                $params = array();
-            }
-            $this->_fields[$field_name] =& new $field['class']($name, $params);
-            return $this;
-        }
-        $nullVar = NULL;
-        return $nullVar;
-    } // }}}
-
-    function &get($id) // {{{
-    {
-        $mp = new Minim_Orm_ModelProxy($this->_model, $id);
-        return $mp;
-    } // }}}
-
-    function default_sort($sort = NULL) // {{{
-    {
-        if ($sort)
-        {
-            $this->_default_sort = $sort;
-            return $this;
-        }
-        return $this->_default_sort;
-    } // }}}
-
-    function &all() // {{{
-    {
-        $ms = new Minim_Orm_ModelSet($this->_model);
-        return $ms;
-    } // }}}
-
-    function &filter($kwargs=array()) // {{{
-    {
-        $ms = $this->all()->filter($kwargs);
-        return $ms;
-    } // }}}
-
-    function &from($data) // {{{
-    {
-        $model =& new Minim_DataObject($this->_model);
-        $model->_setFields($this->_fields);
-
-        if (is_array($data))
-        {
-            $model->_fromArray($data);
-        }
-
-        return $model;
-    } // }}}
-
-    function delete($id) // {{{
-    {
-        $sql = "DELETE FROM {$this->_table} WHERE id=:id";
-        $data = array(':id' => $id);
-        $s = minim('db')->prepare($sql);
-        return $s->execute($data);
-    } // }}}
-
-    function save(&$instance) // {{{
-    {
-        if (!$instance->isValid())
-        {
-            error_log("Cannot save invalid model");
-            return FALSE;
-        }
-        $updates = array();
-        $data = array();
-        $id = $instance->getValue('id');
-        if ($id)
-        {
-            // assume this is an UPDATE
-            $sql = "UPDATE {$this->_table} SET %s WHERE id=:id";
-            $data[':id'] = $id;
-        }
-        else
-        {
-            // this must be an INSERT
-            $sql = "INSERT INTO {$this->_table} SET %s";
-        }
-        foreach ($instance->_fields as $name => $field)
-        {
-            if ($name != 'id')
-            {
-                $updates[] = "$name = :$name";
-                $data[":$name"] = $field->getValueForDb();
-            }
-        }
-        $sql = sprintf($sql, join(', ', $updates));
-        $s = minim('db')->prepare($sql);
-        $ret = $s->execute($data);
-        if (!$id)
-        {
-            error_log("Setting id of new {$this->_model} to ".
-                      $ret['last_insert_id']); 
-            $instance->id = $ret['last_insert_id'];
-        }
-        return $ret;
     } // }}}
 } // }}}
 
@@ -1044,194 +1240,6 @@ class Minim_Orm_Filter // {{{
                          ":to" => $this->value[1]);
         }
         return array(":{$this->field}" => $this->value);
-    } // }}}
-} // }}}
-
-class Minim_Orm implements Minim_Plugin // {{{
-{
-    var $_models;
-    var $_managers;
-    var $_field_types;
-    var $_model_paths;
-    var $_field_type_paths;
-
-    function Minim_Orm() // {{{
-    {
-        $this->_models = array();
-        $this->_managers = array();
-        $this->_field_types = array();
-        $this->_model_paths = array();
-        $this->_field_type_paths = array(
-            realpath(dirname(__FILE__))
-        );
-    } // }}}
-
-    function add_model_path($path) // {{{
-    {
-        array_push($this->_model_paths, $path);
-    } // }}}
-
-    function add_fieldtype_path($path) // {{{
-    {
-        array_push($this->_field_type_paths, $path);
-    } // }}}
-
-    // model construction methods
-    function &_available_field_types() // {{{
-    {
-        if (!$this->_field_types)
-        {
-            // get a list of available field_types
-            $pat = '/class\s+([^\s]+)\s+extends\s+Minim_Orm_Field/m';
-            $matches = minim()->grep($pat, $this->_field_type_paths);
-            if (!$matches)
-            {
-                error_log("No field type definitions found");
-                return $this->_field_types;
-            }
-            foreach ($matches as $match)
-            {
-                foreach ($match['matches'][1] as $class)
-                {
-                    $type = strtolower(substr($class, 10));
-                    $this->_field_types[$type] = array(
-                        'file' => $match['file'],
-                        'class' => $class
-                    );
-                }
-            }
-            error_log("ORM field types available: ".
-                print_r(array_keys($this->_field_types), TRUE));
-        }
-        return $this->_field_types;
-    } // }}}
-
-    function &_build_field($type, $args=array()) // {{{
-    {
-        if (!$this->_field_types)
-        {
-            $this->_discover_field_types();
-        }
-        $key = strtolower($type);
-        if (array_key_exists($key, $this->_field_types))
-        {
-            $field =& $this->_field_types[$key];
-            require_once $field['file'];
-            $instance =& new $field['class'];
-            return $instance;
-        }
-        die("ORM field type $type not found");
-    } // }}}
-
-    function &__call($name, $args) // {{{
-    {
-        if (array_key_exists($name, $this->_field_types))
-        {
-            $field =& $this->_build_field($name, $args);
-            return $field;
-        }
-        $nullVar = NULL;
-        return $nullVar;
-    } // }}}
-
-    function &register_model($model) // {{{
-    {
-        if (!array_key_exists($model, $this->_managers))
-        {
-            $this->_managers[$model] =& new Minim_Orm_Manager($model);
-        }
-        return $this->_managers[$model];
-    } // }}}
-
-    // query methods
-    function &_available_models() // {{{
-    {
-        if (!$this->_models)
-        {
-            $pat = '/minim\(([\'"])orm\1\)\s*->register_model\(\s*([\'"])'.
-                   '([a-zA-Z]+)'.
-                   '\2\s*\)/xm';
-            
-            // check each model file
-            $matches = minim()->grep($pat, $this->_model_paths);
-            foreach ($matches as $match)
-            {
-                foreach ($match['matches'][3] as $model)
-                {
-                    $this->_models[$model] = $match['file'];
-                }
-            }
-            error_log("Models available: ".print_r(array_keys($this->_models),
-                                                   TRUE));
-        }
-        return $this->_models;
-    } // }}}
-
-    function &__get($name) // {{{
-    {
-        if (array_key_exists($name, $this->_available_models()))
-        {
-            if (array_key_exists($name, $this->_managers))
-            {
-                return $this->_managers[$name];
-            }
-            else
-            {
-                include $this->_models[$name];
-                if (array_key_exists($name, $this->_managers))
-                {
-                    return $this->_managers[$name];
-                }
-            }
-        }
-        $nullVar = NULL;
-        return $nullVar;
-    } // }}}
-
-    // database creation methods
-    function create_database_table($model) // {{{
-    {
-        if (array_key_exists($model, $this->_available_models()))
-        {
-            $model = $this->{$model};
-            $fields = array();
-            foreach ($model->_fields as $name => $field)
-            {
-                $not_null = $field->attr('not_null') ? 'NOT NULL' : '';
-                $auto_incr = $field->attr('autoincrement') ? ' AUTO_INCREMENT' : '';
-                $primary_key = $name == 'id' ? ' PRIMARY KEY' : '';
-                $type = '';
-                switch ($field->_type)
-                {
-                    case 'int':
-                    case 'foreign_key':
-                        $type = 'INTEGER';
-                        break;
-                    case 'text':
-                    case 'slug':
-                        $type = 'TEXT';
-                        if ($max_length = $field->attr('maxlength'))
-                        {
-                            $type = "VARCHAR($max_length)";
-                        }
-                        break;
-                    case 'timestamp':
-                        $type = 'DATETIME';
-                        break;
-                    default:
-                        die("Unknown field type ({$field->_type}");
-                }
-                $fields[] = "`$name` $type $not_null $auto_incr $primary_key";
-            }
-            $fields = join(', ', $fields);
-            $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS `{$model->_table}` ($fields) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-SQL;
-            
-            // execute sql
-            $s = minim('db')->prepare($sql);
-            $s->execute();
-        }
     } // }}}
 } // }}}
 

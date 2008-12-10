@@ -1,7 +1,38 @@
 <?php
 class TestFailure extends Exception {}
 
-class TestCase implements Minim_Plugin // {{{
+function dump_results($results)
+{
+    $msgs = array();
+    foreach ($results as $result)
+    {
+        switch ($result['result'])
+        {
+            case TestCase::PASS:
+                print '.';
+                break;
+            case TestCase::FAIL:
+                print 'F';
+                $msgs[] = $result['reason'];
+                break;
+            case TestCase::ERROR:
+                print 'E';
+                $msgs[] = $result['reason'];
+                break;
+        }
+    }
+    print "\n";
+    foreach ($msgs as $msg)
+    {
+        print str_repeat('-', 80)."\n".$msg."\n";
+    }
+    if (!$msgs)
+    {
+        print str_repeat('-', 80)."\nAll tests passed\n";
+    }
+}
+
+class TestCase // {{{
 {
     const PASS = 0;
     const FAIL = 1;
@@ -25,13 +56,18 @@ class TestCase implements Minim_Plugin // {{{
         throw new TestFailure($reason);
     } // }}}
 
-    function assertEqual($a, $b) // {{{
+    function assertEqual($a, $b, $msg=NULL) // {{{
     {
         if ($a == $b)
         {
             return TRUE;
         }
-        $this->fail("Assertion failure: $a != $b");
+        $this->fail($msg ? $msg : "Assertion failure: $a != $b");
+    } // }}}
+
+    function assertTrue($a, $msg=NULL) // {{{
+    {
+        $this->assertEqual($a, TRUE, $msg);
     } // }}}
 
     function run() // {{{

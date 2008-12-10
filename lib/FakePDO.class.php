@@ -35,6 +35,7 @@ class FakePDO
     {
         static $sqlstate = array(
             '1146' => '42S02', // Table not found
+            '1062' => '23000', // Duplicate entry %s for key %d
         );
         $out = 'HY000'; // General error
         if (array_key_exists($errno, $sqlstate))

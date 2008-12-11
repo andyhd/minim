@@ -3,8 +3,10 @@ class TestFailure extends Exception {}
 
 function dump_results($results)
 {
-    $msgs = array();
-    foreach ($results as $result)
+    $out = '';
+    $hr = "\n".str_repeat('-', 80);
+
+    foreach ($results as $test => $result)
     {
         switch ($result['result'])
         {
@@ -13,23 +15,27 @@ function dump_results($results)
                 break;
             case TestCase::FAIL:
                 print 'F';
-                $msgs[] = $result['reason'];
+                $out .= <<<TEXT
+$hr
+FAIL: $test
+    {$result['reason']}
+TEXT;
                 break;
             case TestCase::ERROR:
                 print 'E';
-                $msgs[] = $result['reason'];
+                $errmsg = "{$result['exception']}";
+                $errmsg = str_replace("\n", "\n    ", $errmsg);
+                $out .= <<<TEXT
+$hr
+ERROR: $test
+    {$result['reason']}
+
+    $errmsg
+TEXT;
                 break;
         }
     }
-    print "\n";
-    foreach ($msgs as $msg)
-    {
-        print str_repeat('-', 80)."\n".$msg."\n";
-    }
-    if (!$msgs)
-    {
-        print str_repeat('-', 80)."\nAll tests passed\n";
-    }
+    print "\n$out\n\n";
 }
 
 class TestCase // {{{
@@ -68,6 +74,23 @@ class TestCase // {{{
     function assertTrue($a, $msg=NULL) // {{{
     {
         $this->assertEqual($a, TRUE, $msg);
+    } // }}}
+
+    function assertException($exception_class, $code, $msg=NULL) // {{{
+    {
+        try
+        {
+            eval($code);
+        }
+        catch (Exception $e)
+        {
+            if (get_class($e) != $exception_class)
+            {
+                throw $e;
+            }
+            return TRUE;
+        }
+        $this->fail($msg ? $msg : "Expected $exception_class not thrown");
     } // }}}
 
     function run() // {{{

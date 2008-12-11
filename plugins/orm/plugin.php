@@ -23,11 +23,11 @@ class Minim_Orm // {{{
      */
     function &register($name) // {{{
     {
-        if (!array_key_exists($name, $this->_managers))
+        if (array_key_exists($name, $this->_managers))
         {
-            $this->_managers[$name] = new Minim_Orm_Manager($name, $this);
+            throw new Minim_Orm_Exception("$name model already registered");
         }
-        return $this->_managers[$name];
+        return $this->_managers[$name] = new Minim_Orm_Manager($name, $this);
     } // }}}
 
     /**
@@ -41,8 +41,7 @@ class Minim_Orm // {{{
             // try to load the manager definition
             if (!$this->_load_model_definition($name))
             {
-                // don't load this manager again
-                $this->_managers[$name] = NULL;
+                throw new Minim_Orm_Exception("$name model not found");
             }
         }
         return $this->_managers[$name];
@@ -103,6 +102,8 @@ class Minim_Orm // {{{
         $this->_backend = $backend;
     } // }}}
 } // }}}
+
+class Minim_Orm_Exception extends Exception {}
 
 class Minim_Orm_Manager // {{{
 {
@@ -169,9 +170,21 @@ class Minim_Orm_Manager // {{{
     /**
      * Create a new DataObject instance based on this model
      */
-    function &create()
+    function &create($data=array())
     {
         $instance =& new Minim_Orm_DataObject($this);
+
+        if ($data)
+        {
+            foreach ($this->_fields as $name => $field)
+            {
+                if (array_key_exists($name, $data))
+                {
+                    $instance->$name = $data[$name];
+                }
+            }
+        }
+
         return $instance;
     }
 
@@ -187,6 +200,43 @@ class Minim_Orm_Manager // {{{
         $sth = $this->_orm->_backend->prepare($sql);
         $values = array_combine($values, array_values($do->_data));
         $sth->execute($values);
+    } // }}}
+
+    /**
+     * Retrieve a single data object from the ORM backend
+     */
+    function get($params) // {{{
+    {
+        $criteria = '';
+        foreach ($params as $key => $value)
+        {
+            if (strlen($criteria) > 0)
+            {
+                $criteria .= ' AND ';
+            }
+            $criteria .= "$key = :$key";
+        }
+        $sql = sprintf('SELECT * FROM %s WHERE %s',
+            $this->_db_table, $criteria);
+        $sth = $this->_orm->_backend->prepare($sql);
+        $values = array_combine(
+            preg_replace('/^/', ':', array_keys($params)),
+            array_values($params)
+        );
+        $sth->execute($values);
+        $results = $sth->fetchAll(PDO::FETCH_ASSOC);
+        $num_results = count($results);
+        if ($num_results == 1)
+        {
+            $instance =& $this->create($results[0]);
+            $instance->_in_db = TRUE;
+            return $instance;
+        }
+        elseif ($num_results > 1)
+        {
+            throw new Minim_Orm_Exception("More than one result for get");
+        }
+        throw new Minim_Orm_Exception("No results for get");
     } // }}}
 } // }}}
 

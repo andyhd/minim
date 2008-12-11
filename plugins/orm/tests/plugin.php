@@ -17,7 +17,9 @@ class Minim_Orm_TestCase extends TestCase
     function test_register_model()
     {
         $this->assertEqual(count(orm()->_managers), 0);
-        orm()->model_paths[] = realpath(dirname(__FILE__));
+        orm()->model_paths[] = realpath(join(DIRECTORY_SEPARATOR, array(
+            dirname(__FILE__), 'res'
+        )));
 
         // check lazy loading - no managers yet
         $this->assertEqual(count(orm()->_managers), 0);
@@ -25,6 +27,19 @@ class Minim_Orm_TestCase extends TestCase
         $manager = orm()->dummy;
         $this->assertEqual(count(orm()->_managers), 1);
         $this->assertEqual($manager->_model, "dummy");
+    }
+
+    function test_register_existing_model()
+    {
+        $this->assertTrue(array_key_exists('dummy', orm()->_managers));
+        $this->assertException('Minim_Orm_Exception',
+            'orm()->register("dummy");');
+    }
+
+    function test_access_unregistered_manager()
+    {
+        $this->assertTrue(!array_key_exists('foo', orm()->_managers));
+        $this->assertException('Minim_Orm_Exception', 'orm()->foo;');
     }
 
     function test_model_definition_add_field()

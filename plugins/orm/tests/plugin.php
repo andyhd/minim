@@ -2,7 +2,7 @@
 require 'minim/plugins/tests/tests.php';
 require 'minim/plugins/orm/plugin.php';
 
-function orm()
+function &orm() // {{{
 {
     static $instance;
     if (!$instance)
@@ -10,11 +10,17 @@ function orm()
         $instance = new Minim_Orm();
     }
     return $instance;
-}
+} // }}}
 
-class Minim_Orm_TestCase extends TestCase
+class Minim_Orm_TestCase extends TestCase // {{{
 {
-    function test_register_model()
+    function test_orm_reference() // {{{
+    {
+        $orm = orm();
+        $this->assertTrue($orm === orm());
+    } // }}}
+
+    function test_register_model() // {{{
     {
         $this->assertEqual(count(orm()->_managers), 0);
         orm()->model_paths[] = realpath(join(DIRECTORY_SEPARATOR, array(
@@ -27,22 +33,22 @@ class Minim_Orm_TestCase extends TestCase
         $manager = orm()->dummy;
         $this->assertEqual(count(orm()->_managers), 1);
         $this->assertEqual($manager->_model, "dummy");
-    }
+    } // }}}
 
-    function test_register_existing_model()
+    function test_register_existing_model() // {{{
     {
         $this->assertTrue(array_key_exists('dummy', orm()->_managers));
         $this->assertException('Minim_Orm_Exception',
             'orm()->register("dummy");');
-    }
+    } // }}}
 
-    function test_access_unregistered_manager()
+    function test_access_unregistered_manager() // {{{
     {
         $this->assertTrue(!array_key_exists('foo', orm()->_managers));
         $this->assertException('Minim_Orm_Exception', 'orm()->foo;');
-    }
+    } // }}}
 
-    function test_model_definition_add_field()
+    function test_model_definition_add_field() // {{{
     {
         $manager = orm()->dummy;
         $this->assertEqual(count($manager->_fields), 0);
@@ -56,9 +62,9 @@ class Minim_Orm_TestCase extends TestCase
             "Unexpected number of manager fields (".count($manager->_fields).")");
         $this->assertEqual(get_class($manager->dummy), 'Dummy',
             "Unexpected field type (".get_class($manager->dummy).")");
-    }
+    } // }}}
 
-    function test_data_object()
+    function test_data_object() // {{{
     {
         $manager = orm()->dummy;
         $do = $manager->create();
@@ -66,29 +72,44 @@ class Minim_Orm_TestCase extends TestCase
 
         $do->dummy = 'testing';
         $this->assertEqual($do->dummy, 'testing');
-    }
+    } // }}}
 
-    function test_orm_backend()
+    function test_orm_backend() // {{{
     {
-        $db =& new PDO('sqlite::memory:');
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $res = $db->exec("CREATE TABLE dummy (dummy TEXT)");
-        orm()->set_backend($db);
+        orm()->set_backend('sqlite', array('database' => ':memory:'));
+        $backend =& orm()->_backend;
+        $backend->execute_query("CREATE TABLE dummy (dummy TEXT)", array());
         $do = orm()->dummy->create();
         $do->dummy = 'testing';
         $do->save();
-        $sth = $db->prepare('SELECT * FROM dummy');
-        $sth->execute();
+        $sth = $backend->execute_query('SELECT * FROM dummy', array());
         $result = $sth->fetch(PDO::FETCH_ASSOC);
         $this->assertEqual($result['dummy'], 'testing');
-    }
+    } // }}}
 
-    function test_data_object_get()
+    function test_data_object_get() // {{{
     {
         $do = orm()->dummy->get(array('dummy' => 'testing'));
         $this->assertEqual($do->dummy, 'testing');
-    }
-}
+    } // }}}
+
+    function test_data_object_filter() // {{{
+    {
+        $resultset = orm()->dummy->where('dummy')->equals('testing');
+        $this->assertEqual(count($resultset), 1,
+            "Expecting 1 result, got 0.");
+
+        $resultset = orm()->dummy->where('dummy')->equals('foo');
+        $count = count($resultset);
+        $this->assertEqual($count, 0,
+            "Expecting 0 results, got $count");
+
+        $resultset = orm()->dummy->where('dummy')->notequals('foo')->and('dummy')->equals('testing');
+        $count = count($resultset);
+        $this->assertEqual($count, 1,
+            "Expecting 1 result, got $count");
+    } // }}}
+} // }}}
 
 $test = new Minim_Orm_TestCase();
 dump_results($test->run());

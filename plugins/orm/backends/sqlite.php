@@ -1,9 +1,8 @@
 <?php
-class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend // {{{
+class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
 {
     var $_orm;
     var $_db;
-    var $_max_existing = array();
 
     function __construct($params, &$orm) // {{{
     {
@@ -88,28 +87,6 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend // {{{
         return $count;
     } // }}}
 
-    function _disambiguate_params($params, $fparams, $fquery) // {{{
-    {
-        $fkeys = array_keys($fparams);
-        $pkeys = array_keys($params);
-        foreach ($fkeys as &$key)
-        {
-            if (in_array($key, $pkeys))
-            {
-                if (!array_key_exists($key, $this->_max_existing))
-                {
-                    $this->_max_existing[$key] = 0;
-                }
-                $this->_max_existing[$key]++;
-                $new_key = "{$key}{$this->_max_existing[$key]}";
-                $fquery = str_replace($key, $new_key, $fquery);
-                $fparams[$new_key] = $fparams[$key];
-                unset($fparams[$key]);
-            }
-        }
-        return array($fquery, $fparams);
-    } // }}}
-
     function build_count_query(&$modelset) // {{{
     {
         return $this->build_query($modelset, True);
@@ -119,7 +96,6 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend // {{{
     {
         $query = array();
         $params = array();
-        $this->_max_existing = array();
         foreach ($modelset->_filters as &$filter)
         {
             // TODO - hide this from the developer
@@ -181,7 +157,6 @@ SQL;
         $sql = trim(preg_replace('/\s+/', ' ', $sql));
 
         $ret = array($sql, $params);
-        error_log(print_r($ret, TRUE));
 
         return $ret;
     } // }}}
@@ -227,4 +202,4 @@ SQL;
         }
         return array('', array());
     } // }}}
-} // }}}
+}

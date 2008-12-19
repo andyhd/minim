@@ -170,12 +170,17 @@ class Minim_Orm_Manager // {{{
     /**
      * Enable syntactic sugar for adding fields to model.
      */
-    function __call($name, $args) // {{{
+    function &__call($name, $args) // {{{
     {
         if (array_key_exists($name, $this->_orm->_field_types))
         {
             list($field_name, $params) = $args;
+            if (is_null($params))
+            {
+                $params = array();
+            }
             $this->add_field($name, $field_name, $params);
+            return $this;
         }
     } // }}}
 

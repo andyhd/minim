@@ -109,6 +109,41 @@ class Minim_Orm_TestCase extends TestCase // {{{
         $this->assertEqual($count, 1,
             "Expecting 1 result, got $count");
     } // }}}
+
+    function test_numeric_filters() // {{{
+    {
+        orm()->register_field_type('num', realpath(join(DIRECTORY_SEPARATOR,
+            array(dirname(__FILE__), 'test_field_type.php'))), 'Num');
+
+        $backend =& orm()->_backend;
+        $backend->execute_query("CREATE TABLE num (value INTEGER)", array());
+
+        $manager =& orm()->register('num')->num('value');
+        $manager->create(array('value' => 1))->save();
+        $manager->create(array('value' => 2))->save();
+        $manager->create(array('value' => 3))->save();
+        $manager->create(array('value' => 4))->save();
+
+        $count = count($manager->where('value')->gt(1));
+        $this->assertEqual($count, 3,
+            "Expecting 3 results, got $count");
+
+        $count = count($manager->where('value')->lt(2));
+        $this->assertEqual($count, 1,
+            "Expecting 1 result, got $count");
+
+        $count = count($manager->where('value')->gte(3));
+        $this->assertEqual($count, 2,
+            "Expecting 2 results, got $count");
+
+        $count = count($manager->where('value')->lte(4));
+        $this->assertEqual($count, 4,
+            "Expecting 4 results, got $count");
+
+        $count = count($manager->where('value')->in_range(2, 4));
+        $this->assertEqual($count, 3,
+            "Expecting 3 results, got $count");
+    } // }}}
 } // }}}
 
 $test = new Minim_Orm_TestCase();

@@ -4,15 +4,26 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
     var $_orm;
     var $_db;
 
-    function __construct(&$orm) // {{{
+    function __construct($params, &$orm) // {{{
     {
         $this->_orm = $orm;
-        $this->_db = NULL;
-    } // }}}
-
-    function _get_connection() // {{{
-    {
-        $this->_db = new PDO("mysql:host
+        $dsn = '';
+        if (!(array_key_exists('user', $params) and
+              array_key_exists('dbname', $params)))
+        {
+            if (array_key_exists('host', $params))
+            {
+                $port = (array_key_exists('port', $params)) ?
+                    ";port={$params['port']}" : "";
+                $dsn = "mysql:host={$param['host']}$port";
+            }
+            elseif (array_key_exists('unix_socket', $params))
+            {
+                $dsn = "mysql:unix_socket={$params['unix_socket']}";
+            }
+        }
+        $this->_db = new PDO("mysql:$dsn;dbname={$params['dbname']}");
+        $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } // }}}
 
     function save(&$do) // {{{
@@ -24,6 +35,64 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
         $sth = $_db->prepare($sql);
         $values = array_combine($values, array_values($do->_data));
         $sth->execute($values);
+    } // }}}
+    function &get($params, &$manager) // {{{
+    {
+        $criteria = '';
+        foreach ($params as $key => $value)
+        {
+            if (strlen($criteria) > 0)
+            {
+                $criteria .= ' AND ';
+            }
+            $criteria .= "$key = :$key";
+        }
+        $sql = sprintf('SELECT * FROM %s WHERE %s',
+            $manager->_db_table, $criteria);
+        $sth = $this->_db->prepare($sql);
+        $values = array_combine(
+            preg_replace('/^/', ':', array_keys($params)),
+            array_values($params)
+        );
+        $sth->execute($values);
+        $results = $sth->fetchAll(PDO::FETCH_ASSOC);
+        $num_results = count($results);
+        if ($num_results == 1)
+        {
+            $instance =& $manager->create($results[0]);
+            $instance->_in_db = TRUE;
+            return $instance;
+        }
+        elseif ($num_results > 1)
+        {
+            throw new Minim_Orm_Exception("More than one result for get");
+        }
+        throw new Minim_Orm_Exception("No results for get");
+    } // }}}
+
+    function &get_dataobjects(&$modelset) // {{{
+    {
+        list($query, $params) = $this->build_query($modelset);
+        $s =& $this->execute_query($query, $params);
+        $objects = array();
+        $manager =& $modelset->_manager;
+        foreach ($s->fetchAll() as $row)
+        {
+            $objects[] =& $manager->create($row);
+        }
+        return $objects;
+    } // }}}
+
+    function count_dataobjects(&$modelset) // {{{
+    {
+        list($query, $params) = $this->build_count_query($modelset);
+        $s =& $this->execute_query($query, $params);
+        $row = $s->fetch();
+        if (!($count = @$row['_total']))
+        {
+            $count = 0;
+        }
+        return $count;
     } // }}}
 
     function build_count_query() // {{{
@@ -110,14 +179,37 @@ SQL;
         return $s;
     } // }}} 
 
-    function _results_to_objects($s) // {{{
+    function render(&$filter) // {{{
     {
-        $objects = array();
-        $model =& minim('orm')->{$this->_model};
-        foreach ($s->fetchAll() as $row)
+        switch ($filter->_operator)
         {
-            $objects[] =& $model->from($row);
+            case '=':
+            case '>':
+            case '<':
+            case '>=':
+            case '<=':
+                $placeholder = $filter->_field.'_'.substr(md5(microtime()), -4);
+                return array(
+                    "{$filter->_field} {$filter->_operator} :$placeholder",
+                    array($placeholder => $filter->_operand)
+                );
+            case '!=':
+                $placeholder = $filter->_field.'_'.substr(md5(microtime()), -4);
+                return array(
+                    "NOT ({$filter->_field} = :$placeholder)",
+                    array($placeholder => $filter->_operand)
+                );
+            case 'range':
+                $from = $filter->_field.'_from_'.substr(md5(microtime()), -4);
+                $to = $filter->_field.'_to_'.substr(md5(microtime()), -4);
+                return array(
+                    "{$filter->_field} BETWEEN :$from AND :$to",
+                    array(
+                        $from => $filter->_operand[0],
+                        $to => $filter->_operand[1]
+                    )
+                );
         }
-        return $objects;
+        return array('', array());
     } // }}}
 }

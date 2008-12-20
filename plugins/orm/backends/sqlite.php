@@ -12,8 +12,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
             throw new Minim_Orm_Exception(
                 "Sqlite backend requires 'database' parameter");
         }
-        $this->_database = $params['database'];
-        $this->_db =& new PDO("sqlite:{$this->_database}");
+        $this->_db = new PDO("sqlite:{$params['database']}");
         $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } // }}}
 

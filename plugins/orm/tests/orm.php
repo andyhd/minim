@@ -1,6 +1,6 @@
 <?php
 require 'minim/plugins/tests/tests.php';
-require 'minim/plugins/orm/plugin.php';
+require 'minim/plugins/orm/orm.php';
 
 function &orm() // {{{
 {
@@ -55,11 +55,13 @@ class Minim_Orm_TestCase extends TestCase // {{{
 
         // set up test field type
         orm()->register_field_type('dummy', realpath(join(DIRECTORY_SEPARATOR,
-            array(dirname(__FILE__), 'test_field_type.php'))), 'Dummy');
+            array(dirname(__FILE__), 'res', 'test_field_type.php'
+        ))), 'Dummy');
 
         $manager->dummy('dummy', array('auto_increment' => TRUE));
-        $this->assertEqual(count($manager->_fields), 1,
-            "Unexpected number of manager fields (".count($manager->_fields).")");
+        $count = count($manager->_fields);
+        $this->assertEqual($count, 1,
+            "Unexpected number of manager fields ($count)");
         $this->assertEqual(get_class($manager->dummy), 'Dummy',
             "Unexpected field type (".get_class($manager->dummy).")");
     } // }}}

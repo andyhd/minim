@@ -8,8 +8,8 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
     {
         $this->_orm = $orm;
         $dsn = '';
-        if (!(array_key_exists('user', $params) and
-              array_key_exists('dbname', $params)))
+        if ((array_key_exists('user', $params) and
+             array_key_exists('dbname', $params)))
         {
             if (array_key_exists('host', $params))
             {
@@ -22,17 +22,28 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
                 $dsn = "mysql:unix_socket={$params['unix_socket']}";
             }
         }
-        $this->_db = new PDO("mysql:$dsn;dbname={$params['dbname']}");
-        $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $dsn = "$dsn;dbname={$params['dbname']}";
+        try
+        {
+            $this->_db = new PDO($dsn, $params['user'], $params['pass']);
+            $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        }
+        catch (PDOException $e)
+        {
+            require_once realpath(join(DIRECTORY_SEPARATOR, array(
+                dirname(__FILE__), 'FakeMySQLPDO.php'
+            )));
+            $this->_db = new FakeMySQLPDO($dsn, $params['user'], $params['pass']);
+        }
     } // }}}
 
-    function save(&$do) // {{{
+    function save(&$do, &$manager) // {{{
     {
-        $fields = array_keys($this->_fields);
+        $fields = array_keys($manager->_fields);
         $values = preg_replace('/^/', ':', $fields);
         $sql = sprintf('INSERT INTO %s (%s) VALUES (%s)',
-            $this->_db_table, join(',', $fields), join(',', $values));
-        $sth = $_db->prepare($sql);
+            $manager->_db_table, join(',', $fields), join(',', $values));
+        $sth = $this->_db->prepare($sql);
         $values = array_combine($values, array_values($do->_data));
         $sth->execute($values);
     } // }}}
@@ -95,26 +106,21 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
         return $count;
     } // }}}
 
-    function build_count_query() // {{{
+    function build_count_query(&$modelset) // {{{
     {
-        return $this->build_query(True);
+        return $this->build_query($modelset, True);
     } // }}}
 
-    function build_query($count=False) // {{{
+    function build_query(&$modelset, $count=False) // {{{
     {
-        return $this->_manager->_build_query($this);
-
-        // intended to be overridden to allow use of alternative backends
         $query = array();
         $params = array();
-        $this->_max_existing = array();
-        foreach ($this->_filters as &$filter)
+        foreach ($modelset->_filters as &$filter)
         {
             // TODO - hide this from the developer
-            list($fquery, $fparams) = $this->_disambiguate_params($params,
-                $filter->params(), $filter->to_string());
-            $query[] = $fquery;
-            $params = array_merge($params, $fparams);
+            list($expr, $value) = $this->render($filter);
+            $query[] = $expr;
+            $params = array_merge($params, $value);
         }
         // TODO - extend to allow OR
         $query = join(' AND ', $query);
@@ -125,7 +131,7 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
         }
         $sql = <<<SQL
             SELECT {$fields}
-            FROM {$this->_table}
+            FROM {$modelset->_manager->_db_table}
 SQL;
         if ($query)
         {
@@ -136,7 +142,7 @@ SQL;
         if (!$count)
         {
             $sorting = array();
-            foreach ($this->_sorting as $order_by)
+            foreach ($this->_manager->_sorting as $order_by)
             {
                 list($field, $direction) = $order_by;
                 if ($direction == '+')
@@ -157,24 +163,27 @@ SQL;
                 ORDER BY {$sorting}
 SQL;
             }
-            if ($this->_num)
+            if ($modelset->_num)
             {
                 $sql .= ' LIMIT ';
-                if ($this->_start)
+                if ($modelset->_start)
                 {
-                    $sql .= "{$this->_start}, ";
+                    $sql .= "{$modelset->_start}, ";
                 }
-                $sql .= $this->_num;
+                $sql .= $modelset->_num;
             }
         }
         $sql = trim(preg_replace('/\s+/', ' ', $sql));
-        return array($sql, $params);
+        
+        $ret = array($sql, $params);
+
+        return $ret;
     } // }}}
 
     function execute_query($query, $params) // {{{
     {
         // intended to be overridden to allow use of alternative backends
-        $s = minim('db')->prepare($query);
+        $s = $this->_db->prepare($query);
         $s->execute($params);
         return $s;
     } // }}} 

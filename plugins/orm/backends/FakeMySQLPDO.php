@@ -1,9 +1,9 @@
 <?php
-class FakePDO
+class FakeMySQLPDO
 {
     var $dbh;
 
-    function FakePDO($dsn, $user, $pass)
+    function FakeMySQLPDO($dsn, $user, $pass)
     {
         list($type, $params) = explode(':', $dsn);
         $host = $name = '';
@@ -21,13 +21,13 @@ class FakePDO
         {
             if (!@mysql_select_db($dbname, $this->dbh))
             {
-                throw new FakePDOException(mysql_error($this->dbh),
+                throw new FakeMySQLPDOException(mysql_error($this->dbh),
                     $this->errorCode());
             }
         }
         else
         {
-            throw new FakePDOException(mysql_error(), '');
+            throw new FakeMySQLPDOException(mysql_error(), '');
         }
     }
 
@@ -62,7 +62,7 @@ class FakePDO
     {
         if ($this->dbh)
         {
-            $stmt =& new FakePDOStatement($sql);
+            $stmt =& new FakeMySQLPDOStatement($sql);
             $stmt->dbh =& $this->dbh;
             return $stmt;
         }
@@ -95,16 +95,16 @@ class FakePDO
     function errorCode()
     {
         $errno = mysql_errno($this->dbh);
-        return FakePDO::sqlstate_for_mysql_errno($errno);
+        return FakeMySQLPDO::sqlstate_for_mysql_errno($errno);
     }
 }
 
-class FakePDOStatement
+class FakeMySQLPDOStatement
 {
     var $sql;
     var $resultset;
 
-    function FakePDOStatement($sql)
+    function FakeMySQLPDOStatement($sql)
     {
         $this->sql = $sql;
         $this->resultset = NULL;
@@ -127,7 +127,7 @@ class FakePDOStatement
     function errorCode()
     {
         $errno = mysql_errno($this->dbh);
-        return FakePDO::sqlstate_for_mysql_errno($errno);
+        return FakeMySQLPDO::sqlstate_for_mysql_errno($errno);
     }
 
     function execute($params=array())
@@ -149,7 +149,7 @@ class FakePDOStatement
         $this->resultset = @mysql_query($sql, $this->dbh);
         if (!$this->resultset)
         {
-            throw new FakePDOException(mysql_error($this->dbh),
+            throw new FakeMySQLPDOException(mysql_error($this->dbh),
                 $this->errorCode());
         }
         $ret = array();
@@ -187,7 +187,7 @@ class FakePDOStatement
     }
 }
 
-class FakePDOException extends Exception
+class FakeMySQLPDOException extends Exception
 {
     function __construct($msg, $code)
     {

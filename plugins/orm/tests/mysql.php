@@ -41,7 +41,7 @@ class Minim_Orm_MySQL_TestCase extends TestCase // {{{
         orm()->set_backend('mysql', array(
             'dbname' => 'test_minim',
             'user' => 'root',
-            'pass' => '',
+            'password' => '',
             'unix_socket' => '/tmp/mysql.sock'
         ));
         $backend =& orm()->_backend;

@@ -112,6 +112,19 @@ class Minim_Orm_TestCase extends TestCase // {{{
             "Expecting 1 result, got $count");
     } // }}}
 
+    function test_delete_data_object() // {{{
+    {
+        $rs = orm()->dummy->where('dummy')->equals('testing');
+        $this->assertEqual(count($rs), 1);
+
+        $do =& $rs->first;
+        $this->assertEqual($do->dummy, 'testing');
+
+        $do->delete();
+        $rs = orm()->dummy->where('dummy')->equals('testing');
+        $this->assertEqual(count($rs), 0);
+    } // }}}
+
     function test_numeric_filters() // {{{
     {
         orm()->register_field_type('num', realpath(join(DIRECTORY_SEPARATOR,

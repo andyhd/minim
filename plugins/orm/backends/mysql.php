@@ -25,7 +25,7 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
         $dsn = "$dsn;dbname={$params['dbname']}";
         try
         {
-            $this->_db = new PDO($dsn, $params['user'], $params['pass']);
+            $this->_db = new PDO($dsn, $params['user'], $params['password']);
             $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
         catch (PDOException $e)
@@ -33,7 +33,8 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
             require_once realpath(join(DIRECTORY_SEPARATOR, array(
                 dirname(__FILE__), 'FakeMySQLPDO.php'
             )));
-            $this->_db = new FakeMySQLPDO($dsn, $params['user'], $params['pass']);
+            $this->_db = new FakeMySQLPDO($dsn, $params['user'],
+                $params['password']);
         }
     } // }}}
 
@@ -47,6 +48,30 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
         $values = array_combine($values, array_values($do->_data));
         $sth->execute($values);
     } // }}}
+
+    function delete(&$do, &$manager) // {{{
+    {
+        $fields = array_keys($manager->_fields);
+        $criteria = array();
+        $values = array();
+        foreach ($fields as $field)
+        {
+            if (@$do->_data[$field] !== NULL)
+            {
+                $criteria[] = "$field = :$field";
+                $values[":$field"] = $do->_data[$field];
+            }
+            else
+            {
+                $criteria[] = "$field IS NULL";
+            }
+        }
+        $sql = sprintf('DELETE FROM %s WHERE %s',
+            $manager->_db_table, join(' AND ', $criteria));
+        $sth = $this->_db->prepare($sql);
+        $sth->execute($values);
+    } // }}}
+
     function &get($params, &$manager) // {{{
     {
         $criteria = '';

@@ -169,6 +169,7 @@ class Minim_Orm_Manager // {{{
     var $_model;
     var $_db_table;
     var $_fields;
+    var $_sorting;
 
     function Minim_Orm_Manager($name, &$orm) // {{{
     {
@@ -176,6 +177,7 @@ class Minim_Orm_Manager // {{{
         $this->_orm =& $orm;
         $this->_db_table = strtolower($name);
         $this->_fields = array();
+        $this->_sorting = array();
     } // }}}
 
     /**
@@ -253,9 +255,17 @@ class Minim_Orm_Manager // {{{
     /**
      * Save specified dataobject to ORM backend
      */
-    function save($do) // {{{
+    function save(&$do) // {{{
     {
         $this->_orm->_backend->save($do, $this);
+    } // }}}
+
+    /**
+     * Delete specified dataobject from ORM backend
+     */
+    function delete(&$do) // {{{
+    {
+        $this->_orm->_backend->delete($do, $this);
     } // }}}
 
     /**
@@ -311,6 +321,7 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
     var $_filters;
     var $_sorting;
     var $_count;
+    var $_cache;
 
     function Minim_Orm_ModelSet(&$manager) // {{{
     {
@@ -318,6 +329,7 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
         $this->_iterator_position = 0;
         $this->_filters = array();
         $this->_sorting = array();
+        $this->_cache = array();
     } // }}}
 
     /**
@@ -558,6 +570,14 @@ class Minim_Orm_DataObject // {{{
     function save() // {{{
     {
         $this->_manager->save($this);
+    } // }}}
+
+    /**
+     * Delete object
+     */
+    function delete() // {{{
+    {
+        $this->_manager->delete($this);
     } // }}}
 } // }}}
 

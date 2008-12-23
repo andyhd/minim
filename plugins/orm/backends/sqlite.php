@@ -27,6 +27,32 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
         $sth->execute($values);
     } // }}}
 
+    /**
+     * Delete the specified record
+     */
+    function delete(&$do, &$manager) // {{{
+    {
+        $fields = array_keys($manager->_fields);
+        $criteria = array();
+        $values = array();
+        foreach ($fields as $field)
+        {
+            if (@$do->_data[$field] !== NULL)
+            {
+                $criteria[] = "$field = :$field";
+                $values[":$field"] = $do->_data[$field];
+            }
+            else
+            {
+                $criteria[] = "$field IS NULL";
+            }
+        }
+        $sql = sprintf('DELETE FROM %s WHERE %s',
+            $manager->_db_table, join(' AND ', $criteria));
+        $sth = $this->_db->prepare($sql);
+        $sth->execute($values);
+    } // }}}
+
     function &get($params, &$manager) // {{{
     {
         $criteria = '';
@@ -122,7 +148,7 @@ SQL;
         if (!$count)
         {
             $sorting = array();
-            foreach ($this->_manager->_sorting as $order_by)
+            foreach ($modelset->_manager->_sorting as $order_by)
             {
                 list($field, $direction) = $order_by;
                 if ($direction == '+')

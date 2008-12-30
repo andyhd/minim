@@ -1,14 +1,23 @@
 <?php
-
-class Minim_Testing
+class Minim_Testing implements Minim_Plugin
 {
-    function run_tests()
+    var $_results;
+
+    function Minim_Testing()
     {
-        $path = getcwd();
+        $this->_results = array();
+    }
+
+    function run_tests($path=NULL)
+    {
+        if (is_null($path))
+        {
+            $path = getcwd();
+        }
 
         // find all tests
         $dir = new RecursiveDirectoryIterator($path);
-        $test_cases = get_test_cases($dir);
+        $test_cases = $this->get_test_cases($dir);
 
         if (count($test_cases) < 1)
         {
@@ -16,47 +25,52 @@ class Minim_Testing
             return;
         }
 
-$out = '';
-$hr = "\n".str_repeat('-', 80);
-
-foreach ($test_cases as $case)
-{
-    include $case['file'];
-    $testcase = new $case['class']();
-    $results = $testcase->run();
-
-    foreach ($results as $test => $result)
-    {
-        switch ($result['result'])
+        foreach ($test_cases as $case)
         {
-            case TestCase::PASS:
-                print '.';
-                break;
-            case TestCase::FAIL:
-                print 'F';
-                $out .= <<<TEXT
+            include $case['file'];
+            $testcase = new $case['class']();
+            $this->_results = array_merge($this->_results, $testcase->run());
+        }
+    }
+
+    function output_results()
+    {
+        $out = '';
+        $hr = "\n".str_repeat('-', 80);
+
+
+        foreach ($this->_results as $test => $result)
+        {
+            switch ($result['result'])
+            {
+                case TestCase::PASS:
+                    print '.';
+                    break;
+                case TestCase::FAIL:
+                    print 'F';
+                    $out .= <<<TEXT
 $hr
 FAIL: $test
     {$result['reason']}
 TEXT;
-                break;
-            case TestCase::ERROR:
-                print 'E';
-                $errmsg = "{$result['exception']}";
-                $errmsg = str_replace("\n", "\n    ", $errmsg);
-                $out .= <<<TEXT
+                    break;
+                case TestCase::ERROR:
+                    print 'E';
+                    $errmsg = "{$result['exception']}";
+                    $errmsg = str_replace("\n", "\n    ", $errmsg);
+                    $out .= <<<TEXT
 $hr
 ERROR: $test
     {$result['reason']}
 
     $errmsg
 TEXT;
-                break;
+                    break;
+            }
         }
-    }
-}
-echo "\n$out\n\n";
 
+        print "\n$out\n\n";
+    }
 
 
     function get_test_cases($dir)
@@ -85,7 +99,7 @@ echo "\n$out\n\n";
                 else
                 {
                     $test_cases = array_merge($test_cases,
-                        get_test_cases($dir->getChildren()));
+                        $this->get_test_cases($dir->getChildren()));
                 }
             }
         }

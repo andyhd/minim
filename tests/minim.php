@@ -12,19 +12,22 @@ class Minim_TestCase extends TestCase // {{{
 
     function test_get_plugin() // {{{
     {
-        $this->assertEqual(0, count(minim()->_plugins));
+        $minim = new Minim();
+        $this->assertTrue($minim !== minim());
 
-        minim()->_plugin_paths = array(realpath(join(DIRECTORY_SEPARATOR, array(
+        $this->assertEqual(0, count($minim->_plugins));
+
+        $minim->_plugin_paths = array(realpath(join(DIRECTORY_SEPARATOR, array(
             dirname(__FILE__), 'res'
         ))));
-        minim()->_init_plugins();
-        $this->assertEqual(1, count(minim()->_plugins),
+        $minim->_init_plugins();
+        $this->assertEqual(1, count($minim->_plugins),
             "No plugins registered");
 
-        $this->assertTrue(array_key_exists('dummy', minim()->_plugins),
+        $this->assertTrue(array_key_exists('dummy', $minim->_plugins),
             "Dummy plugin not registered");
 
-        $plugin =& minim('dummy');
+        $plugin =& $minim->get_plugin('dummy');
         $class = get_class($plugin);
         $this->assertTrue(($class == 'DummyPlugin'),
             "Class mismatch: $class");

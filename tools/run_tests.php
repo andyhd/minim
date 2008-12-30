@@ -1,33 +1,52 @@
 <?php
-$root = rtrim(dirname(dirname(realpath(__FILE__))), '/');
-require_once "$root/config.php";
-
-minim('tests');
+require_once 'minim/plugins/tests/tests.php';
 
 // find all tests
-$test_cases = array();
-$dh = opendir("$root/tests");
-while ($file = readdir($dh))
+$dir = new RecursiveDirectoryIterator(realpath(join(DIRECTORY_SEPARATOR, array(
+    dirname(__FILE__), '..'
+))));
+
+function get_test_cases($dir)
 {
-    if (substr($file, -4) == '.php')
+    static $pattern = '/class (\w*) extends TestCase\b/m';
+    $test_cases = array();
+    foreach ($dir as $path)
     {
-        // check for subclasses of TestCase
-        if (preg_match('/class (\w*) extends TestCase\b/m',
-                       file_get_contents("$root/tests/$file"),
-                       $groups))
+        if ($dir->hasChildren())
         {
-            include "$root/tests/$file";
-            $test_cases[] = $groups[1];
+            if (substr($path, -5) == 'tests')
+            {
+                foreach ($dir->getChildren() as $file)
+                {
+                    if (substr($file, -4) == '.php'
+                        and preg_match($pattern, file_get_contents($file), $m))
+                    {
+                        $test_cases[] = array(
+                            'file' => $file->getPathname(),
+                            'class' => $m[1]
+                        );
+                    }
+                }
+            }
+            else
+            {
+                $test_cases = array_merge($test_cases,
+                    get_test_cases($dir->getChildren()));
+            }
         }
     }
+    return $test_cases;
 }
+
+$test_cases = get_test_cases($dir);
 
 $out = '';
 $hr = "\n".str_repeat('-', 80);
 
-foreach ($test_cases as $test_class)
+foreach ($test_cases as $case)
 {
-    $testcase = new $test_class();
+    include $case['file'];
+    $testcase = new $case['class']();
     $results = $testcase->run();
 
     foreach ($results as $test => $result)

@@ -1,16 +1,19 @@
 <?php
-require 'minim/plugins/tests/tests.php';
-require 'minim/plugins/orm/orm.php';
+require_once 'minim/plugins/tests/tests.php';
+require_once 'minim/plugins/orm/orm.php';
 
-function &orm() // {{{
+if (!function_exists('orm'))
 {
-    static $instance;
-    if (!$instance)
+    function &orm() // {{{
     {
-        $instance = new Minim_Orm();
-    }
-    return $instance;
-} // }}}
+        static $instance;
+        if (!$instance)
+        {
+            $instance = new Minim_Orm();
+        }
+        return $instance;
+    } // }}}
+}
 
 class Minim_Orm_TestCase extends TestCase // {{{
 {
@@ -160,6 +163,3 @@ class Minim_Orm_TestCase extends TestCase // {{{
             "Expecting 3 results, got $count");
     } // }}}
 } // }}}
-
-$test = new Minim_Orm_TestCase();
-dump_results($test->run());

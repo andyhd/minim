@@ -4,7 +4,7 @@
  *
  * Keeps track of model Managers, model field types and backends.
  */
-class Minim_Orm // {{{
+class Minim_Orm implements Minim_Plugin // {{{
 {
 
     var $_managers;

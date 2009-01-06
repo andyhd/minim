@@ -6,7 +6,10 @@ class Minim_Admin implements Minim_Plugin
     function Minim_Admin() // {{{
     {
         $this->root = realpath(dirname(__FILE__));
-        minim('templates')->append_path("{$this->root}/templates");
+        minim('templates')->add_template_path(join(DIRECTORY_SEPARATOR,
+            array($this->root, "templates")
+        ));
+        error_log('Template paths: '.print_r(minim('templates')->template_paths, TRUE));
     } // }}} 
 
     function enable() // {{{

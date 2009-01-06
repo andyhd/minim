@@ -1,6 +1,6 @@
 <?php
 require_once 'minim/plugins/tests/tests.php';
-require_once 'minim/plugins/templates/plugin.php';
+require_once 'minim/plugins/templates/templates.php';
 
 function &tmpl() // {{{
 {
@@ -22,12 +22,12 @@ class Minim_TemplateEngine_TestCase extends TestCase
 
     function test_simple_template() // {{{
     {
-        $this->assertEqual(count(tmpl()->_template_paths), 0);
+        $this->assertEqual(count(tmpl()->template_paths), 0);
 
         tmpl()->add_template_path(realpath(join(DIRECTORY_SEPARATOR, array(
             dirname(__FILE__), 'res'
         ))));
-        $this->assertEqual(count(tmpl()->_template_paths), 1);
+        $this->assertEqual(count(tmpl()->template_paths), 1);
 
         tmpl()->render('simple-template', array('world' => 'world!'));
         $this->assertOutput('hello world!');

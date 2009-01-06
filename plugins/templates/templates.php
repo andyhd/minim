@@ -1,83 +1,40 @@
 <?php
-class Minim_TemplateEngine implements Minim_Plugin
+class Minim_TemplateEngine implements Minim_Plugin 
 {
     var $_template_paths;
-    var $_css_paths;
-    var $_js_paths;
+    var $_def_stack;
     var $_blocks;
     var $_extends;
-    var $_def_stack;
 
     function Minim_TemplateEngine() // {{{
     {
+        $this->template_paths = array();
+        $this->_def_stack = array();
         $this->_blocks = array();
         $this->_extends = array();
-        $this->_def_stack = array();
-        $this->_template_paths = array();
-        $this->_css_paths = array();
-        $this->_js_paths = array();
     } // }}}
 
-    function _set_block($name, $contents) // {{{
+    function add_template_path($path) // {{{
     {
-        error_log("Setting $name block");
-        $this->_blocks[$name] = $contents;
+        $this->template_paths[] = $path;
     } // }}}
 
-    function _get_block($name) // {{{
-    {
-        if (array_key_exists($name, $this->_blocks))
-        {
-            error_log("Fetching $name block");
-            return $this->_blocks[$name];
-        }
-        error_log("Block $name not found");
-        return "";
-    } // }}}
-
-    function extend($name) // {{{
-    {
-        error_log("Extending $name template");
-        array_push($this->_extends, $name);
-    } // }}}
-
-    function append_path($path) // {{{
-    {
-        array_push($this->_template_paths, realpath($path));
-    } // }}}
-
-    function prepend_path($path) // {{{
-    {
-        array_unshift($this->_template_paths, realpath($path));
-    } // }}}
-
-    function append_css_path($path) // {{{
-    {
-        array_push($this->_css_paths, $path);
-    } // }}}
-
-    function append_js_path($path) // {{{
-    {
-        array_push($this->_js_paths, $path);
-    } // }}}
-
+    /**
+     * Render a template
+     */
     function render($_template, $_context=array()) // {{{
     {
-        // find template by searching template path
-        $_files = minim()->find("$_template.php", $this->_template_paths);
-        if (!$_files)
+        $_template_file = $this->_find_template($_template);
+        if (!$_template_file)
         {
-            error_log("$_template not found in template paths");
-            return FALSE;
+            throw new Minim_TemplateEngine_Exception(
+                "Template $_template not found on template path");
         }
-
-        error_log("Rendering $_template from {$_files[0]}");
-        error_log("Context: " . print_r($_context, TRUE));
         extract($_context);
         ob_start();
-        include $_files[0];
+        include $_template_file;
 
-        // render any parent templates
+        // render extended templates
         if ($_parent = array_pop($this->_extends))
         {
             $this->render($_parent, $_context);
@@ -85,83 +42,60 @@ class Minim_TemplateEngine implements Minim_Plugin
         ob_end_flush();
     } // }}}
 
-    function render_404() // {{{
+    /**
+     * Search template paths for named template.
+     * TODO - caching
+     * TODO - template inheritance
+     */
+    function _find_template($name) // {{{
     {
-        $search_engines = array(
-            'Ask Jeeves' => '\.ask\.co.*\bask=([^&]+)',
-            'Google' => 'google\.co.*\bq=([^&]+)',
-            'MSN' => 'msn\.co.*\bq=([^&]+)',
-            'Yahoo!' => 'yahoo\.co.*\bp=([^&]+)',
-        );
-        $url = htmlspecialchars($_SERVER['REQUEST_URI']);
-        if ($referrer = @$_SERVER['HTTP_REFERER'])
+        foreach ($this->template_paths as $path)
         {
-            if (preg_match('/^http:[^\/]+pagezero/', $referrer))
+            $dir = new DirectoryIterator($path);
+            foreach ($dir as $file)
             {
-                $this->render('404-my-bad', array(
-                    'url' => $url,
-                ));
-                return;
-            }
-            foreach ($search_engines as $name => $search_engine)
-            {
-                if (preg_match('/'.$search_engine.'/', $referrer, $m))
+                if (strtolower($file->getFilename()) == "$name.php")
                 {
-                    $terms = htmlspecialchars(urldecode($m[1]));
-                    $this->render('404-search', array(
-                        'url' => $url,
-                        'terms' => $terms,
-                        'engine' => $name,
-                    ));
-                    return;
+                    return $file->getPathname();
                 }
             }
-            $this->render('404-other-site', array(
-                'url' => $url,
-            ));
-            return;
         }
-        $this->render('404-no-search', array(
-            'url' => $url,
-        ));
+        return FALSE;
     } // }}}
 
+    /**
+     * Set a template block
+     */
     function set($name) // {{{
     {
         array_push($this->_def_stack, $name);
         ob_start();
     } // }}}
 
+    /**
+     * End a template block
+     */
     function end() // {{{
     {
         $name = array_pop($this->_def_stack);
-        $this->_set_block($name, ob_get_clean());
+        $this->_blocks[$name] = ob_get_clean();
     } // }}}
 
+    /**
+     * Retrieve a named block
+     */
     function get($name) // {{{
     {
-        echo $this->_get_block($name);
+        echo @$this->_blocks[$name];
     } // }}}
 
-    function include_css($name) // {{{
+    /**
+     * Extend a named template
+     */
+    function extend($name) // {{{
     {
-        $files = minim()->find("$name.css", $this->_css_paths);
-        if ($files)
-        {
-            echo <<<HTML
-<link rel="stylesheet" type="text/css" href="{$files[0]}">
-HTML;
-        }
-    } // }}}
-
-    function include_js($name) // {{{
-    {
-        $files = minim()->find("$name.js", $this->_js_paths);
-        if ($files)
-        {
-            echo <<<HTML
-<script type="text/javascript" src="{$files[0]}"></script>
-HTML;
-        }
+        array_push($this->_extends, $name);
     } // }}}
 }
+
+class Minim_TemplateEngine_Exception extends Exception {}

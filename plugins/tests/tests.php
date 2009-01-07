@@ -2,6 +2,7 @@
 class Minim_Testing implements Minim_Plugin
 {
     var $_results;
+    var $_time;
 
     function Minim_Testing()
     {
@@ -25,51 +26,65 @@ class Minim_Testing implements Minim_Plugin
             return;
         }
 
+        $start_time = array_sum(explode(' ', microtime()));
+
         foreach ($test_cases as $case)
         {
             include $case['file'];
             $testcase = new $case['class']();
             $this->_results = array_merge($this->_results, $testcase->run());
         }
+
+        $this->_time = array_sum(explode(' ', microtime())) - $start_time;
     }
 
-    function output_results()
+    function output_results($use_colors=TRUE)
     {
         $out = '';
-        $hr = "\n".str_repeat('-', 80);
+        $hr = str_repeat('-', 80);
+        $green = $red = $reset = '';
+        if ($use_colors)
+        {
+            $green = chr(27)."[1;32m";
+            $red = chr(27)."[1;31m";
+            $reset = chr(27)."[0m";
+        }
 
+        print "\n";
 
+        $failures = 0;
         foreach ($this->_results as $test => $result)
         {
             switch ($result['result'])
             {
                 case TestCase::PASS:
-                    print '.';
+                    printf("  %sPASS%s  %-70s\n", $green, $reset, $test);
                     break;
                 case TestCase::FAIL:
-                    print 'F';
-                    $out .= <<<TEXT
-$hr
-FAIL: $test
-    {$result['reason']}
-TEXT;
+                    printf("  %sFAIL%s  %-70s\n", $red, $reset, $test);
+                    printf("\n    %s\n\n", $result['reason']);
+                    $failures++;
                     break;
                 case TestCase::ERROR:
-                    print 'E';
+                    printf("  %sERROR%s %-70s\n", $red, $reset, $test);
                     $errmsg = "{$result['exception']}";
                     $errmsg = str_replace("\n", "\n    ", $errmsg);
-                    $out .= <<<TEXT
-$hr
-ERROR: $test
-    {$result['reason']}
-
-    $errmsg
-TEXT;
+                    printf("\n    %s\n", $result['reason']);
+                    printf("\n    %s\n\n", $errmsg);
+                    $failures++;
                     break;
             }
         }
 
-        print "\n$out\n\n";
+        $num = count($this->_results);
+        $time = sprintf('%.4f', $this->_time);
+        print "\n$out$hr\nRan $num tests in $time seconds\n";
+        if ($failures)
+        {
+            $plural = ($failures > 1) ? 's' : '';
+            printf("%s%d test%s failed%s\n", $red, $failures, $plural, $reset);
+        }
+        print "\n\n";
     }
 
 

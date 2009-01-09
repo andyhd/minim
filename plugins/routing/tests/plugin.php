@@ -60,4 +60,14 @@ class RoutingTests extends TestCase
         $this->assertException('Minim_Router_Exception',
             '$this->router->url_for("foo");');
     }
+
+    function test_route_request()
+    {
+        $this->router->url('foo/(?P<id>\d+)')->maps_to('foo');
+        $GLOBALS['_SERVER'] = array(
+            'REQUEST_URI' => 'http://localhost/foo/27'
+        );
+        $this->router->route_request();
+        $this->assertOutput('foo27');
+    }
 }

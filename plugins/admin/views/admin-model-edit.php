@@ -33,7 +33,12 @@ $form = minim('forms')->form($model_name, $params);
 $errors = NULL;
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
 {
-    $form->from($_POST);
+    $data = $_POST;
+    if (@$_REQUEST['action'] == 'new')
+    {
+        unset($data['id']);
+    }
+    $form->from($data);
     if ($form->isValid())
     {
         $model = minim('orm')->{$model_name}->from($form->getData());

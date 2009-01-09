@@ -106,6 +106,51 @@ class Minim_Router implements Minim_Plugin
         }
         throw new Minim_Router_Exception("View $_view not found");
     } // }}}
+
+    /**
+     * Pass control to the view indicated by the request
+     */
+    function route_request() // {{{
+    {
+        // parse request URI
+        $parts = @parse_url($_SERVER['REQUEST_URI']);
+
+        if ($parts)
+        {
+            $path = $parts['path'];
+            if (strpos($path, $this->webroot) === 0)
+            {
+                $path = substr($path, strlen($this->webroot));
+            }
+        }
+        else
+        {
+            $path = '/';
+        }
+
+        // resolve URL
+        $route =& $this->resolve($path);
+        if ($route->view)
+        {
+            error_log('URI matches route '.print_r(array(
+                'name' => $route->name,
+                'url_pattern' => $route->url_pattern,
+                'view' => $route->view,
+                'params' => $route->params
+            ), TRUE));
+            if ($route->params)
+            {
+                $_GET = array_merge($_GET, $route->params);
+                $_REQUEST = array_merge($_REQUEST, $route->params);
+            }
+            require_once($route->view);
+            return;
+        }
+
+        // 404
+        header('HTTP/1.1 404 Not Found');
+        // TODO
+    } // }}}
 }
 
 class Minim_Route
@@ -138,7 +183,7 @@ class Minim_Route
         }
         $this->view = $_view;
 
-        return $this;
+        return $this->_router;
     } // }}}
 }
 

@@ -107,31 +107,6 @@ class Minim
         return $user;
     } // }}}
 
-    function front_controller() // {{{
-    {
-        $page = 'home';
-        $action = '';
-
-        // parse request URI
-        $parts = @parse_url($_SERVER['REQUEST_URI']);
-        if ($parts)
-        {
-            $path = str_replace($this->webroot, '', $parts['path']);
-
-            // resolve URL
-            list($path, $params) = minim('routing')->resolve($path);
-            if (is_readable($path))
-            {
-                if ($params)
-                {
-                    $_GET = array_merge($_GET, $params);
-                    $_REQUEST = array_merge($_REQUEST, $params);
-                }
-                require_once($path);
-            }
-        }
-    } // }}}
-
     function find($pattern, $path_list) // {{{
     {
         foreach ($path_list as $path)

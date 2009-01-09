@@ -48,8 +48,9 @@ class Minim_Router implements Minim_Plugin
     {
         foreach ($this->_routes as &$route)
         {
-            if (preg_match("/{$route->url_pattern}/", $url))
+            if (preg_match("`{$route->url_pattern}`", $url, $params))
             {
+                $route->params = $params;
                 return $route;
             }
         }
@@ -59,16 +60,51 @@ class Minim_Router implements Minim_Plugin
     /**
      * Build a URL for the specified view (and action)
      */
-    function url_for($view, $action=NULL) // {{{
+    function url_for($_view, $_params=array()) // {{{
     {
-        foreach ($this->_routes as $route)
+        foreach ($this->_routes as $_route)
         {
-            if ($route->name == $view and $route->action == $action)
+            if ($_route->name == $_view)
             {
-                return $route->url_pattern;
+                extract($_params);
+                $_url = $_route->url_pattern;
+
+                // find required params
+                preg_match_all(',\(\?P<(.*?)>.*?\),', $_url, $_m);
+
+                // make sure values were passed in
+                foreach ($_m[1] as $_k)
+                {
+                    if (!array_key_exists($_k, $_params))
+                    {
+                        throw new Minim_Router_Exception(
+                            "Route {$_route->name} requires $_k parameter");
+                    }
+
+                    // don't append this one to the query string
+                    unset($_params[$_k]);
+                }
+
+                // replace optional params with their values, or remove them
+                $_url = preg_replace(',\(\?\:/\(\?P<(.*?)>.*?\)\)\?,e',
+                    'isset($$1) ? "/{$$1}" : ""', $_url);
+
+                // replace named params with their values
+                $_url = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_url);
+
+                // remove start and end anchors
+                $_url = ltrim(rtrim($_url, '/$'), '^');
+
+                // append extra params as query string
+                if ($_params)
+                {
+                    $_url .= '?'.http_build_query($_params);
+                }
+
+                return $_url;
             }
         }
-        throw new Minim_Router_Exception("View $view not found");
+        throw new Minim_Router_Exception("View $_view not found");
     } // }}}
 }
 
@@ -77,7 +113,7 @@ class Minim_Route
     var $name;
     var $url_pattern;
     var $view;
-    var $action;
+    var $params;
     var $_router;
 
     function Minim_Route(&$router, $url_pattern) // {{{
@@ -86,13 +122,13 @@ class Minim_Route
         $this->url_pattern = $url_pattern;
         $this->name = NULL;
         $this->view = NULL;
-        $this->action = NULL;
+        $this->params = NULL;
     } // }}}
 
     /**
-     * Map route to a view (plus optional action)
+     * Map route to a view
      */
-    function &maps_to($view, $action=NULL) // {{{
+    function &maps_to($view) // {{{
     {
         $this->name = $view;
         $_view = $this->_router->get_view($view);
@@ -101,7 +137,7 @@ class Minim_Route
             throw new Minim_Router_Exception("View $view not found");
         }
         $this->view = $_view;
-        $this->action = $action;
+
         return $this;
     } // }}}
 }

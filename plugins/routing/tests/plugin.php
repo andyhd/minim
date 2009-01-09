@@ -1,6 +1,6 @@
 <?php
 require_once 'minim/plugins/tests/tests.php';
-require_once 'minim/plugins/routing/plugin.php';
+require_once 'minim/plugins/routing/routing.php';
 
 class RoutingTests extends TestCase
 {

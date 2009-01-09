@@ -1,200 +1,145 @@
 <?php
-class Minim_Routing implements Minim_Plugin
+class Minim_Router implements Minim_Plugin
 {
-    // routing methods
-    var $_url_map;
-    var $webroot;
+    var $_routes;
+    var $_views;
+    var $not_found;
 
-    function Minim_Routing() // {{{
+    function Minim_Router() // {{{
     {
-        $this->_url_map = array();
-        $this->webroot = '/';
+        $this->_routes = array();
+        $this->view_paths = array();
+        $this->not_found = new Minim_Route($this, '');
     } // }}}
 
-    function &_url_map_for($view, $action) // {{{
+    /**
+     * Find the view file matching the specified name
+     */
+    function get_view($view)
     {
-        foreach ($this->_url_map as &$map)
+        foreach ($this->view_paths as $path)
         {
-            if ($map['view'] == $view and $map['action'] == $action)
+            $dir = new DirectoryIterator($path);
+            foreach ($dir as $file)
             {
-                return $map;
+                if (basename($file) == "$view.php")
+                {
+                    return $file->getPathname();
+                }
             }
         }
-        $nullvar = null;
-        return $nullvar;
+        return NULL;
+    }
+
+    /**
+     * Register a URL pattern to match against
+     */
+    function &url($url_pattern) // {{{
+    {
+        $route = new Minim_Route($this, $url_pattern);
+        $this->_routes[] =& $route;
+        return $route;
     } // }}}
 
-    function map_url($url_pattern, $view, $action=NULL, $alt_path=NULL) // {{{
+    /**
+     * Given a URL, find a matching route
+     */
+    function &resolve($url) // {{{
     {
-        $map =& $this->_url_map_for($view, $action);
-        if (is_null($map))
+        foreach ($this->_routes as &$route)
         {
-            $this->_url_map[] = array(
-                'url_pattern' => $url_pattern,
-                'view' => $view,
-                'action' => $action,
-                'alt_path' => $alt_path
-            );
-        }
-        else
-        {
-            // replace existing map
-            $map = array(
-                'url_pattern' => $url_pattern,
-                'view' => $view,
-                'action' => $action,
-                'alt_path' => $alt_path
-            );
-            error_log("Replacing URL map for $view:$action");
-        }
-        return $this;
-    } // }}}
-
-    function url_for($_mapping, $_params=array()) // {{{
-    {
-        @list($_view, $_action) = explode(':', $_mapping);
-        if (is_null($_action))
-        {
-            $_view = $_mapping;
-        }
-        $_map = $this->_url_map_for($_view, $_action);
-
-        if ($_map)
-        {
-            error_log("Using URL map: $_mapping -> ".print_r($_map, TRUE));
-            error_log("Params: ".print_r($_params, TRUE));
-            extract($_params);
-            $_pat = $_map['url_pattern'];
-            # replace optional params first
-            preg_match_all(',\(\?P<(.*?)>.*?\),', $_pat, $_m);
-            foreach ($_m[1] as $_k)
+            if (preg_match("`{$route->url_pattern}`", $url, $params))
             {
-                if (array_key_exists($_k, $_params))
+                $route->params = $params;
+                return $route;
+            }
+        }
+        return $this->not_found;
+    } // }}}
+
+    /**
+     * Build a URL for the specified view (and action)
+     */
+    function url_for($_view, $_params=array()) // {{{
+    {
+        foreach ($this->_routes as $_route)
+        {
+            if ($_route->name == $_view)
+            {
+                extract($_params);
+                $_url = $_route->url_pattern;
+
+                // find required params
+                preg_match_all(',\(\?P<(.*?)>.*?\),', $_url, $_m);
+
+                // make sure values were passed in
+                foreach ($_m[1] as $_k)
                 {
+                    if (!array_key_exists($_k, $_params))
+                    {
+                        throw new Minim_Router_Exception(
+                            "Route {$_route->name} requires $_k parameter");
+                    }
+
+                    // don't append this one to the query string
                     unset($_params[$_k]);
                 }
-            }
-            $_rev = preg_replace(',\(\?\:/\(\?P<(.*?)>.*?\)\)\?,e',
-                'isset($$1) ? "/{$$1}" : ""', $_pat);
-            $_rev = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_rev);
-            $_rev = ltrim(rtrim($_rev, '/$'), '^');
-            $_rev = $this->webroot.$_rev;
-            if ($_params)
-            {
-                $_rev .= '?'.http_build_query($_params); 
-            }
-            error_log("Mapped to URL: $_rev");
-            return $_rev;
-        }
-        throw new Minim_Routing_Exception(
-            "URL Mapping not found: $_mapping");
-    } // }}}
 
-    function resolve($url) // {{{
-    {
-        // apply url_map patterns in order until match found
-        foreach ($this->_url_map as $map)
-        {
-            extract($map);
-            if (preg_match(','.$url_pattern.',', $url, $params))
-            {
-                error_log('Found URL map: '.print_r($map, TRUE).
-                                    print_r($params, TRUE));
-                // found a match, return actual path and params
-                $path = "views/{$view}.php";
-                if (isset($alt_path))
+                // replace optional params with their values, or remove them
+                $_url = preg_replace(',\(\?\:/\(\?P<(.*?)>.*?\)\)\?,e',
+                    'isset($$1) ? "/{$$1}" : ""', $_url);
+
+                // replace named params with their values
+                $_url = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_url);
+
+                // remove start and end anchors
+                $_url = ltrim(rtrim($_url, '/$'), '^');
+
+                // append extra params as query string
+                if ($_params)
                 {
-                    $path = $alt_path;
+                    $_url .= '?'.http_build_query($_params);
                 }
-                // append action to params
-                $params['action'] = $action;
-                return array($path, $params);
-            }
-        }
-        return array(FALSE, FALSE);
-    } // }}}
 
-    function redirect($page, $params=array()) // {{{
-    {
-        header('Location: '.$this->url_for($page, $params));
-        exit;
-    } // }}}
-
-    function mod_rewrite_rules($base=NULL) // {{{
-    {
-        $rules = array();
-        if ($base)
-        {
-            $rules[] = "RewriteBase $base";
-        }
-        foreach ($this->_url_map as $map)
-        {
-            extract($map);
-            if ($base)
-            {
-                $url_pattern = preg_replace(',^\^/,', '^', $url_pattern);
-            }
-            $path = "views/{$view}.php";
-            if ($alt_path)
-            {
-                $path = $alt_path;
-            }
-            $rule = "RewriteRule {$url_pattern} {$path}";
-            $params = array();
-            if (preg_match_all(',\(\?P<(.*?)>.*?\),', $url_pattern, $m))
-            {
-                foreach ($m[1] as $i => $param)
-                {
-                    // mod_rewrite doesn't do named params :(
-                    $params[] = "$param=$".($i + 1);
-                }
-                $rule .= "?".join('&', $params);
-            }
-            if ($action)
-            {
-                $prefix = $params ? '&' : '?';
-                $rule .= "{$prefix}action=$action";
-            }
-            $rules[] = "$rule [QSA,L]";
-        }
-        return $rules;
-    } // }}}
-
-    function route_request() // {{{
-    {
-        // parse request URI
-        $parts = @parse_url($_SERVER['REQUEST_URI']);
-        if ($parts)
-        {
-            $path = $parts['path'];
-            if (strpos($path, $this->webroot) === 0)
-            {
-                $path = substr($path, strlen($this->webroot));
+                return $_url;
             }
         }
-        else
-        {
-            $path = '/';
-        }
-
-        // resolve URL
-        list($path, $params) = $this->resolve($path);
-        if (is_readable($path))
-        {
-            if ($params)
-            {
-                $_GET = array_merge($_GET, $params);
-                $_REQUEST = array_merge($_REQUEST, $params);
-            }
-            require_once($path);
-            return;
-        }
-
-        // 404
-        header('HTTP/1.1 404 Not Found');
-        minim('templates')->render_404();
-        exit;
+        throw new Minim_Router_Exception("View $_view not found");
     } // }}}
 }
 
-class Minim_Routing_Exception extends Exception {}
+class Minim_Route
+{
+    var $name;
+    var $url_pattern;
+    var $view;
+    var $params;
+    var $_router;
+
+    function Minim_Route(&$router, $url_pattern) // {{{
+    {
+        $this->_router =& $router;
+        $this->url_pattern = $url_pattern;
+        $this->name = NULL;
+        $this->view = NULL;
+        $this->params = NULL;
+    } // }}}
+
+    /**
+     * Map route to a view
+     */
+    function &maps_to($view) // {{{
+    {
+        $this->name = $view;
+        $_view = $this->_router->get_view($view);
+        if ($_view == NULL)
+        {
+            throw new Minim_Router_Exception("View $view not found");
+        }
+        $this->view = $_view;
+
+        return $this;
+    } // }}}
+}
+
+class Minim_Router_Exception extends Exception {}

@@ -3,10 +3,12 @@ class Minim_Routing implements Minim_Plugin
 {
     // routing methods
     var $_url_map;
+    var $webroot;
 
     function Minim_Routing() // {{{
     {
         $this->_url_map = array();
+        $this->webroot = '/';
     } // }}}
 
     function &_url_map_for($view, $action) // {{{
@@ -76,7 +78,7 @@ class Minim_Routing implements Minim_Plugin
                 'isset($$1) ? "/{$$1}" : ""', $_pat);
             $_rev = preg_replace(',\(\?P<(.*?)>.*?\),e', '$$1', $_rev);
             $_rev = ltrim(rtrim($_rev, '/$'), '^');
-            $_rev = minim()->webroot.$_rev;
+            $_rev = $this->webroot.$_rev;
             if ($_params)
             {
                 $_rev .= '?'.http_build_query($_params); 
@@ -84,7 +86,8 @@ class Minim_Routing implements Minim_Plugin
             error_log("Mapped to URL: $_rev");
             return $_rev;
         }
-        return "#error:_mapping_not_found:_$_mapping";
+        throw new Minim_Routing_Exception(
+            "URL Mapping not found: $_mapping");
     } // }}}
 
     function resolve($url) // {{{
@@ -164,9 +167,9 @@ class Minim_Routing implements Minim_Plugin
         if ($parts)
         {
             $path = $parts['path'];
-            if (strpos($path, minim()->webroot) === 0)
+            if (strpos($path, $this->webroot) === 0)
             {
-                $path = substr($path, strlen(minim()->webroot));
+                $path = substr($path, strlen($this->webroot));
             }
         }
         else
@@ -193,3 +196,5 @@ class Minim_Routing implements Minim_Plugin
         exit;
     } // }}}
 }
+
+class Minim_Routing_Exception extends Exception {}

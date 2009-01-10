@@ -15,7 +15,7 @@ class Minim_Orm_MySQL_Backend implements Minim_Orm_Backend
             {
                 $port = (array_key_exists('port', $params)) ?
                     ";port={$params['port']}" : "";
-                $dsn = "mysql:host={$param['host']}$port";
+                $dsn = "mysql:host={$params['host']}$port";
             }
             elseif (array_key_exists('unix_socket', $params))
             {

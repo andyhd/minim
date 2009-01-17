@@ -5,6 +5,7 @@ class Minim_TemplateEngine implements Minim_Plugin
     var $_def_stack;
     var $_blocks;
     var $_extends;
+    var $webroot = '/';
 
     function Minim_TemplateEngine() // {{{
     {
@@ -96,6 +97,28 @@ class Minim_TemplateEngine implements Minim_Plugin
     {
         array_push($this->_extends, $name);
     } // }}}
+
+    /**
+     * Convenience method to include a css file
+     */
+    function include_css($name)
+    {
+        $cssfile = $this->webroot.'css/'.$name.'.css';
+        echo <<<HTML
+<link rel="stylesheet" type="text/css" href="$cssfile">
+HTML;
+    }
+
+    /**
+     * Convenience method to include a js file
+     */
+    function include_js($name)
+    {
+        $jsfile = $this->webroot.'js/'.$name.'.js';
+        echo <<<HTML
+<script type="text/javascript" src="$jsfile"></script>
+HTML;
+    }
 }
 
 class Minim_TemplateEngine_Exception extends Exception {}

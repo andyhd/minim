@@ -79,7 +79,7 @@ class Minim
             if (!array_key_exists('instance', $plugin))
             {
                 require_once $plugin['file'];
-                $plugin['instance'] =& new $plugin['class'];
+                $plugin['instance'] = new $plugin['class'];
             }
             return $plugin['instance'];
         }

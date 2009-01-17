@@ -139,7 +139,7 @@ class Minim_Orm implements Minim_Plugin // {{{
 
                     $class = $m[1];
 
-                    $this->_backend =& new $class($params, $this);
+                    $this->_backend = new $class($params, $this);
 
                     // break out of loops
                     return $this->_backend;

@@ -14,7 +14,7 @@
       <tbody>
       <?php foreach ($models as $model): ?>
         <tr>
-          <td><a href="<?php echo minim('routing')->url_for('admin/model-list', array('model' => $model)) ?>"><?php echo $model ?></a></td>
+          <td><a href="<?php echo minim('routing')->url_for('admin-model-list', array('model' => $model)) ?>"><?php echo $model ?></a></td>
       <?php endforeach ?>
       </tbody>
     </table>

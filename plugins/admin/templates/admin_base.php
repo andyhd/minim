@@ -30,7 +30,7 @@
 <?php if (minim()->user()): ?>
      Logged in as <strong><?php $user = minim()->user(); echo $user['name'] ?></strong> - <a href="<?php echo minim('routing')->url_for('logout') ?>">Log out</a>
 <?php else: ?>
-     <a href="<?php echo minim('routing')->url_for('login') ?>">Log in</a> - <a href="<?php echo minim('routing')->url_for('sign-up') ?>">Sign up</a>
+     <a href="<?php echo minim('routing')->url_for('admin-login') ?>">Log in</a>
 <?php endif ?>
     </div>
     <p>Some stuff</p>
@@ -42,8 +42,8 @@
    </div>
    <div id="content">
     <ul class="subnav">
-      <li><a href="<?php echo minim('routing')->url_for('admin/default') ?>">Dashboard</a></li>
-      <li><a href="<?php echo minim('routing')->url_for('admin/models') ?>">Models</a></li>
+      <li><a href="<?php echo minim('routing')->url_for('admin-default') ?>">Dashboard</a></li>
+      <li><a href="<?php echo minim('routing')->url_for('admin-models') ?>">Models</a></li>
     </ul>
     <h1><?php $this->get('title') ?></h1>
     <ul class="messages">
@@ -52,13 +52,6 @@
     <?php endforeach ?>
     </ul>
     <?php $this->get('page_content') ?>
-   </div>
-   <div id="sub-content">
-    <ul id="navigation">
-      <li<?php if (preg_match('/home.php$/', $_SERVER['SCRIPT_NAME'])) { ?> class="current"<?php } ?>><a href="<?php echo minim('routing')->url_for('home') ?>">Home</a></li>
-      <li<?php if (preg_match('/blog.*?.php$/', $_SERVER['SCRIPT_NAME'])) { ?> class="current"<?php } ?>><a href="<?php echo minim('routing')->url_for('blog') ?>">Blog</a></li>
-    </ul>
-<?php $this->get('page_related') ?>
    </div>
    <div id="footer">
     <p>&copy; 2008 Andy Driver - powered by Minim</p>

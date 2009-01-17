@@ -27,6 +27,8 @@ class Minim_Admin implements Minim_Plugin
             ->url('^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)$')
                 ->maps_to('admin-model-edit')
             ->url('^admin/models/(?P<model>[a-zA-Z]+)$')
-                ->maps_to('admin-model-list');
+                ->maps_to('admin-model-list')
+            ->url('^admin/login$')
+                ->maps_to('admin-login');
     } // }}}
 }

@@ -3,6 +3,7 @@ class Minim_Testing implements Minim_Plugin
 {
     var $_results;
     var $_time;
+    var $_logfile;
 
     function Minim_Testing()
     {
@@ -15,6 +16,10 @@ class Minim_Testing implements Minim_Plugin
         {
             $path = getcwd();
         }
+
+        // capture error_log
+        $this->_logfile = tempnam('/tmp', 'minim_test_log_');
+        ini_set('error_log', $this->_logfile);
 
         // find all tests
         $dir = new RecursiveDirectoryIterator($path);

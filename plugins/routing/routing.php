@@ -4,12 +4,14 @@ class Minim_Router implements Minim_Plugin
     var $_routes;
     var $_views;
     var $not_found;
+    var $webroot;
 
     function Minim_Router() // {{{
     {
         $this->_routes = array();
         $this->view_paths = array();
         $this->not_found = new Minim_Route($this, '');
+        $this->webroot = '/';
     } // }}}
 
     /**
@@ -100,6 +102,9 @@ class Minim_Router implements Minim_Plugin
                 {
                     $_url .= '?'.http_build_query($_params);
                 }
+
+                error_log("URL for $_view view with params ".
+                    print_r($_params, TRUE)." is $_url");
 
                 return $_url;
             }

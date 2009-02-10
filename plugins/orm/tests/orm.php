@@ -53,13 +53,28 @@ class Minim_Orm_TestCase extends TestCase // {{{
 
     function test_model_definition_add_field() // {{{
     {
-        $manager = orm()->dummy;
+        $orm = new Minim_Orm();
+        $orm->register('blarch');
+        $manager = $orm->blarch;
         $this->assertEqual(count($manager->_fields), 0);
+        $manager->int('foo', array('auto_increment' => TRUE));
+        $count = count($manager->_fields);
+        $this->assertEqual($count, 1,
+            "Unexpected number of manager fields ($count)");
+        $this->assertEqual(get_class($manager->foo), 'Minim_Orm_Integer',
+            "Unexpected field type (".get_class($manager->foo).")");
+    } // }}}
+
+    function test_model_definition_add_custom_field() // {{{
+    {
+        $manager = orm()->dummy;
+        $this->assertEqual(count($manager->_fields), 0,
+            "Expected no defined managers");
 
         // set up test field type
         orm()->register_field_type('dummy', realpath(join(DIRECTORY_SEPARATOR,
-            array(dirname(__FILE__), 'res', 'test_field_type.php'
-        ))), 'Dummy');
+            array(dirname(__FILE__), 'res', 'test_field_type.php')
+        )), 'Dummy');
 
         $manager->dummy('dummy', array('auto_increment' => TRUE));
         $count = count($manager->_fields);
@@ -128,10 +143,19 @@ class Minim_Orm_TestCase extends TestCase // {{{
         $this->assertEqual(count($rs), 0);
     } // }}}
 
+    function test_data_object_field_validation() // {{{
+    {
+        orm()->register('quux')->int('id');
+        $quux = orm()->quux;
+        $do = $quux->create();
+        $this->assertException('Minim_Orm_Exception',
+            '$do->id = "foo!";');
+    } // }}}
+
     function test_numeric_filters() // {{{
     {
         orm()->register_field_type('num', realpath(join(DIRECTORY_SEPARATOR,
-            array(dirname(__FILE__), 'test_field_type.php'))), 'Num');
+            array(dirname(__FILE__), 'res', 'test_field_type.php'))), 'Num');
 
         $backend =& orm()->_backend;
         $backend->execute_query("CREATE TABLE num (value INTEGER)", array());

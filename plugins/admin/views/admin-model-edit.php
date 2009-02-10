@@ -1,16 +1,18 @@
 <?php
-$model_name = @$_REQUEST['model'];
+$model_name = filter_input(INPUT_GET|INPUT_POST, 'model', FILTER_SANITIZE_STRING);
 
-if (@$_REQUEST['action'] == 'new')
+$action = filter_input(INPUT_GET|INPUT_POST, 'action', FILTER_SANITIZE_STRING);
+if ($action == 'new')
 {
     $params = array();
 }
 else
 {
     $model = minim('orm')->{$model_name};
+    $id = filter_input(INPUT_GET|INPUT_POST, 'id', FILTER_SANITIZE_INT);
     if ($model)
     {
-        $model = $model->get(@$_REQUEST['id']);
+        $model = $model->get($id);
     }
     if (!$model)
     {
@@ -18,10 +20,10 @@ else
         return;
     }
 
-    if (@$_REQUEST['action'] == 'delete')
+    if ($action == 'delete')
     {
         $model->delete();
-        minim('user_messaging')->info("Deleted $model_name #{$_REQUEST['id']}");
+        minim('user_messaging')->info("Deleted $model_name #$id");
         minim('routing')->redirect('admin/model-list', array());
     }
 
@@ -34,7 +36,7 @@ $errors = NULL;
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
 {
     $data = $_POST;
-    if (@$_REQUEST['action'] == 'new')
+    if ($action == 'new')
     {
         unset($data['id']);
     }

@@ -103,6 +103,8 @@ class Minim_Router implements Minim_Plugin
                     $_url .= '?'.http_build_query($_params);
                 }
 
+                $_url = "{$this->webroot}$_url";
+
                 error_log("URL for $_view view with params ".
                     print_r($_params, TRUE)." is $_url");
 

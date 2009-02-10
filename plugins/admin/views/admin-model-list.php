@@ -1,9 +1,10 @@
 <?php
-$model_name = @$_REQUEST['model'];
+$model_name = filter_input(INPUT_GET, 'model', FILTER_SANITIZE_STRING);
 
 $model = minim('orm')->{$model_name};
 if ($model == NULL)
 {
+    minim('log')->debug("Model $model_name not found");
     minim('templates')->render_404();
 }
 
@@ -40,6 +41,7 @@ catch (Exception $e)
     }
 }
 
+minim('log')->debug('Rendering');
 minim('templates')->render('model-list', array(
     'model_name' => $model_name,
     'model_name_plural' => "{$model_name}s",

@@ -151,3 +151,9 @@ class Minim
 }
 
 interface Minim_Plugin {}
+
+function build_path()
+{
+    $args = func_get_args();
+    return realpath(join(DIRECTORY_SEPARATOR, $args));
+}

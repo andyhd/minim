@@ -16,7 +16,13 @@ class Minim_Orm implements Minim_Plugin // {{{
     function Minim_Orm() // {{{
     {
         $this->_managers = array();
-        $this->_field_types = array();
+        $this->_field_types = array(
+            'int' => array('class' => 'Minim_Orm_Integer',
+                           'file' => realpath(__FILE__)),
+            'text' => array('class' => 'Minim_Orm_Text',
+                            'file' => realpath(__FILE__))
+            // TODO - add more default field types
+        );
         $this->model_paths = array();
         $this->_backend = NULL;
         $this->backend_paths = array(
@@ -195,6 +201,7 @@ class Minim_Orm_Manager // {{{
             $this->add_field($name, $field_name, $params);
             return $this;
         }
+        return $this;
     } // }}}
 
     /**
@@ -279,7 +286,7 @@ class Minim_Orm_Manager // {{{
     /**
      * Fetch all model instances from ORM backend
      */
-    function &all() // {{{
+    function all() // {{{
     {
         return new Minim_Orm_ModelSet($this);
     } // }}}
@@ -371,6 +378,7 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
     function order_by() // {{{
     {
         $args = func_get_args();
+        error_log('order_by args:'.print_r($args, TRUE));
         foreach ($args as $arg)
         {
             preg_match('/^([-+?])([a-zA-Z0-9_]+)$/', $arg, $m);
@@ -550,6 +558,13 @@ class Minim_Orm_DataObject // {{{
             {
                 return $this->_data[$name] = $value;
             }
+            else
+            {
+                throw new Minim_Orm_Exception(
+                    "Value (".var_export($value, TRUE).") is not accepted by ".
+                    get_class($this->_manager->_fields[$name])
+                );
+            }
         }
     } // }}}
 
@@ -649,5 +664,21 @@ class Minim_Orm_QueryObject // {{{
                 break;
         }
         return $this->_modelset;
+    } // }}}
+} // }}}
+
+class Minim_Orm_Integer extends Minim_Orm_Field // {{{
+{
+    function accepts_value($value) // {{{
+    {
+        return is_int($value);
+    } // }}}
+} // }}}
+
+class Minim_Orm_Text extends Minim_Orm_Field // {{{
+{
+    function accepts_value($value) // {{{
+    {
+        return is_string($value);
     } // }}}
 } // }}}

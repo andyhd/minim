@@ -1,4 +1,4 @@
-<?php $this->extend('root') ?>
+<?php $this->extend('admin_root') ?>
 
 <?php $this->set('meta') ?>
   <link rel="shortcut icon" type="image/gif" href="<?php echo minim()->webroot ?>/images/favicon.gif">

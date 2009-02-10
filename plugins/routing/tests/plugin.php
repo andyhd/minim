@@ -38,7 +38,7 @@ class RoutingTests extends TestCase
         $this->assertEqual(1, count($this->router->_routes));
 
         $url = $this->router->url_for('foo');
-        $this->assertEqual('foo', $url);
+        $this->assertEqual('/foo', $url);
     }
 
     function test_url_missing()
@@ -55,7 +55,7 @@ class RoutingTests extends TestCase
         $this->assertEqual('42', $route->params['id']);
 
         $url = $this->router->url_for('foo', array('id' => 99));
-        $this->assertEqual('foo/99', $url);
+        $this->assertEqual('/foo/99', $url);
 
         $this->assertException('Minim_Router_Exception',
             '$this->router->url_for("foo");');

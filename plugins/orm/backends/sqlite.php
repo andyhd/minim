@@ -103,7 +103,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
     function count_dataobjects(&$modelset) // {{{
     {
         list($query, $params) = $this->build_count_query($modelset);
-        $s =& $this->execute_query($query, $params);
+        $s = $this->execute_query($query, $params);
         $row = $s->fetch();
         if (!($count = @$row['_total']))
         {

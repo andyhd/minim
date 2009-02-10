@@ -1,7 +1,7 @@
 <?php
 class Minim_TemplateEngine implements Minim_Plugin 
 {
-    var $_template_paths;
+    var $template_paths;
     var $_def_stack;
     var $_blocks;
     var $_extends;

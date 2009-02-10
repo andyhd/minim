@@ -6,16 +6,17 @@ class Minim_Admin implements Minim_Plugin
     function Minim_Admin() // {{{
     {
         $this->root = realpath(dirname(__FILE__));
+    } // }}} 
+
+    function enable() // {{{
+    {
         minim('templates')->add_template_path(join(DIRECTORY_SEPARATOR,
             array($this->root, "templates")
         ));
         minim('routing')->view_paths[] = join(DIRECTORY_SEPARATOR, array(
             $this->root,'views'
         ));
-    } // }}} 
 
-    function enable() // {{{
-    {
         // set up admin urls
         minim('routing')
             ->url('^admin$')

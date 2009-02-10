@@ -187,7 +187,16 @@ class TestCase // {{{
     function assertOutput($a, $msg=NULL) // {{{
     {
         $this->assertEqual($a, ob_get_contents(), $msg);
-        ob_clean();
+    } // }}}
+
+    function assertOutputContains($a, $msg=NULL) // {{{
+    {
+        $this->assertTrue(strpos($a, ob_get_contents()) >= 0, $msg);
+    } // }}}
+
+    function assertOutputMatches($a, $msg=NULL) // {{{
+    {
+        $this->assertTrue(preg_match($a, ob_get_contents()), $msg);
     } // }}}
 
     function run() // {{{

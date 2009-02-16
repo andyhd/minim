@@ -1,7 +1,7 @@
 <?php
-$model_name = filter_input(INPUT_GET|INPUT_POST, 'model', FILTER_SANITIZE_STRING);
+$model_name = $_REQUEST['model'];
 
-$action = filter_input(INPUT_GET|INPUT_POST, 'action', FILTER_SANITIZE_STRING);
+$action = @$_REQUEST['action'];
 if ($action == 'new')
 {
     $params = array();
@@ -9,10 +9,10 @@ if ($action == 'new')
 else
 {
     $model = minim('orm')->{$model_name};
-    $id = filter_input(INPUT_GET|INPUT_POST, 'id', FILTER_SANITIZE_INT);
+    $id = $_REQUEST['id'];
     if ($model)
     {
-        $model = $model->get($id);
+        $model = $model->get(array('id' => $id));
     }
     if (!$model)
     {

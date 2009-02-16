@@ -64,9 +64,22 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
             }
             $criteria .= "$key = :$key";
         }
+        if (!$criteria)
+        {
+            throw new Minim_Orm_Exception("Missing criteria in {$manager->_model}->get()");
+        }
         $sql = sprintf('SELECT * FROM %s WHERE %s',
             $manager->_db_table, $criteria);
-        $sth = $this->_db->prepare($sql);
+        try
+        {
+            $sth = $this->_db->prepare($sql);
+        }
+        catch (PDOException $e)
+        {
+            throw new Minim_Orm_Exception(
+                "PDO Error preparing query: $sql\n".$e->getMessage()
+            );
+        }
         $values = array_combine(
             preg_replace('/^/', ':', array_keys($params)),
             array_values($params)

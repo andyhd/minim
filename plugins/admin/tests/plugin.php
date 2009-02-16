@@ -65,4 +65,26 @@ class Minim_Admin_TestCase extends TestCase
         minim('routing')->route_request();
         $this->assertOutputContains("/admin/model/$model/1");
     }
+
+    function test_admin_model_edit()
+    {
+        minim('admin')->enable();
+
+        $orm = minim('orm');
+        $orm->set_backend('sqlite', array('database' => ':memory:'));
+        $orm->_backend->execute_query('CREATE TABLE baz (id INT);', array());
+        $orm->register('baz')->int('id');
+
+        // save a test model
+        $baz = minim('orm')->baz;
+        $baz->create(array('id' => 1))->save();
+        $this->assertEqual(1, $baz->get(array('id' => 1))->id);
+
+        // request the model edit page
+        $GLOBALS['_SERVER'] = array(
+            'REQUEST_URI' => 'http://localhost/admin/models/baz/1'
+        );
+        minim('routing')->route_request();
+        $this->assertOutputContains('flobadob');
+    }
 }

@@ -148,8 +148,19 @@ class Minim_Orm_TestCase extends TestCase // {{{
         orm()->register('quux')->int('id');
         $quux = orm()->quux;
         $do = $quux->create();
-        $this->assertException('Minim_Orm_Exception',
-            '$do->id = "foo!";');
+        $do->id = 1;
+        $this->assertEqual(1, $do->id);
+        $except = FALSE;
+        try
+        {
+            $do->id = 'foo!';
+        }
+        catch (Minim_Orm_Exception $e)
+        {
+            $except = TRUE;
+        }
+        $this->assertTrue($except,
+            'Expected exception, got none');
     } // }}}
 
     function test_numeric_filters() // {{{

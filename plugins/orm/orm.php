@@ -141,7 +141,7 @@ class Minim_Orm implements Minim_Plugin // {{{
                     and $type == substr($file->getFilename(), 0, -4)
                     and preg_match($pattern, file_get_contents($filename), $m))
                 {
-                    include $filename;
+                    require_once $filename;
 
                     $class = $m[1];
 
@@ -193,9 +193,17 @@ class Minim_Orm_Manager // {{{
     {
         if (array_key_exists($name, $this->_orm->_field_types))
         {
-            list($field_name, $params) = $args;
-            if (is_null($params))
+            if (count($args) > 1)
             {
+                list($field_name, $params) = $args;
+                if (is_null($params))
+                {
+                    $params = array();
+                }
+            }
+            else
+            {
+                $field_name = $args[0];
                 $params = array();
             }
             $this->add_field($name, $field_name, $params);
@@ -671,7 +679,7 @@ class Minim_Orm_Integer extends Minim_Orm_Field // {{{
 {
     function accepts_value($value) // {{{
     {
-        return is_int($value);
+        return is_numeric($value) and ''.((int)$value) == "$value";
     } // }}}
 } // }}}
 

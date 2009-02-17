@@ -52,15 +52,40 @@ class Minim_Form // {{{
                 $args = array();
                 if ($have_data)
                 {
+                    // get initial value for field
                     $args['initial'] = $params['instance']->$name;
+
+                    // is field required? !blank & not_null 
+                    if (!$field->attr('blank') and $field->attr('not_null'))
+                    {
+                        $args['required'] = TRUE;
+                    }
+
+                    // read only?
+                    if ($field->attr('read_only'))
+                    {
+                        $args['read_only'] = TRUE;
+                    }
+
+                    if ($field->attr('max_length'))
+                    {
+                        $args['max_length'] = $field->attr('max_length');
+                    }
                 }
+
+                if ($field->attr('primary_key'))
+                {
+                    // don't show primary key field
+                    $this->hiddenField($name, $args);
+                    continue;
+                }
+
                 switch ($field->_type)
                 {
                     case 'timestamp':
                         if (!$field->attr('read_only'))
                         {
                             $this->dateField($name, $args);
-                            break; // fallthru if read-only
                         }
                         else
                         {
@@ -70,7 +95,7 @@ class Minim_Form // {{{
                     case 'text':
                         if (!$field->attr('read_only'))
                         {
-                            if (!$field->attr('maxlength'))
+                            if (!$field->attr('max_length'))
                             {
                                 $this->textArea($name, $args);
                             }
@@ -320,10 +345,21 @@ PHP;
 
 class Minim_Text extends Minim_Input // {{{
 {
+    function __construct($name, $params)
+    {
+        parent::__construct($name, $params);
+        $this->_maxlen = @$params['max_length'];
+    }
+
     function render()
     {
+        $maxlen = '';
+        if ($this->_maxlen)
+        {
+            $maxlen = ' maxlen="'.$this->_maxlen.'"';
+        }
         return <<<PHP
-<input id="{$this->_id}" type="text" name="{$this->_name}" value="{$this->getValue()}"{$this->_class}>
+<input id="{$this->_id}" type="text" name="{$this->_name}" value="{$this->getValue()}"{$this->_class}$maxlen>
 PHP;
     }
 } // }}}

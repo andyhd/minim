@@ -83,7 +83,10 @@ class Minim
             }
             return $plugin['instance'];
         }
-        throw new Exception("Plugin $plugin not found: ".print_r($this->_plugins, TRUE));
+        throw new Minim_Exception(
+            "Plugin $plugin not found: ".
+            print_r(array_keys($this->_plugins), TRUE)
+        );
     } // }}}
 
     // path methods
@@ -151,6 +154,8 @@ class Minim
 }
 
 interface Minim_Plugin {}
+
+class Minim_Exception extends Exception {}
 
 function build_path()
 {

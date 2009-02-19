@@ -10,10 +10,51 @@ class Minim_New_Forms implements Minim_Plugin // {{{
 class Minim_Form // {{{
 {
     var $_fields;
+    var $submit_url;
+    var $method;
+    var $attrs;
 
-    function Minim_Form() // {{{
+    function Minim_Form($action='', $method='POST', $attrs=array()) // {{{
     {
+        $this->submit_url = $action;
+        $this->method = $method;
+        $this->attrs = $attrs;
         $this->_fields = array();
+    } // }}}
+
+    /**
+     * Check for form data matching this form's fields in the request
+     */
+    function was_submitted() // {{{
+    {
+        $data = $GLOBALS["_{$this->method}"];
+        if (!$data)
+        {
+            return FALSE;
+        }
+        $fields_missing = FALSE;
+        $submission = array();
+        foreach ($this->_fields as $field)
+        {
+            if (!array_key_exists($field->name, $data))
+            {
+                return FALSE;
+            }
+            $submission[$field->name] = $data[$field->name];
+        }
+        $this->populate($submission);
+        return TRUE;
+    } // }}}
+
+    /**
+     * Set a form's values to those in the specified array
+     */
+    function populate($data) // {{{
+    {
+        foreach ($this->_fields as $field)
+        {
+            $field->value = $data[$field->name];
+        }
     } // }}}
 
     function __call($name, $params) // {{{

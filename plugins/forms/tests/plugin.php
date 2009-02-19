@@ -38,4 +38,19 @@ class Minim_Forms_TestCase extends TestCase // {{{
         $this->assertTrue(strstr($out, '<input type="text" name="title"'),
             "Form field 'title' not found in form render output");
     } // }}}
+
+    function test_form_submit() // {{{
+    {
+        $form = forms()->create();
+        $form->text('title');
+        $GLOBALS['_POST'] = array(
+            'title' => 'foo'
+        );
+        $this->assertTrue($form->was_submitted(),
+            "Form data not found in \$_REQUEST");
+        $this->assertEqual('foo', $form->title->value,
+            "Submitted form field 'title' value mismatch: ".
+            $form->title->value." != 'foo'");
+        error_log(print_r($form, TRUE));
+    } // }}}
 } // }}}

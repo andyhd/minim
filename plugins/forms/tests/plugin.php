@@ -22,9 +22,20 @@ class Minim_Forms_TestCase extends TestCase // {{{
         $form->text('title');
         $this->assertEqual(1, count($form->_fields),
             "Form should have one text field, found nothing");
-        $this->assertEqual('text', $form->_fields['title']['type'],
+        $this->assertEqual('text', $form->_fields['title']->type,
             "Form field 'title' should have type 'text'");
-        $this->assertEqual('text', $form->title['type'],
+        $this->assertEqual('text', $form->title->type,
             "Form field accessor for 'title' should have type 'text'");
+    } // }}}
+
+    function test_form_render() // {{{
+    {
+        $form = forms()->create();
+        $form->text('title');
+        $out = $form->render();
+        $this->assertTrue(strstr($out, '<form method='),
+            "Form tag not found in form render output");
+        $this->assertTrue(strstr($out, '<input type="text" name="title"'),
+            "Form field 'title' not found in form render output");
     } // }}}
 } // }}}

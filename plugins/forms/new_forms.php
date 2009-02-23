@@ -47,6 +47,21 @@ class Minim_Form // {{{
     } // }}}
 
     /**
+     * Validate form submission
+     */
+    function is_valid() // {{{
+    {
+        foreach ($this->_fields as &$field)
+        {
+            if (!$field->is_valid())
+            {
+                return FALSE;
+            }
+        }
+        return TRUE;
+    } // }}}
+
+    /**
      * Set a form's values to those in the specified array
      */
     function populate($data) // {{{
@@ -62,8 +77,9 @@ class Minim_Form // {{{
         if ($name == 'text')
         {
             $field_name = array_shift($params);
+            $params = array_shift($params);
             $this->_fields[$field_name] = new Minim_Form_Field(
-                $field_name, 'text', $params
+                $field_name, 'text', $this, $params
             );
         }
     } // }}}
@@ -100,16 +116,18 @@ class Minim_Form_Field // {{{
     var $help;
     var $value;
     var $initial_value;
+    var $form;
 
-    function __construct($name, $type, $params=array()) // {{{
+    function __construct($name, $type, $form, $params=array()) // {{{
     {
         $this->name = $name;
         $this->type = $type;
+        $this->form = $form;
         foreach (array('label', 'help', 'value', 'initial_value') as $var)
         {
             $this->$var = @$params[$var] ? $params[$var] : '';
         }
-        
+        $this->_validation_method = @$params['validate'];
     } // }}}
 
     function render_label() // {{{
@@ -150,5 +168,15 @@ HTML;
     {$help}
 </div>
 HTML;
+    } // }}}
+
+    function is_valid() // {{{
+    {
+        $validate = $this->_validation_method;
+        if ($validate)
+        {
+            return $validate($this);
+        }
+        return TRUE;
     } // }}}
 } // }}}

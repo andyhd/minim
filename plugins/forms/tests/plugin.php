@@ -53,4 +53,27 @@ class Minim_Forms_TestCase extends TestCase // {{{
             $form->title->value." != 'foo'");
         error_log(print_r($form, TRUE));
     } // }}}
+
+    function test_form_validation() // {{{
+    {
+        $form = forms()->create();
+        $form->text('title', array(
+            'validate' => create_function(
+                '$field',
+                'return $field->value == "foo";'
+            )
+        ));
+        $GLOBALS['_POST'] = array(
+            'title' => 'foo'
+        );
+        $form->was_submitted();
+        $this->assertTrue($form->is_valid(),
+            "Validation failed unexpectedly");
+        $GLOBALS['_POST'] = array(
+            'title' => 'bar'
+        );
+        $form->was_submitted();
+        $this->assertTrue(!$form->is_valid(),
+            "Validation passed unexpectedly");
+    } // }}}
 } // }}}

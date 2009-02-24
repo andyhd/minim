@@ -76,4 +76,16 @@ class Minim_Forms_TestCase extends TestCase // {{{
         $this->assertTrue(!$form->is_valid(),
             "Validation passed unexpectedly");
     } // }}}
+
+    function test_form_from_model() // {{{
+    {
+        $manager = minim('orm')->register('dummy');
+        $manager->int('foo')
+                ->text('bar');
+        $this->assertEqual(2, count($manager->_fields),
+            "Manager should have 2 fields");
+        $form = forms()->from_model('dummy');
+        $this->assertEqual(2, count($form->_fields),
+            "Form should have 2 fields");
+    } // }}}
 } // }}}

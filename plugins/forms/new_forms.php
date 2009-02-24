@@ -5,6 +5,37 @@ class Minim_New_Forms implements Minim_Plugin // {{{
     {
         return new Minim_Form();
     } // }}}
+
+    function from_model($manager, $model=NULL) // {{{
+    {
+        $form = new Minim_Form();
+        try
+        {
+            $manager = minim('orm')->$manager;
+        }
+        catch (Minim_Orm_Exception $e)
+        {
+            throw new Minim_Forms_Exception(
+                "Cannot create form from non-existant model $manager");
+        }
+        foreach ($manager->_fields as $name => $field)
+        {
+            # try to get a widget for the form field:
+            # 1. see if there's a suggested widget in the model field
+            # 2. if not, go with a default text field
+            # widgets can be overridden later
+            $widget = 'text';
+            if ($field->widget)
+            {
+                $widget = $field->widget;
+            }
+
+            # add a form field
+            $form->$widget($name);
+        }
+        error_log(print_r($form, TRUE));
+        return $form;
+    } // }}}
 } // }}}
 
 class Minim_Form // {{{

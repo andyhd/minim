@@ -1,14 +1,47 @@
 <?php
 class Minim_New_Forms implements Minim_Plugin // {{{
 {
+    var $_widget_types;
+    var $widget_paths;
+
+    function Minim_New_Forms() // {{{
+    {
+        $file = realpath(__FILE__);
+        $this->_widget_types = array(
+            'text' => array('class' => 'Minim_Form_Field',
+                            'file' => $file),
+            'textarea' => array('class' => 'Minim_Form_TextArea',
+                                'file' => $file),
+            'select' => array('class' => 'Minim_Form_Select',
+                              'file' => $file),
+            'radio' => array('class' => 'Minim_Form_RadioGroup',
+                             'file' => $file),
+            'checkbox' => array('class' => 'Minim_Form_CheckBox',
+                                'file' => $file)
+            // TODO - add more default widgets
+        );
+        $this->widget_paths = array();
+    } // }}}
+
+    /**
+     * Register a widget type 
+     */
+    function register_widget_type($type, $file, $class_name) // {{{
+    {
+        $this->_widget_types[$type] = array(
+            'file' => $file,
+            'class' => $class_name
+        );
+    } // }}}
+
     function create() // {{{
     {
-        return new Minim_Form();
+        return new Minim_Form($this);
     } // }}}
 
     function from_model($manager, $model=NULL) // {{{
     {
-        $form = new Minim_Form();
+        $form = new Minim_Form($this);
         try
         {
             $manager = minim('orm')->$manager;
@@ -31,6 +64,7 @@ class Minim_New_Forms implements Minim_Plugin // {{{
             }
 
             # add a form field
+            # TODO - add field params as argument
             $form->$widget($name);
         }
         error_log(print_r($form, TRUE));
@@ -40,13 +74,15 @@ class Minim_New_Forms implements Minim_Plugin // {{{
 
 class Minim_Form // {{{
 {
+    var $_forms;
     var $_fields;
     var $submit_url;
     var $method;
     var $attrs;
 
-    function Minim_Form($action='', $method='POST', $attrs=array()) // {{{
+    function Minim_Form(&$fo, $action='', $method='POST', $attrs=array()) // {{{
     {
+        $this->_forms =& $fo;
         $this->submit_url = $action;
         $this->method = $method;
         $this->attrs = $attrs;
@@ -59,6 +95,7 @@ class Minim_Form // {{{
     function was_submitted() // {{{
     {
         $data = $GLOBALS["_{$this->method}"];
+        
         if (!$data)
         {
             return FALSE;
@@ -103,15 +140,44 @@ class Minim_Form // {{{
         }
     } // }}}
 
-    function __call($name, $params) // {{{
+    /**
+     * Enable syntactic sugar for adding fields to a form.
+     */
+    function &__call($name, $params) // {{{
     {
-        if ($name == 'text')
+        if (array_key_exists($name, $this->_forms->_widget_types))
         {
             $field_name = array_shift($params);
             $params = array_shift($params);
-            $this->_fields[$field_name] = new Minim_Form_Field(
-                $field_name, 'text', $this, $params
-            );
+            if (!$params)
+            {
+                $params = array();
+            }
+            $this->add_field($name, $field_name, $params);
+        }
+        return $this;
+    } // }}}
+
+    /**
+     * Add a field to a form
+     */
+    function add_field($widget, $name, $params) // {{{
+    {
+        $widgets = $this->_forms->_widget_types;
+        if (array_key_exists($widget, $widgets))
+        {
+            // check class loaded
+            if (!class_exists($widgets[$widget]['class']))
+            {
+                require_once $widgets[$widget]['file'];
+            }
+
+            // instantiate widget object
+            $params = array_merge($params, array(
+                'form' => &$this,
+                'name' => $name
+            ));
+            $this->_fields[$name] = new $widgets[$widget]['class']($params);
         }
     } // }}}
 
@@ -149,11 +215,11 @@ class Minim_Form_Field // {{{
     var $initial_value;
     var $form;
 
-    function __construct($name, $type, $form, $params=array()) // {{{
+    function __construct($params=array()) // {{{
     {
-        $this->name = $name;
-        $this->type = $type;
-        $this->form = $form;
+        $this->name = $params['name'];
+        $this->type = 'text';
+        $this->form =& $params['form'];
         foreach (array('label', 'help', 'value', 'initial_value') as $var)
         {
             $this->$var = @$params[$var] ? $params[$var] : '';

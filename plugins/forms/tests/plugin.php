@@ -47,7 +47,7 @@ class Minim_Forms_TestCase extends TestCase // {{{
             'title' => 'foo'
         );
         $this->assertTrue($form->was_submitted(),
-            "Form data not found in \$_REQUEST");
+            "Form data not found in request");
         $this->assertEqual('foo', $form->title->value,
             "Submitted form field 'title' value mismatch: ".
             $form->title->value." != 'foo'");

@@ -18,8 +18,9 @@ class Minim_Testing implements Minim_Plugin
         }
 
         // capture error_log
-        $this->_logfile = tempnam('/tmp', 'minim_test_log_');
+        $this->_logfile = '/tmp/minim_test_log_'.date('Ymd');
         ini_set('error_log', $this->_logfile);
+        error_log("Test run started ".str_repeat('-', 40));
 
         // find all tests
         $dir = new RecursiveDirectoryIterator($path);

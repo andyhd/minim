@@ -2,6 +2,8 @@
 class Minim_TemplateEngine implements Minim_Plugin 
 {
     var $template_paths;
+    var $helper_paths;
+    var $_helpers;
     var $_def_stack;
     var $_blocks;
     var $_extends;
@@ -10,9 +12,11 @@ class Minim_TemplateEngine implements Minim_Plugin
     function Minim_TemplateEngine() // {{{
     {
         $this->template_paths = array();
+        $this->helper_paths = array();
         $this->_def_stack = array();
         $this->_blocks = array();
         $this->_extends = array();
+        $this->_helpers = array();
     } // }}}
 
     function add_template_path($path) // {{{
@@ -118,6 +122,41 @@ HTML;
         echo <<<HTML
 <script type="text/javascript" src="$jsfile"></script>
 HTML;
+    }
+
+    /**
+     * Load a helper function
+     */
+    function load_helper($name) // {{{
+    {
+        if (array_key_exists($name, $this->_helpers))
+        {
+            return;
+        }
+        $pat = '/function '.$name.'/m';
+        foreach ($this->helper_paths as $path)
+        {
+            $content = file_get_contents($path);
+            if (preg_match($pat, $content))
+            {
+                require_once $path;
+                $this->_helpers[$name] = $name;
+                return;
+            }
+        }
+        throw new Minim_TemplateEngine_Exception(
+            "Helper $name not found");
+    } // }}}
+
+    /**
+     * Call loaded helper functions
+     */
+    function __call($name, $args)
+    {
+        if (array_key_exists($name, $this->_helpers))
+        {
+            return call_user_func_array($this->_helpers[$name], $args);
+        }
     }
 }
 

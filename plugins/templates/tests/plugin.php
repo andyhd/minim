@@ -56,4 +56,19 @@ class Minim_TemplateEngine_TestCase extends TestCase
         tmpl()->render('extender');
         $this->assertOutput("extender extends base");
     } // }}}
+
+    function test_load_helper() // {{{
+    {
+        $tmpl = new Minim_TemplateEngine();
+        $this->assertEqual(0, count($tmpl->helper_paths));
+        $tmpl->helper_paths[] = join(DIRECTORY_SEPARATOR, array(
+            dirname(__FILE__), 'res', 'test_helper.php'
+        ));
+        $tmpl->load_helper('test_helper');
+        $this->assertEqual(1, count($tmpl->_helpers),
+            "Expected 1 helper loaded");
+        $ok = $tmpl->test_helper();
+        $this->assertEqual('test ok', $ok,
+            "Test helper returned unexpected value $ok");
+    } // }}}
 }

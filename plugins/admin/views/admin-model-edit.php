@@ -4,7 +4,7 @@ $model_name = $_REQUEST['model'];
 $action = @$_REQUEST['action'];
 if ($action == 'new')
 {
-    $params = array();
+    $params = NULL;
 }
 else
 {
@@ -27,10 +27,10 @@ else
         minim('routing')->redirect('admin/model-list', array());
     }
 
-    $params = array('instance' => $model);
+    $params = $model;
 }
 
-$form = minim('forms')->form($model_name, $params);
+$form = minim('new_forms')->from_model($model_name, $params);
 
 $errors = NULL;
 if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')

@@ -10,10 +10,7 @@
     </ul>
 <?php endif ?>
 <?php foreach ($form->_fields as $field => $val): ?>
-    <div class="form-row">
-      <?php echo $form->$field->label ?>
-      <?php echo $form->$field->render() ?>
-    </div>
+    <?php echo $form->$field->render_as_div() ?>
 <?php endforeach ?>
     <div class="form-row">
       <input type="submit" class="submit" value="Save">

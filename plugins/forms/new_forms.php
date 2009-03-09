@@ -58,14 +58,16 @@ class Minim_New_Forms implements Minim_Plugin // {{{
             # 2. if not, go with a default text field
             # widgets can be overridden later
             $widget = 'text';
-            if ($field->widget)
+            if (isset($field->widget) and $field->widget)
             {
                 $widget = $field->widget;
             }
 
             # add a form field
             # TODO - add field params as argument
-            $form->$widget($name);
+            $form->$widget($name, array(
+                'label' => ucfirst($name)
+            ));
         }
         error_log(print_r($form, TRUE));
         return $form;

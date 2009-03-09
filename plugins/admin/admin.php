@@ -10,12 +10,21 @@ class Minim_Admin implements Minim_Plugin
 
     function enable() // {{{
     {
-        minim('templates')->add_template_path(join(DIRECTORY_SEPARATOR,
-            array($this->root, "templates")
+        $dir = dirname(__FILE__);
+        minim('routing')->view_paths[] = build_path(
+            $dir, 'views'
+        );
+        minim('templates')->add_template_path(build_path(
+            $dir, 'templates'
         ));
-        minim('routing')->view_paths[] = join(DIRECTORY_SEPARATOR, array(
-            $this->root,'views'
-        ));
+
+        // point to routing and pagination helpers
+        minim('templates')->helper_paths[] = build_path(
+            minim('routing')->plugin_path, 'helpers.php'
+        );
+        minim('templates')->helper_paths[] = build_path(
+            minim('pagination')->plugin_path, 'helpers.php'
+        );
 
         // set up admin urls
         minim('routing')
@@ -23,9 +32,11 @@ class Minim_Admin implements Minim_Plugin
                 ->maps_to('admin-default')
             ->url('^admin/models$')
                 ->maps_to('admin-models')
-            ->url('^admin/models/(?P<model>[a-zA-Z]+)/(?P<action>new|delete)$')
+            ->url('^admin/models/(?P<model>[a-zA-Z]+)/(?P<action>new)$')
                 ->maps_to('admin-model-edit')
             ->url('^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)$')
+                ->maps_to('admin-model-edit')
+            ->url('^admin/models/(?P<model>[a-zA-Z]+)/(?P<id>\d+)/(?P<action>delete)$')
                 ->maps_to('admin-model-edit')
             ->url('^admin/models/(?P<model>[a-zA-Z]+)$')
                 ->maps_to('admin-model-list')

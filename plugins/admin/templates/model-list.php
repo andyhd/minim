@@ -1,11 +1,11 @@
 <?php $this->extend('admin_base') ?>
 
-<?php require_once minim()->lib('helpers') ?>
+<?php $this->load_helpers('url_for', 'paginate') ?>
 
 <?php $this->set('title') ?><?php echo $model_name_plural ?><?php $this->end() ?>
 
 <?php $this->set('page_content') ?>
-    <a href="<?php echo minim('routing')->url_for('admin/model-edit:new', array('model' => $model_name)) ?>">Add new <?php echo $model_name ?></a>
+    <a href="<?php echo url_for('admin-model-edit', array('model' => $model_name, 'action' => 'new')) ?>">Add new <?php echo $model_name ?></a>
     <table class="model_list">
       <thead>
         <tr>
@@ -61,11 +61,11 @@ foreach ($model_fields as $field)
 }
 echo $row;
 ?>
-          <td><a href="<?php echo minim('routing')->url_for('admin/model-edit', array('model' => $model_name, 'id' => $model->id)) ?>" class="edit-link">Edit</a></td>
-          <td><a href="<?php echo minim('routing')->url_for('admin/model-edit:delete', array('model' => $model_name, 'id' => $model->id)) ?>" class="delete-link">Delete</a></td>
+          <td><a href="<?php echo url_for('admin-model-edit', array('model' => $model_name, 'id' => $model->id)) ?>" class="edit-link">Edit</a></td>
+          <td><a href="<?php echo url_for('admin-model-edit', array('model' => $model_name, 'action' => $model->id)) ?>" class="delete-link">Delete</a></td>
         </tr>
         <?php endforeach ?>
       </tbody>
     </table>
-    <?php echo minim('pagination')->paginate($models) ?>
+    <?php echo paginate($models) ?>
 <?php $this->end() ?>

@@ -1,18 +1,14 @@
 <?php
-$model_name = filter_input(INPUT_GET, 'model', FILTER_SANITIZE_STRING);
+$model_name = $_GET['model'];
 
 $model = minim('orm')->{$model_name};
 if ($model == NULL)
 {
-    minim('log')->debug("Model $model_name not found");
+    error_log("Model $model_name not found");
     minim('templates')->render_404();
 }
 
 $models = $model->all();
-if ($model->default_sort())
-{
-    $models->order_by($model->default_sort());
-}
 
 function paginator(&$models, $model_name)
 {
@@ -41,7 +37,6 @@ catch (Exception $e)
     }
 }
 
-minim('log')->debug('Rendering');
 minim('templates')->render('model-list', array(
     'model_name' => $model_name,
     'model_name_plural' => "{$model_name}s",

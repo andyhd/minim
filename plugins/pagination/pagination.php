@@ -7,9 +7,11 @@ class Minim_Paginator implements Minim_Plugin, Iterator, Countable
     var $max_page;
     var $url;
     var $url_params;
+    var $plugin_path;
 
     function Minim_Paginator() // {{{
     {
+        $this->plugin_path = dirname(__FILE__);
         $this->source = NULL;
         $this->url = NULL;
         $this->url_params = array();

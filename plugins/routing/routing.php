@@ -5,6 +5,7 @@ class Minim_Router implements Minim_Plugin
     var $_views;
     var $not_found;
     var $webroot;
+    var $plugin_path;
 
     function Minim_Router() // {{{
     {
@@ -12,6 +13,7 @@ class Minim_Router implements Minim_Plugin
         $this->view_paths = array();
         $this->not_found = new Minim_Route($this, '');
         $this->webroot = '/';
+        $this->plugin_path = dirname(__FILE__);
     } // }}}
 
     /**

@@ -8,6 +8,7 @@ class Minim_TemplateEngine implements Minim_Plugin
     var $_blocks;
     var $_extends;
     var $webroot = '/';
+    var $plugin_path;
 
     function Minim_TemplateEngine() // {{{
     {
@@ -17,6 +18,7 @@ class Minim_TemplateEngine implements Minim_Plugin
         $this->_blocks = array();
         $this->_extends = array();
         $this->_helpers = array();
+        $this->plugin_path = dirname(__FILE__);
     } // }}}
 
     function add_template_path($path) // {{{
@@ -29,6 +31,7 @@ class Minim_TemplateEngine implements Minim_Plugin
      */
     function render($_template, $_context=array()) // {{{
     {
+        error_log("Rendering $_template template");
         $_template_file = $this->_find_template($_template);
         if (!$_template_file)
         {
@@ -146,6 +149,14 @@ HTML;
         }
         throw new Minim_TemplateEngine_Exception(
             "Helper $name not found");
+    } // }}}
+
+    function load_helpers() // {{{
+    {
+        foreach (func_get_args() as $arg)
+        {
+            $this->load_helper($arg);
+        }
     } // }}}
 
     /**

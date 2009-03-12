@@ -4,7 +4,7 @@
  *
  * Keeps track of model Managers, model field types and backends.
  */
-class Minim_Orm implements Minim_Plugin // {{{
+class Minim_Orm implements Minim_Plugin
 {
 
     var $_managers;
@@ -13,7 +13,7 @@ class Minim_Orm implements Minim_Plugin // {{{
     var $_backend;
     var $backend_paths;
     
-    function Minim_Orm() // {{{
+    function Minim_Orm()
     {
         $this->_managers = array();
         $this->_field_types = array(
@@ -30,7 +30,7 @@ class Minim_Orm implements Minim_Plugin // {{{
                 dirname(__FILE__), 'backends'
             )))
         );
-    } // }}}
+    }
 
     /**
      * Register a model if it isn't already and return a reference to it's
@@ -38,7 +38,7 @@ class Minim_Orm implements Minim_Plugin // {{{
      *
      * @param string $name Name of model to register
      */
-    function &register($name) // {{{
+    function &register($name)
     {
         if (array_key_exists($name, $this->_managers))
         {
@@ -46,13 +46,13 @@ class Minim_Orm implements Minim_Plugin // {{{
         }
         $this->_managers[$name] = new Minim_Orm_Manager($name, $this);
         return $this->_managers[$name];
-    } // }}}
+    }
 
     /**
      * Get a reference to the Manager for the named model.
      * Managers are lazy-loaded.
      */
-    function &__get($name) // {{{
+    function &__get($name)
     {
         if (!array_key_exists($name, $this->_managers))
         {
@@ -63,12 +63,12 @@ class Minim_Orm implements Minim_Plugin // {{{
             }
         }
         return $this->_managers[$name];
-    } // }}}
+    }
 
     /**
      * Load definition for named model.
      */
-    function _load_model_definition($name) // {{{
+    function _load_model_definition($name)
     {
         static $already_included = array();
 
@@ -105,24 +105,24 @@ class Minim_Orm implements Minim_Plugin // {{{
 
         // we didn't find the definition
         return FALSE;
-    } // }}}
+    }
 
     /**
      * Register a field type
      */
-    function register_field_type($type, $file, $class_name) // {{{
+    function register_field_type($type, $file, $class_name)
     {
         $this->_field_types[$type] = array(
             'file' => $file,
             'class' => $class_name
         );
-    } // }}}
+    }
 
     /**
      * Set the backend for the ORM, eg: MySQL DB, SQLite DB, etc
      * Return FALSE on failure
      */
-    function &set_backend($type, $params) // {{{
+    function &set_backend($type, $params)
     {
         // do not load a second backend
         if ($this->_backend)
@@ -155,8 +155,8 @@ class Minim_Orm implements Minim_Plugin // {{{
 
         // we didn't find the backend
         return FALSE;
-    } // }}}
-} // }}}
+    }
+}
 
 interface Minim_Orm_Backend {}
 
@@ -168,7 +168,7 @@ class Minim_Orm_Exception extends Exception {}
  * Primary interface with models. Provides model definition and manipulation
  * methods.
  */
-class Minim_Orm_Manager // {{{
+class Minim_Orm_Manager
 {
 
     var $_orm;
@@ -177,19 +177,19 @@ class Minim_Orm_Manager // {{{
     var $_fields;
     var $_sorting;
 
-    function Minim_Orm_Manager($name, &$orm) // {{{
+    function Minim_Orm_Manager($name, &$orm)
     {
         $this->_model = $name;
         $this->_orm =& $orm;
         $this->_db_table = strtolower($name);
         $this->_fields = array();
         $this->_sorting = array();
-    } // }}}
+    }
 
     /**
      * Enable syntactic sugar for adding fields to model.
      */
-    function &__call($name, $args) // {{{
+    function &__call($name, $args)
     {
         if (array_key_exists($name, $this->_orm->_field_types))
         {
@@ -210,12 +210,12 @@ class Minim_Orm_Manager // {{{
             return $this;
         }
         return $this;
-    } // }}}
+    }
 
     /**
      * Add a field definition to a model
      */
-    function add_field($type, $name, $params) // {{{
+    function add_field($type, $name, $params)
     {
         $types = $this->_orm->_field_types;
         if (array_key_exists($type, $types))
@@ -233,23 +233,23 @@ class Minim_Orm_Manager // {{{
             );
             $this->_fields[$name] = new $types[$type]['class']($params);
         }
-    } // }}}
+    }
 
     /**
      * Enable syntactic sugar for access fields by name
      */
-    function __get($name) // {{{
+    function __get($name)
     {
         if (array_key_exists($name, $this->_fields))
         {
             return $this->_fields[$name];
         }
-    } // }}}
+    }
 
     /**
      * Create a new DataObject instance based on this model
      */
-    function &create($data=array()) // {{{
+    function &create($data=array())
     {
         $instance = new Minim_Orm_DataObject($this);
 
@@ -265,71 +265,75 @@ class Minim_Orm_Manager // {{{
         }
 
         return $instance;
-    } // }}}
+    }
 
     /**
      * Save specified dataobject to ORM backend
      */
-    function save(&$do) // {{{
+    function save(&$do)
     {
         $this->_orm->_backend->save($do, $this);
-    } // }}}
+    }
 
     /**
      * Delete specified dataobject from ORM backend
      */
-    function delete(&$do) // {{{
+    function delete(&$do)
     {
         $this->_orm->_backend->delete($do, $this);
-    } // }}}
+    }
 
     /**
      * Retrieve a single data object from the ORM backend
      */
-    function &get($params) // {{{
+    function &get($params)
     {
-        return $this->_orm->_backend->get($params, $this);
-    } // }}}
+        if ($this->_orm->_backend)
+        {
+            return $this->_orm->_backend->get($params, $this);
+        }
+        throw new Minim_Orm_Exception("No backend set");
+    }
 
     /**
      * Fetch all model instances from ORM backend
      */
-    function all() // {{{
+    function all()
     {
         return new Minim_Orm_ModelSet($this);
-    } // }}}
+    }
 
     /**
      * Get a QueryObject on the 'all' ModelSet
      */
-    function &where($fieldname) // {{{
+    function &where($fieldname)
     {
         return $this->all()->where($fieldname);
-    } // }}}
-} // }}}
+    }
+}
 
 /**
  * Represents a field in model.
  *
  * Intended to be subclassed to provide validation.
  */
-class Minim_Orm_Field // {{{
+class Minim_Orm_Field
 {
     /**
      * Validate field value.
      */
-    function accepts_value($value) // {{{
+    function accepts_value($value)
     {
         return TRUE;
-    } // }}}
-} // }}}
+    }
+}
 
 /**
  * A set of model instances.
  *
  * Represents the result set of a query. Uses lazy evaluation on iteration.
  */
-class Minim_Orm_ModelSet implements Iterator, Countable // {{{
+class Minim_Orm_ModelSet implements Iterator, Countable
 {
     var $_manager;
     var $_iterator_position;
@@ -338,37 +342,37 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
     var $_count;
     var $_cache;
 
-    function Minim_Orm_ModelSet(&$manager) // {{{
+    function Minim_Orm_ModelSet(&$manager)
     {
         $this->_manager =& $manager;
         $this->_iterator_position = 0;
         $this->_filters = array();
         $this->_sorting = array();
         $this->_cache = array();
-    } // }}}
+    }
 
     /**
      * Get a query object to apply to this modelset
      */
-    function &where($fieldname) // {{{
+    function &where($fieldname)
     {
         return $this->_filter($fieldname);
-    } // }}}
+    }
 
     /**
      * @access private
      */
-    function &_filter($field_name, $conjunction='AND') // {{{
+    function &_filter($field_name, $conjunction='AND')
     {
         $qo = new Minim_Orm_QueryObject($field_name, $conjunction, $this);
         $this->_filters[] =& $qo;
         return $qo;
-    } // }}}
+    }
 
     /**
      * Syntactic sugar for building filter chain
      */
-    function &__call($name, $params) // {{{
+    function &__call($name, $params)
     {
         if ($name == 'and')
         {
@@ -378,12 +382,12 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
         {
             return $this->_filter($params[0], 'OR');
         }
-    } // }}}
+    }
 
     /**
      * Sort the modelset by the specified field(s)
      */
-    function order_by() // {{{
+    function order_by()
     {
         $args = func_get_args();
         error_log('order_by args:'.print_r($args, TRUE));
@@ -403,12 +407,12 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
             $this->_sorting[] = array($field, $direction);
         }
         return $this;
-    } // }}}
+    }
 
     /**
      * Limit the modelset to a specified number or range.
      */
-    function limit($a, $b=0) // {{{
+    function limit($a, $b=0)
     {
         if ($b)
         {
@@ -421,34 +425,38 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
             $this->_num = $a;
         }
         return $this;
-    } // }}}
+    }
 
     /**
      * Get the number of model instances in the modelset
      */
-    function count() // {{{
+    function count()
     {
         if (is_null($this->_count))
         {
             $backend =& $this->_manager->_orm->_backend;
+            if (!$backend)
+            {
+                throw new Minim_Orm_Exception("No backend set");
+            }
             $this->_count = $backend->count_dataobjects($this);
         }
         return $this->_count;
-    } // }}}
+    }
 
     /**
      * @access private
      */
-    function _fill_cache() // {{{
+    function _fill_cache()
     {
         $backend =& $this->_manager->_orm->_backend;
         $this->_cache =& $backend->get_dataobjects($this);
-    } // }}}
+    }
 
     /**
      * Enable syntactic sugar for first model instance in the modelset
      */
-    function __get($name) // {{{
+    function __get($name)
     {
         // reveal intent
         if ($name == 'first')
@@ -463,12 +471,12 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
             }
             return $this->_cache[0];
         }
-    } // }}}
+    }
 
     /**
      * Return the model instances in the modelset as an array
      */
-    function to_array() // {{{
+    function to_array()
     {
         $a = array();
         if ($this->items)
@@ -479,45 +487,45 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
             }
         }
         return $a;
-    } // }}}
+    }
 
     // iterator methods
     /**
      * Get model instance at the current iterator position
      */
-    function &current() // {{{
+    function &current()
     {
         return $this->_cache[$this->_iterator_position];
-    } // }}}
+    }
 
     /**
      * Increment the iterator position
      */
-    function next() // {{{
+    function next()
     {
         $this->_iterator_position++;
-    } // }}}
+    }
 
     /**
      * Get the current iterator position
      */
-    function key() // {{{
+    function key()
     {
         return $this->_iterator_position;
-    } // }}}
+    }
 
     /**
      * Return the iterator to the start of the modelset
      */
-    function rewind() // {{{
+    function rewind()
     {
         $this->_iterator_position = 0;
-    } // }}}
+    }
 
     /**
      * Check if there are more model instances in the modelset
      */
-    function valid() // {{{
+    function valid()
     {
         if (!$this->_cache)
         {
@@ -528,21 +536,21 @@ class Minim_Orm_ModelSet implements Iterator, Countable // {{{
             return FALSE;
         }
         return $this->_iterator_position < count($this->_cache);
-    } // }}}
-} // }}}
+    }
+}
 
 /**
  * Data Object class.
  *
  * Represents a model instance.
  */
-class Minim_Orm_DataObject // {{{
+class Minim_Orm_DataObject
 {
     var $_manager;
     var $_in_db;
     var $_data;
 
-    function Minim_Orm_DataObject(&$manager) // {{{
+    function Minim_Orm_DataObject(&$manager)
     {
         $this->_manager = $manager;
         $this->_in_db = FALSE;
@@ -553,12 +561,12 @@ class Minim_Orm_DataObject // {{{
         {
             $this->_data[$name] = NULL;
         }
-    } // }}}
+    }
 
     /**
      * Enable syntactic sugar for assigning field values
      */
-    function __set($name, $value) // {{{
+    function __set($name, $value)
     {
         if (array_key_exists($name, $this->_data))
         {
@@ -574,35 +582,35 @@ class Minim_Orm_DataObject // {{{
                 );
             }
         }
-    } // }}}
+    }
 
     /**
      * Enable syntactic sugar for accessing field values
      */
-    function __get($name) // {{{
+    function __get($name)
     {
         if (array_key_exists($name, $this->_data))
         {
             return $this->_data[$name];
         }
-    } // }}}
+    }
 
     /**
      * Save object to ORM backend
      */
-    function save() // {{{
+    function save()
     {
         $this->_manager->save($this);
-    } // }}}
+    }
 
     /**
      * Delete object
      */
-    function delete() // {{{
+    function delete()
     {
         $this->_manager->delete($this);
-    } // }}}
-} // }}}
+    }
+}
 
 /**
  * Query objects
@@ -618,7 +626,7 @@ class Minim_Orm_DataObject // {{{
  * $posts->where("field")->lt($x)->or("field")->gt($y);
  * </code>
  */
-class Minim_Orm_QueryObject // {{{
+class Minim_Orm_QueryObject
 {
     var $_field;
     var $_and;
@@ -626,19 +634,19 @@ class Minim_Orm_QueryObject // {{{
     var $_operator;
     var $_operand;
 
-    function Minim_Orm_QueryObject($fieldname, $conjunction, &$modelset) // {{{
+    function Minim_Orm_QueryObject($fieldname, $conjunction, &$modelset)
     {
         $this->_and = $conjunction == 'AND';
         $this->_field = $fieldname;
         $this->_modelset =& $modelset;
         $this->_operator = '';
         $this->_operand = '';
-    } // }}}
+    }
 
     /**
      * Enable syntactic sugar for defining criteria
      */
-    function &__call($name, $params) // {{{
+    function &__call($name, $params)
     {
         switch ($name)
         {
@@ -672,21 +680,21 @@ class Minim_Orm_QueryObject // {{{
                 break;
         }
         return $this->_modelset;
-    } // }}}
-} // }}}
+    }
+}
 
-class Minim_Orm_Integer extends Minim_Orm_Field // {{{
+class Minim_Orm_Integer extends Minim_Orm_Field
 {
-    function accepts_value($value) // {{{
+    function accepts_value($value)
     {
         return is_numeric($value) and ''.((int)$value) == "$value";
-    } // }}}
-} // }}}
+    }
+}
 
-class Minim_Orm_Text extends Minim_Orm_Field // {{{
+class Minim_Orm_Text extends Minim_Orm_Field
 {
-    function accepts_value($value) // {{{
+    function accepts_value($value)
     {
         return is_string($value);
-    } // }}}
-} // }}}
+    }
+}

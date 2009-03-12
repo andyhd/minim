@@ -10,6 +10,11 @@ class Minim_Testing implements Minim_Plugin
         $this->_results = array();
     }
 
+    /**
+     * Run all tests found on the specified path. If no path specified, run
+     * tests in the current directory.
+     * @param string $path
+     */
     function run_tests($path=NULL)
     {
         if (is_null($path))

@@ -156,13 +156,7 @@ class Minim
         );
     }
 
-    // path methods
-    function lib($name)
-    {
-        return "{$this->root}/lib/{$name}.php";
-    }
-
-    // session methods
+    // TODO - factor this out into auth plugin
     function user()
     {
         static $user;
@@ -175,48 +169,6 @@ class Minim
             }
         }
         return $user;
-    }
-
-    function find($pattern, $path_list)
-    {
-        foreach ($path_list as $path)
-        {
-            $matches = glob(join(DIRECTORY_SEPARATOR, array($path, $pattern)));
-            if ($matches)
-            {
-                return $matches;
-            }
-        }
-        return FALSE;
-    }
-
-    function grep($pattern, $path_list)
-    {
-        $matches = array();
-        foreach ($path_list as $path)
-        {
-            if ($dh = opendir($path))
-            {
-                while ($dl = readdir($dh))
-                {
-                    if ($dl{0} == '.')
-                    {
-                        continue;
-                    }
-                    if ($contents = file_get_contents("$path/$dl"))
-                    {
-                        if (preg_match_all($pattern, $contents, $m))
-                        {
-                            $matches[] = array(
-                                'file' => "$path/$dl",
-                                'matches' => $m
-                            );
-                        }
-                    }
-                }
-            }
-        }
-        return $matches;
     }
 }
 

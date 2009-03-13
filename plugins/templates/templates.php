@@ -21,11 +21,6 @@ class Minim_TemplateEngine implements Minim_Plugin
         $this->plugin_path = dirname(__FILE__);
     } // }}}
 
-    function add_template_path($path) // {{{
-    {
-        $this->template_paths[] = $path;
-    } // }}}
-
     /**
      * Render a template
      */

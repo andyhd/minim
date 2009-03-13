@@ -24,9 +24,9 @@ class Minim_TemplateEngine_TestCase extends TestCase
     {
         $this->assertEqual(count(tmpl()->template_paths), 0);
 
-        tmpl()->add_template_path(realpath(join(DIRECTORY_SEPARATOR, array(
+        tmpl()->template_paths[] = build_path(
             dirname(__FILE__), 'res'
-        ))));
+        );
         $this->assertEqual(count(tmpl()->template_paths), 1);
 
         tmpl()->render('simple-template', array('world' => 'world!'));

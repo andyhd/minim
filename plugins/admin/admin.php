@@ -1,22 +1,14 @@
 <?php
 class Minim_Admin implements Minim_Plugin
 {
-    var $root;
-
-    function Minim_Admin() // {{{
+    function enable()
     {
-        $this->root = realpath(dirname(__FILE__));
-    } // }}} 
-
-    function enable() // {{{
-    {
-        $dir = dirname(__FILE__);
         minim('routing')->view_paths[] = build_path(
-            $dir, 'views'
+            dirname(__FILE__), 'views'
         );
-        minim('templates')->add_template_path(build_path(
-            $dir, 'templates'
-        ));
+        minim('templates')->template_paths[] = build_path(
+            dirname(__FILE__), 'templates'
+        );
 
         // point to routing and pagination helpers
         minim('templates')->helper_paths[] = build_path(
@@ -42,5 +34,5 @@ class Minim_Admin implements Minim_Plugin
                 ->maps_to('admin-model-list')
             ->url('^admin/login$')
                 ->maps_to('admin-login');
-    } // }}}
+    }
 }

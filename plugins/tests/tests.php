@@ -214,22 +214,16 @@ class TestCase // {{{
 
         // execute each one
         $results = array_combine($methods, array_fill(0, count($methods), array(
-            'result' => TestCase::PASS,
+            'result' => NULL,
             'reason' => ''
         )));
         foreach ($methods as $test)
         {
+            $this->set_up();
+            ob_start();
             try
             {
-                $this->set_up();
-                ob_start();
                 $result = $this->$test();
-                ob_end_clean();
-                $this->tear_down();
-                if (is_array($result))
-                {
-                    $results[$test] = $result;
-                }
             }
             catch (TestFailure $f)
             {
@@ -245,6 +239,16 @@ class TestCase // {{{
                     'reason' => $e->getMessage(),
                     'exception' => $e
                 );
+            }
+            ob_end_clean();
+            $this->tear_down();
+            if ($results[$test]['result'] === NULL)
+            {
+                $results[$test]['result'] = TestCase::PASS;
+                if (is_array($result))
+                {
+                    $results[$test] = $result;
+                }
             }
         }
         return $results;

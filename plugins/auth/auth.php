@@ -41,8 +41,6 @@ class Minim_Auth implements Minim_Plugin
 
                     $class = $m[1];
 
-                    error_log("Instantiating auth backend $class");
-
                     $this->_backend = new $class($params, $this);
 
                     // break out of loops

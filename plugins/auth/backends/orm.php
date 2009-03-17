@@ -38,6 +38,7 @@ class Minim_Auth_Orm_Backend implements Minim_Auth_Backend
         }
         catch (Minim_Orm_Exception $moe)
         {
+            error_log('Login failed: '.$moe->getMessage());
             return NULL;
         }
         return new Minim_User($username, $password, $this->_auth);

@@ -4,6 +4,31 @@ require_once 'minim/plugins/auth/auth.php';
 
 class Minim_Auth_TestCase extends TestCase
 {
+    function set_up()
+    {
+        $db =& minim('orm')->_backend;
+        $db->execute_query(
+            "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, name TEXT, password_hash TEXT)",
+            array()
+        );
+        $db->execute_query(
+            "INSERT INTO user (id, name, password_hash) VALUES (:id, :name, ".
+            ":password_hash)",
+            array(
+                ':id' => 1,
+                ':name' => 'test',
+                ':password_hash' => md5("S4lt~test:test-p3PPeR")
+            )
+        );
+    }
+
+    function tear_down()
+    {
+        minim('orm')->_backend->execute_query('DELETE FROM user', array());
+        minim('orm')->_backend->execute_query('DROP TABLE IF EXISTS user',
+            array());
+    }
+
     function test_auth_set_backend()
     {
         $auth = new Minim_Auth();
@@ -15,16 +40,24 @@ class Minim_Auth_TestCase extends TestCase
     {
         $auth = new Minim_Auth();
         $auth->set_backend('orm');
-        $user =& $auth->login('test', 'test');
+        $user =& $auth->login('test2', 'test');
         $this->assertEqual(NULL, $user,
             "Failed login should return NULL, but got ".print_r($user, TRUE));
+    }
+
+    function test_auth_login()
+    {
+        $auth = new Minim_Auth();
+        $auth->set_backend('orm');
+        $user = $auth->login('test', 'test');
+        $this->assertEqual('test', $user->username);
     }
 
     function test_auth_logout_not_logged_in()
     {
         $auth = new Minim_Auth();
         $auth->set_backend('orm');
-        $user = new Minim_User('test', 'test', $auth);
+        $user = new Minim_User('test2', 'test', $auth);
         try
         {
             $user->logout();
@@ -35,6 +68,14 @@ class Minim_Auth_TestCase extends TestCase
             return;
         }
         $this->fail("Expected exception");
+    }
+
+    function test_auth_logout()
+    {
+        $auth = new Minim_Auth();
+        $auth->set_backend('orm');
+        $user = new Minim_User('test', 'test', $auth);
+        $user->logout();
     }
 
     function test_auth_permission()

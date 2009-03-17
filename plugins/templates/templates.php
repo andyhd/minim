@@ -10,7 +10,7 @@ class Minim_TemplateEngine implements Minim_Plugin
     var $webroot = '/';
     var $plugin_path;
 
-    function Minim_TemplateEngine() // {{{
+    function Minim_TemplateEngine()
     {
         $this->template_paths = array();
         $this->helper_paths = array();
@@ -19,13 +19,14 @@ class Minim_TemplateEngine implements Minim_Plugin
         $this->_extends = array();
         $this->_helpers = array();
         $this->plugin_path = dirname(__FILE__);
-    } // }}}
+    }
 
     /**
      * Render a template
      */
-    function render($_template, $_context=array()) // {{{
+    function render($_template, $_context=array())
     {
+        // prefix all variables with _ to 'hide' them from the template
         error_log("Rendering $_template template");
         $_template_file = $this->_find_template($_template);
         if (!$_template_file)
@@ -33,9 +34,15 @@ class Minim_TemplateEngine implements Minim_Plugin
             throw new Minim_TemplateEngine_Exception(
                 "Template $_template not found on template path");
         }
+        
         extract($_context);
         ob_start();
-        include $_template_file;
+        $included = include($_template_file);
+        if (!$included)
+        {
+            throw new Minim_TemplateEngine_Exception(
+                "Failed loading $_template template");
+        }
 
         // render extended templates
         if ($_parent = array_pop($this->_extends))
@@ -43,14 +50,14 @@ class Minim_TemplateEngine implements Minim_Plugin
             $this->render($_parent, $_context);
         }
         ob_end_flush();
-    } // }}}
+    }
 
     /**
      * Search template paths for named template.
      * TODO - caching
      * TODO - template inheritance
      */
-    function _find_template($name) // {{{
+    function _find_template($name)
     {
         foreach ($this->template_paths as $path)
         {
@@ -64,41 +71,41 @@ class Minim_TemplateEngine implements Minim_Plugin
             }
         }
         return FALSE;
-    } // }}}
+    }
 
     /**
      * Set a template block
      */
-    function set($name) // {{{
+    function set($name)
     {
         array_push($this->_def_stack, $name);
         ob_start();
-    } // }}}
+    }
 
     /**
      * End a template block
      */
-    function end() // {{{
+    function end()
     {
         $name = array_pop($this->_def_stack);
         $this->_blocks[$name] = ob_get_clean();
-    } // }}}
+    }
 
     /**
      * Retrieve a named block
      */
-    function get($name) // {{{
+    function get($name)
     {
         echo @$this->_blocks[$name];
-    } // }}}
+    }
 
     /**
      * Extend a named template
      */
-    function extend($name) // {{{
+    function extend($name)
     {
         array_push($this->_extends, $name);
-    } // }}}
+    }
 
     /**
      * Convenience method to include a css file
@@ -125,7 +132,7 @@ HTML;
     /**
      * Load a helper function
      */
-    function load_helper($name) // {{{
+    function load_helper($name)
     {
         if (array_key_exists($name, $this->_helpers))
         {
@@ -144,15 +151,15 @@ HTML;
         }
         throw new Minim_TemplateEngine_Exception(
             "Helper $name not found");
-    } // }}}
+    }
 
-    function load_helpers() // {{{
+    function load_helpers()
     {
         foreach (func_get_args() as $arg)
         {
             $this->load_helper($arg);
         }
-    } // }}}
+    }
 
     /**
      * Call loaded helper functions

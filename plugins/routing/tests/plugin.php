@@ -17,14 +17,14 @@ class RoutingTests extends TestCase
         $this->router = NULL;
     }
 
-    function test_map_url_default()
+    function test_route_map_url_default()
     {
         $this->router->url('foo');
         $route = $this->router->resolve('foo');
         $this->assertEqual('foo', $route->url_pattern);
     }
 
-    function test_map_url()
+    function test_route_map_url()
     {
         $view_path = $this->router->view_paths[0];
         $this->router->url('foo')->maps_to('bar');
@@ -32,7 +32,7 @@ class RoutingTests extends TestCase
         $this->assertEqual("$view_path/bar.php", $route->view);
     }
 
-    function test_url_for()
+    function test_route_url_for()
     {
         $this->router->url('foo')->maps_to('foo');
         $this->assertEqual(1, count($this->router->_routes));
@@ -41,14 +41,14 @@ class RoutingTests extends TestCase
         $this->assertEqual('/foo', $url);
     }
 
-    function test_url_missing()
+    function test_route_url_missing()
     {
         $this->assertEqual(0, count($this->router->_routes));
         $this->assertException('Minim_Router_Exception',
             '$this->router->url_for("blarch");');
     }
 
-    function test_url_with_parameters()
+    function test_route_url_with_parameters()
     {
         $this->router->url('foo/(?P<id>\d+)')->maps_to('foo');
         $route = $this->router->resolve('foo/42');

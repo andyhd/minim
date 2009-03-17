@@ -23,7 +23,7 @@ class Minim_Orm_TestCase extends TestCase
         $this->assertTrue($orm === orm());
     }
 
-    function test_register_model()
+    function test_orm_register_model()
     {
         $this->assertEqual(count(orm()->_managers), 0);
         orm()->model_paths[] = realpath(join(DIRECTORY_SEPARATOR, array(
@@ -38,20 +38,20 @@ class Minim_Orm_TestCase extends TestCase
         $this->assertEqual($manager->_model, "dummy");
     }
 
-    function test_register_existing_model()
+    function test_orm_register_existing_model()
     {
         $this->assertTrue(array_key_exists('dummy', orm()->_managers));
         $this->assertException('Minim_Orm_Exception',
             'orm()->register("dummy");');
     }
 
-    function test_access_unregistered_manager()
+    function test_orm_access_unregistered_manager()
     {
         $this->assertTrue(!array_key_exists('foo', orm()->_managers));
         $this->assertException('Minim_Orm_Exception', 'orm()->foo;');
     }
 
-    function test_model_definition_add_field()
+    function test_orm_model_definition_add_field()
     {
         $orm = new Minim_Orm();
         $orm->register('blarch');
@@ -65,7 +65,7 @@ class Minim_Orm_TestCase extends TestCase
             "Unexpected field type (".get_class($manager->foo).")");
     }
 
-    function test_model_definition_add_custom_field()
+    function test_orm_model_definition_add_custom_field()
     {
         $manager = orm()->dummy;
         $this->assertEqual(count($manager->_fields), 0,
@@ -84,7 +84,7 @@ class Minim_Orm_TestCase extends TestCase
             "Unexpected field type (".get_class($manager->dummy).")");
     }
 
-    function test_data_object()
+    function test_orm_data_object()
     {
         $manager = orm()->dummy;
         $do = $manager->create();
@@ -107,13 +107,13 @@ class Minim_Orm_TestCase extends TestCase
         $this->assertEqual($result['dummy'], 'testing');
     }
 
-    function test_data_object_get()
+    function test_orm_data_object_get()
     {
         $do = orm()->dummy->get(array('dummy' => 'testing'));
         $this->assertEqual($do->dummy, 'testing');
     }
 
-    function test_data_object_filter()
+    function test_orm_data_object_filter()
     {
         $resultset = orm()->dummy->where('dummy')->equals('testing');
         $this->assertEqual(count($resultset), 1,
@@ -130,7 +130,7 @@ class Minim_Orm_TestCase extends TestCase
             "Expecting 1 result, got $count");
     }
 
-    function test_delete_data_object()
+    function test_orm_delete_data_object()
     {
         $rs = orm()->dummy->where('dummy')->equals('testing');
         $this->assertEqual(count($rs), 1);
@@ -143,7 +143,7 @@ class Minim_Orm_TestCase extends TestCase
         $this->assertEqual(count($rs), 0);
     }
 
-    function test_data_object_field_validation()
+    function test_orm_data_object_field_validation()
     {
         orm()->register('quux')->int('id');
         $quux = orm()->quux;
@@ -163,7 +163,7 @@ class Minim_Orm_TestCase extends TestCase
             'Expected exception, got none');
     }
 
-    function test_numeric_filters()
+    function test_orm_numeric_filters()
     {
         orm()->register_field_type('num', realpath(join(DIRECTORY_SEPARATOR,
             array(dirname(__FILE__), 'res', 'test_field_type.php'))), 'Num');

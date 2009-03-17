@@ -4,13 +4,7 @@ require_once 'minim/minim.php';
 
 class Minim_TestCase extends TestCase
 {
-    function test_minim()
-    {
-        $minim = minim();
-        $this->assertTrue($minim === minim());
-    }
-
-    function test_get_plugin()
+    function test_minim_get_plugin()
     {
         $minim = new Minim();
         $this->assertTrue($minim !== minim());
@@ -25,7 +19,7 @@ class Minim_TestCase extends TestCase
             "Class mismatch: $class");
     }
 
-    function test_get_unregistered_plugin()
+    function test_minim_get_unregistered_plugin()
     {
         $minim = new Minim();
         try
@@ -44,7 +38,7 @@ class Minim_TestCase extends TestCase
         $this->fail('Expected Minim_Exception');
     }
 
-    function test_get_null_plugin()
+    function test_minim_get_null_plugin()
     {
         $minim = new Minim();
         try

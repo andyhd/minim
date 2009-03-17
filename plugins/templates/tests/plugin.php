@@ -2,7 +2,7 @@
 require_once 'minim/plugins/tests/tests.php';
 require_once 'minim/plugins/templates/templates.php';
 
-function &tmpl() // {{{
+function &tmpl()
 {
     static $tmpl;
     if (!$tmpl)
@@ -10,17 +10,11 @@ function &tmpl() // {{{
         $tmpl = new Minim_TemplateEngine();
     }
     return $tmpl;
-} // }}}
+}
 
 class Minim_TemplateEngine_TestCase extends TestCase
 {
-    function test_tmpl() // {{{
-    {
-        $tmpl =& tmpl();
-        $this->assertTrue($tmpl === tmpl());
-    } // }}}
-
-    function test_simple_template() // {{{
+    function test_tmpl_simple_template()
     {
         $this->assertEqual(count(tmpl()->template_paths), 0);
 
@@ -31,9 +25,9 @@ class Minim_TemplateEngine_TestCase extends TestCase
 
         tmpl()->render('simple-template', array('world' => 'world!'));
         $this->assertOutput('hello world!');
-    } // }}}
+    }
 
-    function test_setting_block() // {{{
+    function test_tmpl_set_block()
     {
         $this->assertEqual(count(tmpl()->_blocks), 0);
 
@@ -41,23 +35,23 @@ class Minim_TemplateEngine_TestCase extends TestCase
         $this->assertEqual(count(tmpl()->_blocks), 1);
 
         $this->assertEqual(tmpl()->_blocks['child'], 'child');
-    } // }}}
+    }
 
-    function test_getting_block() // {{{
+    function test_tmpl_get_block()
     {
         $this->assertEqual(count(tmpl()->_blocks), 1);
 
         tmpl()->render('parent');
         $this->assertOutput('parent contains child');
-    } // }}}
+    }
 
-    function test_extend_template() // {{{
+    function test_tmpl_extend_template()
     {
         tmpl()->render('extender');
         $this->assertOutput("extender extends base");
-    } // }}}
+    }
 
-    function test_load_helper() // {{{
+    function test_tmpl_load_helper()
     {
         $tmpl = new Minim_TemplateEngine();
         $this->assertEqual(0, count($tmpl->helper_paths));
@@ -70,5 +64,5 @@ class Minim_TemplateEngine_TestCase extends TestCase
         $ok = $tmpl->test_helper();
         $this->assertEqual('test ok', $ok,
             "Test helper returned unexpected value $ok");
-    } // }}}
+    }
 }

@@ -158,7 +158,18 @@ class Minim_Orm implements Minim_Plugin
     }
 }
 
-interface Minim_Orm_Backend {}
+interface Minim_Orm_Backend
+{
+    function save(&$dataobject, &$manager);
+
+    function delete(&$dataobject, &$manager);
+
+    function &get($params, &$manager);
+
+    function count_dataobjects(&$modelset);
+
+    function &get_dataobjects(&$modelset);
+}
 
 class Minim_Orm_Exception extends Exception {}
 

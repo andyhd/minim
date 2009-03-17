@@ -9,13 +9,13 @@ function forms()
 
 class Minim_Forms_TestCase extends TestCase // {{{
 {
-    function test_construct_form() // {{
+    function test_forms_construct_form() // {{
     {
         $form = forms()->create();
         $this->assertEqual('Minim_Form', get_class($form));
     } // }}}
 
-    function test_add_form_field() // {{{
+    function test_forms_add_field() // {{{
     {
         $form = forms()->create();
         $this->assertEqual(0, count($form->_fields));
@@ -28,7 +28,7 @@ class Minim_Forms_TestCase extends TestCase // {{{
             "Form field accessor for 'title' should have type 'text'");
     } // }}}
 
-    function test_form_render() // {{{
+    function test_forms_render() // {{{
     {
         $form = forms()->create();
         $form->text('title');
@@ -39,7 +39,7 @@ class Minim_Forms_TestCase extends TestCase // {{{
             "Form field 'title' not found in form render output");
     } // }}}
 
-    function test_form_submit() // {{{
+    function test_forms_submit() // {{{
     {
         $form = forms()->create();
         $form->text('title');
@@ -54,7 +54,7 @@ class Minim_Forms_TestCase extends TestCase // {{{
         error_log(print_r($form, TRUE));
     } // }}}
 
-    function test_form_validation() // {{{
+    function test_forms_validation() // {{{
     {
         $form = forms()->create();
         $form->text('title', array(
@@ -77,7 +77,7 @@ class Minim_Forms_TestCase extends TestCase // {{{
             "Validation passed unexpectedly");
     } // }}}
 
-    function test_form_from_model() // {{{
+    function test_forms_from_model() // {{{
     {
         $manager = minim('orm')->register('dummy');
         $manager->int('foo')

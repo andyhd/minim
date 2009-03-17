@@ -72,6 +72,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
             $manager->_db_table, $criteria);
         try
         {
+            error_log("Preparing SQL query: $sql");
             $sth = $this->_db->prepare($sql);
         }
         catch (PDOException $e)
@@ -84,9 +85,11 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
             preg_replace('/^/', ':', array_keys($params)),
             array_values($params)
         );
+        error_log("Executing query with values: ".print_r($values, TRUE));
         $sth->execute($values);
         $results = $sth->fetchAll(PDO::FETCH_ASSOC);
         $num_results = count($results);
+        error_log("Got $num_results result(s)");
         if ($num_results == 1)
         {
             $instance =& $manager->create($results[0]);

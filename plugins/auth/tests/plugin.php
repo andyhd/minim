@@ -36,6 +36,25 @@ class Minim_Auth_TestCase extends TestCase
         $this->assertTrue($auth->_backend);
     }
 
+    function test_auth_parse_cookie()
+    {
+        $auth = new Minim_Auth();
+        $auth->set_backend('orm');
+        $auth->encryption_key = 'password';
+        $uid = 1;
+        $ts = '20090322192500';
+        $hash = md5("uid:$uid,ts:$ts");
+        $plain = "user=$uid&timestamp=$ts&hash=$hash";
+        $cookie = $auth->encrypt($plain);
+        $GLOBALS['_COOKIE'] = array(
+            'u' => $cookie 
+        );
+        $this->assertEqual($plain, $auth->decrypt($cookie));
+        $user = $auth->get_logged_in_user();
+        $this->assertEqual($uid, $user->id,
+            "Parsing user cookie failed: ".print_r($user, TRUE));
+    }
+
     function test_auth_login_fail()
     {
         $auth = new Minim_Auth();

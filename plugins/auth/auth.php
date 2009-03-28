@@ -1,8 +1,12 @@
 <?php
+require_once 'minim/lib/rc4.php';
+
 class Minim_Auth implements Minim_Plugin
 {
     var $_backend;
     var $backend_paths;
+    var $encryption_key;
+    var $plugin_path;
 
     function Minim_Auth()
     {
@@ -12,6 +16,8 @@ class Minim_Auth implements Minim_Plugin
                 dirname(__FILE__), 'backends'
             )))
         );
+        $this->encryption_key = 'Ch4Ng3_M3';
+        $this->plugin_path = dirname(__FILE__);
     }
 
     /**
@@ -54,6 +60,12 @@ class Minim_Auth implements Minim_Plugin
 
     function login($username, $password)
     {
+        // check session cookie
+        if ($user = $this->get_logged_in_user())
+        {
+            // don't bother logging in
+            return $user;
+        }
         if (!$this->_backend)
         {
             throw new Minim_Auth_Backend_Exception("Auth backend not set");
@@ -86,6 +98,36 @@ class Minim_Auth implements Minim_Plugin
             throw new Minim_Auth_Backend_Exception("Auth backend not set");
         }
         return $this->_backend->allow($user, $action);
+    }
+
+    function get_logged_in_user()
+    {
+        if (array_key_exists('u', $_COOKIE))
+        {
+            $cookie = $this->decrypt($_COOKIE['u']);
+            // XXX - this could inject random variables into the current scope
+            $vars = array();
+            parse_str($cookie, $vars);
+
+            // check hash matches user_id and request time
+            $check = md5("uid:{$vars['user']},ts:{$vars['timestamp']}");
+            if ($vars['hash'] == $check)
+            {
+                // user is logged in
+                return $this->_backend->get_user($vars['user']);
+            }
+        }
+        return NULL;
+    }
+
+    function encrypt($plaintext)
+    {
+        return base64_encode(rc4($plaintext, $this->encryption_key));
+    }
+
+    function decrypt($ciphertext)
+    {
+        return rc4(base64_decode($ciphertext), $this->encryption_key);
     }
 }
 

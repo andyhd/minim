@@ -46,7 +46,10 @@ class Minim_Auth_Orm_Backend implements Minim_Auth_Backend
 
     function logout($user)
     {
-        // TODO
+        if (!$this->logged_in($user))
+        {
+            throw new Minim_Auth_Exception("User {$user->name} not logged in");
+        }
     }
 
     function logged_in($user)
@@ -57,5 +60,19 @@ class Minim_Auth_Orm_Backend implements Minim_Auth_Backend
     function allow($user, $action)
     {
         return TRUE;
+    }
+
+    function &get_user($id)
+    {
+        try
+        {
+            $user = $this->_orm->user->get(array('id' => $id));
+        }
+        catch (Minim_Orm_Exception $moe)
+        {
+            $null = NULL;
+            return $null;
+        }
+        return $user;
     }
 }

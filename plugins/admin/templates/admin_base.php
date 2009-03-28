@@ -1,5 +1,7 @@
 <?php $this->extend('admin_root') ?>
 
+<?php $this->load_helpers('logged_in_user') ?>
+
 <?php $this->set('meta') ?>
   <link rel="shortcut icon" type="image/gif" href="<?php echo minim()->webroot ?>/images/favicon.gif">
 <?php $this->get('page_meta') ?>
@@ -27,8 +29,8 @@
    <div id="masthead">
     <h1>Minim Admin</div>
     <div class="logged_in">
-<?php if (minim()->user()): ?>
-     Logged in as <strong><?php $user = minim()->user(); echo $user['name'] ?></strong> - <a href="<?php echo minim('routing')->url_for('logout') ?>">Log out</a>
+<?php if ($user = logged_in_user()): ?>
+     Logged in as <strong><?php echo $user['name'] ?></strong> - <a href="<?php echo minim('routing')->url_for('logout') ?>">Log out</a>
 <?php else: ?>
      <a href="<?php echo minim('routing')->url_for('admin-login') ?>">Log in</a>
 <?php endif ?>

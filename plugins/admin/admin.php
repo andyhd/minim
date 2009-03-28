@@ -3,20 +3,20 @@ class Minim_Admin implements Minim_Plugin
 {
     function enable()
     {
-        minim('routing')->view_paths[] = build_path(
+        minim('routing')->view_paths[] = path(
             dirname(__FILE__), 'views'
         );
-        minim('templates')->template_paths[] = build_path(
+        minim('templates')->template_paths[] = path(
             dirname(__FILE__), 'templates'
         );
 
         // point to routing and pagination helpers
-        minim('templates')->helper_paths[] = build_path(
-            minim('routing')->plugin_path, 'helpers.php'
-        );
-        minim('templates')->helper_paths[] = build_path(
-            minim('pagination')->plugin_path, 'helpers.php'
-        );
+        $paths =& minim('templates')->helper_paths;
+        $paths = array_unique(array_merge($paths, array(
+            path(minim('auth')->plugin_path, 'helpers.php'),
+            path(minim('routing')->plugin_path, 'helpers.php'),
+            path(minim('pagination')->plugin_path, 'helpers.php')
+        )));
 
         // set up admin urls
         minim('routing')

@@ -14,10 +14,10 @@ class Minim_Admin_TestCase extends TestCase
         $this->assertEqual(0, count($routing->view_paths));
         $admin->enable();
         $this->assertEqual(1, count($templates->template_paths));
-        $this->assertEqual(build_path(dirname(__FILE__), '..', 'templates'),
+        $this->assertEqual(path(dirname(__FILE__), '..', 'templates'),
             $templates->template_paths[0]);
         $this->assertEqual(1, count($routing->view_paths));
-        $this->assertEqual(build_path(dirname(__FILE__), '..', 'views'),
+        $this->assertEqual(path(dirname(__FILE__), '..', 'views'),
             $routing->view_paths[0]);
     }
 

@@ -23,7 +23,7 @@ function &minim($plugin=NULL)
  * Concatenates parameters into a path string and converts to an absolute path.
  * @return string Absolute path or FALSE on failure
  */
-function build_path()
+function path()
 {
     $args = func_get_args();
     $path = realpath(join(DIRECTORY_SEPARATOR, $args));
@@ -58,7 +58,7 @@ class Minim
         $this->_plugins = array();
         $this->plugin_paths = array(
             // add default plugin path
-            build_path(dirname(__FILE__), 'plugins')
+            path(dirname(__FILE__), 'plugins')
         );
     }
 
@@ -154,21 +154,6 @@ class Minim
             "Plugin $name not found: ".
             print_r(array_keys($this->_plugins), TRUE)
         );
-    }
-
-    // TODO - factor this out into auth plugin
-    function user()
-    {
-        static $user;
-        if ($user === null)
-        {
-            $user = @$_SESSION['user'];
-            if (!$user)
-            {
-                $user = false;
-            }
-        }
-        return $user;
     }
 }
 

@@ -10,7 +10,7 @@ class Minim_TestCase extends TestCase
         $this->assertTrue($minim !== minim());
 
         $minim->plugin_paths = array(
-            build_path(dirname(__FILE__), 'res')
+            path(dirname(__FILE__), 'res')
         );
 
         $plugin =& $minim->get_plugin('dummy');

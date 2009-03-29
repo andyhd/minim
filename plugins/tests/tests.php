@@ -1,4 +1,6 @@
 <?php
+require_once 'minim/lib/objdump.php';
+
 class Minim_Testing implements Minim_Plugin
 {
     var $_results;
@@ -47,6 +49,15 @@ class Minim_Testing implements Minim_Plugin
         }
 
         $this->_time = array_sum(explode(' ', microtime())) - $start_time;
+
+        foreach ($this->_results as $result)
+        {
+            if ($result['result'] != TestCase::PASS)
+            {
+                return 1;
+            }
+        }
+        return 0;
     }
 
     function output_results($use_colors=TRUE)
@@ -165,7 +176,7 @@ class TestCase // {{{
         {
             return TRUE;
         }
-        $this->fail($msg ? $msg : "Assertion failure: $a != $b");
+        $this->fail($msg ? $msg : "Assertion failure: ".dump($a)." != ".dump($b));
     } // }}}
 
     function assertTrue($a, $msg=NULL) // {{{

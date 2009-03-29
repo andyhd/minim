@@ -70,6 +70,7 @@ class Minim_Auth_TestCase extends TestCase
         $auth->set_backend('orm');
         $user = $auth->login('test', 'test');
         $this->assertEqual('test', $user->username);
+        $this->assertEqual($user, $auth->get_logged_in_user());
     }
 
     function test_auth_logout_not_logged_in()
@@ -93,7 +94,7 @@ class Minim_Auth_TestCase extends TestCase
     {
         $auth = new Minim_Auth();
         $auth->set_backend('orm');
-        $user = new Minim_User('test', 'test', $auth);
+        $user = $auth->login('test', 'test');
         $user->logout();
     }
 

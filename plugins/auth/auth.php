@@ -70,11 +70,26 @@ class Minim_Auth implements Minim_Plugin
         {
             throw new Minim_Auth_Backend_Exception("Auth backend not set");
         }
-        return $this->_backend->login($username, $password);
+        $user = $this->_backend->login($username, $password);
+        if ($user)
+        {
+            // set user cookie
+            $ts = date('YmdHis', $_SERVER['REQUEST_TIME']);
+            $hash = md5("uid:{$user->id},ts:$ts");
+            $plain = "user={$user->id}&timestamp=$ts&hash=$hash";
+            error_log("Setting user cookie: $plain"); 
+            $_COOKIE['u'] = $this->encrypt($plain);;
+            return $user;
+        }
+        return NULL;
     }
 
     function logout($user)
     {
+        if (!$this->logged_in($user))
+        {
+            throw new Minim_Auth_Exception("User {$user->username} not logged in");
+        }
         if (!$this->_backend)
         {
             throw new Minim_Auth_Backend_Exception("Auth backend not set");
@@ -84,11 +99,7 @@ class Minim_Auth implements Minim_Plugin
 
     function logged_in($user)
     {
-        if (!$this->_backend)
-        {
-            throw new Minim_Auth_Backend_Exception("Auth backend not set");
-        }
-        return $this->_backend->logged_in($user);
+        return $user == $this->get_logged_in_user();
     }
 
     function allow($user, $action)
@@ -104,6 +115,7 @@ class Minim_Auth implements Minim_Plugin
     {
         if (array_key_exists('u', $_COOKIE))
         {
+            error_log("User cookie: {$_COOKIE['u']}");
             $cookie = $this->decrypt($_COOKIE['u']);
             // XXX - this could inject random variables into the current scope
             $vars = array();
@@ -114,6 +126,7 @@ class Minim_Auth implements Minim_Plugin
             if ($vars['hash'] == $check)
             {
                 // user is logged in
+                error_log("User cookie is valid");
                 return $this->_backend->get_user($vars['user']);
             }
         }

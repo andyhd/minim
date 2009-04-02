@@ -89,7 +89,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
         $sth->execute($values);
         $results = $sth->fetchAll(PDO::FETCH_ASSOC);
         $num_results = count($results);
-        error_log("Got $num_results result(s)");
+        error_log("Got $num_results result(s): ".dump($results));
         if ($num_results == 1)
         {
             $instance =& $manager->create($results[0]);

@@ -234,6 +234,7 @@ class TestCase // {{{
             ob_start();
             try
             {
+                error_log("Running test $test");
                 $result = $this->$test();
             }
             catch (TestFailure $f)

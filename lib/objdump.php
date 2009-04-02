@@ -30,6 +30,17 @@ function dump($var, $recurse_depth=0)
         }
         $out .= '}';
     }
+    elseif (is_array($var))
+    {
+        $i = 0;
+        $out .= '[';
+        foreach ($var as $key => $val)
+        {
+            $out .= $i++ ? ', ' : '';
+            $out .= "$key => ".dump($val, $recurse_depth+1);
+        }
+        $out .= ']';
+    }
     else
     {
         $out = var_export($var, TRUE);

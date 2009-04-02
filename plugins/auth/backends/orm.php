@@ -4,10 +4,10 @@ class Minim_Auth_Orm_Backend implements Minim_Auth_Backend
     var $_auth;
     var $_orm;
 
-    function __construct($params, &$auth)
+    function __construct($params, $auth)
     {
-        $this->_auth =& $auth;
-        $this->_orm =& minim('orm');
+        $this->_auth = $auth;
+        $this->_orm = minim('orm');
         if (!$this->_orm->_backend)
         {
             throw new Minim_Auth_Exception(
@@ -31,7 +31,7 @@ class Minim_Auth_Orm_Backend implements Minim_Auth_Backend
     {
         try
         {
-            $user_do =& $this->_orm->user->get(array(
+            $user =& $this->_orm->user->get(array(
                 'name' => $username,
                 'password_hash' => md5("S4lt~$username:$password-p3PPeR")
             ));
@@ -41,7 +41,7 @@ class Minim_Auth_Orm_Backend implements Minim_Auth_Backend
             error_log('Login failed: '.$moe->getMessage());
             return NULL;
         }
-        return new Minim_User($username, $password, $this->_auth);
+        return new Minim_User($user->name, $this->_auth);
     }
 
     function logout($user)
@@ -59,14 +59,15 @@ class Minim_Auth_Orm_Backend implements Minim_Auth_Backend
         return TRUE;
     }
 
-    function &get_user($id)
+    function &get_user($username)
     {
         try
         {
-            $user = $this->_orm->user->get(array('id' => $id));
+            $user = $this->_orm->user->get(array('name' => $username));
         }
         catch (Minim_Orm_Exception $moe)
         {
+            error_log("User {$username} not found");
             $null = NULL;
             return $null;
         }

@@ -41,18 +41,18 @@ class Minim_Auth_TestCase extends TestCase
         $auth = new Minim_Auth();
         $auth->set_backend('orm');
         $auth->encryption_key = 'password';
-        $uid = 1;
+        $username = 'test';
         $ts = '20090322192500';
-        $hash = md5("uid:$uid,ts:$ts");
-        $plain = "user=$uid&timestamp=$ts&hash=$hash";
+        $hash = md5("uid:$username,ts:$ts");
+        $plain = "user=$username&timestamp=$ts&hash=$hash";
         $cookie = $auth->encrypt($plain);
         $GLOBALS['_COOKIE'] = array(
             'u' => $cookie 
         );
         $this->assertEqual($plain, $auth->decrypt($cookie));
         $user = $auth->get_logged_in_user();
-        $this->assertEqual($uid, $user->id,
-            "Parsing user cookie failed: ".print_r($user, TRUE));
+        $this->assertEqual($username, $user->username,
+            "Parsing user cookie failed: ".dump($user));
     }
 
     function test_auth_login_fail()
@@ -77,7 +77,7 @@ class Minim_Auth_TestCase extends TestCase
     {
         $auth = new Minim_Auth();
         $auth->set_backend('orm');
-        $user = new Minim_User('test2', 'test', $auth);
+        $user = new Minim_User('test2', $auth);
         try
         {
             $user->logout();
@@ -102,7 +102,7 @@ class Minim_Auth_TestCase extends TestCase
     {
         $auth = new Minim_Auth();
         $auth->set_backend('orm');
-        $user = new Minim_User('test', 'test', $auth);
+        $user = new Minim_User('test', $auth);
         $this->assertTrue(!$user->can('access admin'),
             "User should not have permission to access admin");
     }

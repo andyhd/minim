@@ -74,9 +74,9 @@ class Minim_Auth implements Minim_Plugin
         if ($user)
         {
             // set user cookie
-            $ts = date('YmdHis', $_SERVER['REQUEST_TIME']);
-            $hash = md5("uid:{$user->id},ts:$ts");
-            $plain = "user={$user->id}&timestamp=$ts&hash=$hash";
+            $ts = date('YmdHis', time());
+            $hash = md5("uid:{$user->username},ts:$ts");
+            $plain = "user={$user->username}&timestamp=$ts&hash=$hash";
             error_log("Setting user cookie: $plain"); 
             $_COOKIE['u'] = $this->encrypt($plain);;
             return $user;
@@ -126,8 +126,9 @@ class Minim_Auth implements Minim_Plugin
             if ($vars['hash'] == $check)
             {
                 // user is logged in
-                error_log("User cookie is valid");
-                return $this->_backend->get_user($vars['user']);
+                error_log("User cookie is valid: ".dump($vars));
+                $user = $this->_backend->get_user($vars['user']);
+                return new Minim_User($user->name, $this);
             }
         }
         return NULL;
@@ -148,12 +149,10 @@ class Minim_User
 {
     var $_auth;
     var $username;
-    var $password;
 
-    function Minim_User($username, $password, &$auth)
+    function Minim_User($username, &$auth)
     {
         $this->username = $username;
-        $this->password = $password;
         $this->_auth =& $auth;
     }
 

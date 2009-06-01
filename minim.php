@@ -35,6 +35,28 @@ function path()
 }
 
 /**
+ * Convenience method to find file in a given array of directories.
+ * @param string $filename
+ * @param array $paths
+ * @return string Found file path or FALSE
+ */
+function find($filename, $paths)
+{
+    if ($filename and is_array($paths))
+    {
+        foreach ($paths as $path)
+        {
+            $fullpath = $path.DIRECTORY_SEPARATOR.$filename;
+            if (file_exists($fullpath))
+            {
+                return $fullpath;
+            }
+        }
+    }
+    return FALSE;
+}
+
+/**
  * Convenience method to determine if this script was initiated by an
  * XMLHTTPRequest (AJAX)
  * @return boolean TRUE if called by AJAX

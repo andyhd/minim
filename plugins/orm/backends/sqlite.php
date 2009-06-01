@@ -4,7 +4,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
     var $_orm;
     var $_db;
 
-    function __construct($params, &$orm) // {{{
+    function __construct($params, $orm) // {{{
     {
         $this->_orm = $orm;
         if (!array_key_exists('database', $params))
@@ -16,7 +16,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
         $this->_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } // }}}
 
-    function save(&$do, &$manager) // {{{
+    function save($do, $manager) // {{{
     {
         $fields = array_keys($manager->_fields);
         $values = preg_replace('/^/', ':', $fields);
@@ -30,7 +30,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
     /**
      * Delete the specified record
      */
-    function delete(&$do, &$manager) // {{{
+    function delete($do, $manager) // {{{
     {
         $fields = array_keys($manager->_fields);
         $criteria = array();
@@ -53,7 +53,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
         $sth->execute($values);
     } // }}}
 
-    function &get($params, &$manager) // {{{
+    function get($params, $manager) // {{{
     {
         $criteria = '';
         foreach ($params as $key => $value)
@@ -92,7 +92,7 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
         error_log("Got $num_results result(s): ".dump($results));
         if ($num_results == 1)
         {
-            $instance =& $manager->create($results[0]);
+            $instance = $manager->create($results[0]);
             $instance->_in_db = TRUE;
             return $instance;
         }
@@ -103,20 +103,20 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
         throw new Minim_Orm_Exception("No results for get");
     } // }}}
 
-    function &get_dataobjects(&$modelset) // {{{
+    function get_dataobjects($modelset) // {{{
     {
         list($query, $params) = $this->build_query($modelset);
-        $s =& $this->execute_query($query, $params);
+        $s = $this->execute_query($query, $params);
         $objects = array();
-        $manager =& $modelset->_manager;
+        $manager = $modelset->_manager;
         foreach ($s->fetchAll() as $row)
         {
-            $objects[] =& $manager->create($row);
+            $objects[] = $manager->create($row);
         }
         return $objects;
     } // }}}
 
-    function count_dataobjects(&$modelset) // {{{
+    function count_dataobjects($modelset) // {{{
     {
         list($query, $params) = $this->build_count_query($modelset);
         $s = $this->execute_query($query, $params);
@@ -128,16 +128,16 @@ class Minim_Orm_Sqlite_Backend implements Minim_Orm_Backend
         return $count;
     } // }}}
 
-    function build_count_query(&$modelset) // {{{
+    function build_count_query($modelset) // {{{
     {
         return $this->build_query($modelset, True);
     } // }}}
 
-    function build_query(&$modelset, $count=False) // {{{
+    function build_query($modelset, $count=False) // {{{
     {
         $query = array();
         $params = array();
-        foreach ($modelset->_filters as &$filter)
+        foreach ($modelset->_filters as $filter)
         {
             // TODO - hide this from the developer
             list($expr, $value) = $this->render($filter);
@@ -210,7 +210,7 @@ SQL;
         return $s;
     } // }}} 
 
-    function render(&$filter) // {{{
+    function render($filter) // {{{
     {
         switch ($filter->_operator)
         {

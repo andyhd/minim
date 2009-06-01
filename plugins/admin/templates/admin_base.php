@@ -3,7 +3,7 @@
 <?php $this->load_helpers('logged_in_user') ?>
 
 <?php $this->set('meta') ?>
-  <link rel="shortcut icon" type="image/gif" href="<?php echo minim()->webroot ?>/images/favicon.gif">
+  <link rel="shortcut icon" type="image/gif" href="<?php $this->asset_url('/images/favicon.gif') ?>">
 <?php $this->get('page_meta') ?>
 <?php $this->end() ?>
 
@@ -27,7 +27,7 @@
 <?php $this->set('content') ?>
   <div id="wrapper">
    <div id="masthead">
-    <h1>Minim Admin</div>
+    <h1>Minim Admin</h1>
     <div class="logged_in">
 <?php if ($user = logged_in_user()): ?>
      Logged in as <strong><?php echo $user['name'] ?></strong> - <a href="<?php echo minim('routing')->url_for('logout') ?>">Log out</a>

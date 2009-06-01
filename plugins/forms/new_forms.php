@@ -1,10 +1,10 @@
 <?php
-class Minim_New_Forms implements Minim_Plugin // {{{
+class Minim_New_Forms implements Minim_Plugin
 {
     var $_widget_types;
     var $widget_paths;
 
-    function Minim_New_Forms() // {{{
+    function Minim_New_Forms()
     {
         $file = realpath(__FILE__);
         $this->_widget_types = array(
@@ -21,25 +21,25 @@ class Minim_New_Forms implements Minim_Plugin // {{{
             // TODO - add more default widgets
         );
         $this->widget_paths = array();
-    } // }}}
+    }
 
     /**
      * Register a widget type 
      */
-    function register_widget_type($type, $file, $class_name) // {{{
+    function register_widget_type($type, $file, $class_name)
     {
         $this->_widget_types[$type] = array(
             'file' => $file,
             'class' => $class_name
         );
-    } // }}}
+    }
 
-    function create() // {{{
+    function create()
     {
         return new Minim_Form($this);
-    } // }}}
+    }
 
-    function from_model($manager, $model=NULL) // {{{
+    function from_model($manager, $model=NULL)
     {
         $form = new Minim_Form($this);
         try
@@ -53,28 +53,24 @@ class Minim_New_Forms implements Minim_Plugin // {{{
         }
         foreach ($manager->_fields as $name => $field)
         {
-            # try to get a widget for the form field:
-            # 1. see if there's a suggested widget in the model field
-            # 2. if not, go with a default text field
-            # widgets can be overridden later
-            $widget = 'text';
-            if (isset($field->widget) and $field->widget)
-            {
-                $widget = $field->widget;
-            }
+            // try to get a widget for the form field:
+            // widgets can be overridden later
+            $widget = $field->widget();
 
-            # add a form field
-            # TODO - add field params as argument
-            $form->$widget($name, array(
-                'label' => ucfirst($name)
+            // add a form field
+            $form->$widget($name, array_merge(
+                array(
+                    'label' => ucfirst($name)
+                ),
+                $field->params
             ));
         }
         error_log(print_r($form, TRUE));
         return $form;
-    } // }}}
-} // }}}
+    }
+}
 
-class Minim_Form // {{{
+class Minim_Form
 {
     var $_forms;
     var $_fields;
@@ -82,19 +78,19 @@ class Minim_Form // {{{
     var $method;
     var $attrs;
 
-    function Minim_Form(&$fo, $action='', $method='POST', $attrs=array()) // {{{
+    function Minim_Form(&$fo, $action='', $method='POST', $attrs=array())
     {
         $this->_forms =& $fo;
         $this->submit_url = $action;
         $this->method = $method;
         $this->attrs = $attrs;
         $this->_fields = array();
-    } // }}}
+    }
 
     /**
      * Check for form data matching this form's fields in the request
      */
-    function was_submitted() // {{{
+    function was_submitted()
     {
         $data = $GLOBALS["_{$this->method}"];
         
@@ -114,12 +110,12 @@ class Minim_Form // {{{
         }
         $this->populate($submission);
         return TRUE;
-    } // }}}
+    }
 
     /**
      * Validate form submission
      */
-    function is_valid() // {{{
+    function is_valid()
     {
         foreach ($this->_fields as &$field)
         {
@@ -129,23 +125,23 @@ class Minim_Form // {{{
             }
         }
         return TRUE;
-    } // }}}
+    }
 
     /**
      * Set a form's values to those in the specified array
      */
-    function populate($data) // {{{
+    function populate($data)
     {
         foreach ($this->_fields as $field)
         {
             $field->value = $data[$field->name];
         }
-    } // }}}
+    }
 
     /**
      * Enable syntactic sugar for adding fields to a form.
      */
-    function &__call($name, $params) // {{{
+    function &__call($name, $params)
     {
         if (array_key_exists($name, $this->_forms->_widget_types))
         {
@@ -158,12 +154,12 @@ class Minim_Form // {{{
             $this->add_field($name, $field_name, $params);
         }
         return $this;
-    } // }}}
+    }
 
     /**
      * Add a field to a form
      */
-    function add_field($widget, $name, $params) // {{{
+    function add_field($widget, $name, $params)
     {
         $widgets = $this->_forms->_widget_types;
         if (array_key_exists($widget, $widgets))
@@ -181,18 +177,18 @@ class Minim_Form // {{{
             ));
             $this->_fields[$name] = new $widgets[$widget]['class']($params);
         }
-    } // }}}
+    }
 
-    function __get($name) // {{{
+    function __get($name)
     {
         if (array_key_exists($name, $this->_fields))
         {
             return $this->_fields[$name];
         }
         return NULL;
-    } // }}}
+    }
 
-    function render() // {{{
+    function render()
     {
         $fields = '';
         foreach ($this->_fields as $field)
@@ -204,58 +200,64 @@ class Minim_Form // {{{
     {$fields}
 </form>
 HTML;
-    } // }}}
-} // }}}
+    }
+} 
 
-class Minim_Form_Field // {{{
+class Minim_Form_Field
 {
     var $name;
     var $type;
     var $label;
+    var $max_length;
     var $help;
     var $value;
     var $initial_value;
     var $form;
 
-    function __construct($params=array()) // {{{
+    function __construct($params=array())
     {
         $this->name = $params['name'];
         $this->type = 'text';
         $this->form =& $params['form'];
-        foreach (array('label', 'help', 'value', 'initial_value') as $var)
+        foreach (array('label', 'help', 'value', 'initial_value', 'max_length') as $var)
         {
             $this->$var = @$params[$var] ? $params[$var] : '';
         }
         $this->_validation_method = @$params['validate'];
-    } // }}}
+    }
 
-    function render_label() // {{{
+    function render_label()
     {
         return <<<HTML
 <label for="{$this->name}_field">{$this->label}</label>
 HTML;
-    } // }}}
+    }
 
-    function render_field() // {{{
+    function render_field()
     {
         $value_attr = '';
         if ($this->value)
         {
             $value_attr = ' value="'.$this->value.'"';
         }
+        $max_length = '';
+        if (@$this->max_length)
+        {
+            $max_length = ' maxlength="'.$this->max_length.'"';
+        }
         return <<<HTML
-<input type="text" name="{$this->name}" id="{$this->name}_field"{$value_attr}>
+<input type="text" name="{$this->name}" id="{$this->name}_field"{$value_attr}{$max_length}>
 HTML;
-    } // }}}
+    }
 
-    function render_help() // {{{
+    function render_help()
     {
         return <<<HTML
-<p class="formfield_help">{$this->help}</p>
+<p class="help">{$this->help}</p>
 HTML;
-    } // }}}
+    }
 
-    function render_as_div() // {{{
+    function render_as_div()
     {
         $label = $this->render_label();
         $field = $this->render_field();
@@ -267,9 +269,9 @@ HTML;
     {$help}
 </div>
 HTML;
-    } // }}}
+    }
 
-    function is_valid() // {{{
+    function is_valid()
     {
         $validate = $this->_validation_method;
         if ($validate)
@@ -277,5 +279,20 @@ HTML;
             return $validate($this);
         }
         return TRUE;
-    } // }}}
-} // }}}
+    }
+}
+
+class Minim_Form_TextArea extends Minim_Form_Field
+{
+    function render_field()
+    {
+        $value_attr = '';
+        if ($this->value)
+        {
+            $value_attr = $this->value;
+        }
+        return <<<HTML
+<textarea name="{$this->name}" id="{$this->name}_field">{$value_attr}</textarea>
+HTML;
+    }
+}

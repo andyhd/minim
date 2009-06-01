@@ -7,8 +7,8 @@ class Minim_TemplateEngine implements Minim_Plugin
     var $_def_stack;
     var $_blocks;
     var $_extends;
-    var $webroot = '/';
     var $plugin_path;
+    var $asset_paths;
 
     function Minim_TemplateEngine()
     {
@@ -19,16 +19,44 @@ class Minim_TemplateEngine implements Minim_Plugin
         $this->_extends = array();
         $this->_helpers = array();
         $this->plugin_path = dirname(__FILE__);
+        $this->asset_paths = array();
     }
 
     /**
      * Render a template
      */
-    function render($_template, $_context=array())
+    function render($templates, $context=array())
+    {
+        // make sure templates is an array
+        if (!is_array($templates))
+        {
+            $templates = array($templates);
+        }
+
+        // use the first template that can be found
+        $found = FALSE;
+        foreach ($templates as $template)
+        {
+            if ($found = $this->_find_template($template))
+            {
+                error_log("Found {$template} template at {$found}");
+                break;
+            }
+        }
+
+        if (!$found)
+        {
+            throw new Minim_TemplateEngine_Exception(
+                "No matching templates found");
+        }
+
+        $this->_render($template, $found, $context);
+    }
+
+    function _render($_template, $_template_file, $_context)
     {
         // prefix all variables with _ to 'hide' them from the template
         error_log("Rendering $_template template");
-        $_template_file = $this->_find_template($_template);
         if (!$_template_file)
         {
             throw new Minim_TemplateEngine_Exception(
@@ -61,10 +89,12 @@ class Minim_TemplateEngine implements Minim_Plugin
     {
         foreach ($this->template_paths as $path)
         {
+            error_log("Searching for $name.php in $path");
+
             $dir = new DirectoryIterator($path);
             foreach ($dir as $file)
             {
-                if (strtolower($file->getFilename()) == "$name.php")
+                if (strtolower($file->getFilename()) == strtolower("$name.php"))
                 {
                     return $file->getPathname();
                 }
@@ -112,20 +142,10 @@ class Minim_TemplateEngine implements Minim_Plugin
      */
     function include_css($name)
     {
-        $cssfile = $this->webroot.'css/'.$name.'.css';
+        $cssfile = find("$name.css", $this->asset_paths);
         echo <<<HTML
 <link rel="stylesheet" type="text/css" href="$cssfile">
-HTML;
-    }
 
-    /**
-     * Convenience method to include a js file
-     */
-    function include_js($name)
-    {
-        $jsfile = $this->webroot.'js/'.$name.'.js';
-        echo <<<HTML
-<script type="text/javascript" src="$jsfile"></script>
 HTML;
     }
 

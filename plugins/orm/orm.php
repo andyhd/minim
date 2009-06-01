@@ -38,7 +38,7 @@ class Minim_Orm implements Minim_Plugin
      *
      * @param string $name Name of model to register
      */
-    function &register($name)
+    function register($name)
     {
         if (array_key_exists($name, $this->_managers))
         {
@@ -52,7 +52,7 @@ class Minim_Orm implements Minim_Plugin
      * Get a reference to the Manager for the named model.
      * Managers are lazy-loaded.
      */
-    function &__get($name)
+    function __get($name)
     {
         if (!array_key_exists($name, $this->_managers))
         {
@@ -122,7 +122,7 @@ class Minim_Orm implements Minim_Plugin
      * Set the backend for the ORM, eg: MySQL DB, SQLite DB, etc
      * Return FALSE on failure
      */
-    function &set_backend($type, $params)
+    function set_backend($type, $params)
     {
         // do not load a second backend
         if ($this->_backend)
@@ -160,15 +160,15 @@ class Minim_Orm implements Minim_Plugin
 
 interface Minim_Orm_Backend
 {
-    function save(&$dataobject, &$manager);
+    function save($dataobject, $manager);
 
-    function delete(&$dataobject, &$manager);
+    function delete($dataobject, $manager);
 
-    function &get($params, &$manager);
+    function get($params, $manager);
 
-    function count_dataobjects(&$modelset);
+    function count_dataobjects($modelset);
 
-    function &get_dataobjects(&$modelset);
+    function get_dataobjects($modelset);
 }
 
 class Minim_Orm_Exception extends Exception {}
@@ -188,10 +188,10 @@ class Minim_Orm_Manager
     var $_fields;
     var $_sorting;
 
-    function Minim_Orm_Manager($name, &$orm)
+    function Minim_Orm_Manager($name, $orm)
     {
         $this->_model = $name;
-        $this->_orm =& $orm;
+        $this->_orm = $orm;
         $this->_db_table = strtolower($name);
         $this->_fields = array();
         $this->_sorting = array();
@@ -200,7 +200,7 @@ class Minim_Orm_Manager
     /**
      * Enable syntactic sugar for adding fields to model.
      */
-    function &__call($name, $args)
+    function __call($name, $args)
     {
         if (array_key_exists($name, $this->_orm->_field_types))
         {
@@ -260,7 +260,7 @@ class Minim_Orm_Manager
     /**
      * Create a new DataObject instance based on this model
      */
-    function &create($data=array())
+    function create($data=array())
     {
         $instance = new Minim_Orm_DataObject($this);
 
@@ -281,7 +281,7 @@ class Minim_Orm_Manager
     /**
      * Save specified dataobject to ORM backend
      */
-    function save(&$do)
+    function save($do)
     {
         $this->_orm->_backend->save($do, $this);
     }
@@ -289,7 +289,7 @@ class Minim_Orm_Manager
     /**
      * Delete specified dataobject from ORM backend
      */
-    function delete(&$do)
+    function delete($do)
     {
         $this->_orm->_backend->delete($do, $this);
     }
@@ -297,7 +297,7 @@ class Minim_Orm_Manager
     /**
      * Retrieve a single data object from the ORM backend
      */
-    function &get($params)
+    function get($params)
     {
         if ($this->_orm->_backend)
         {
@@ -317,7 +317,7 @@ class Minim_Orm_Manager
     /**
      * Get a QueryObject on the 'all' ModelSet
      */
-    function &where($fieldname)
+    function where($fieldname)
     {
         return $this->all()->where($fieldname);
     }
@@ -330,12 +330,24 @@ class Minim_Orm_Manager
  */
 class Minim_Orm_Field
 {
+    var $params;
+
+    function __construct($params)
+    {
+        $this->params = array();
+    }
+
     /**
      * Validate field value.
      */
     function accepts_value($value)
     {
         return TRUE;
+    }
+
+    function widget()
+    {
+        return 'text';
     }
 }
 
@@ -353,9 +365,9 @@ class Minim_Orm_ModelSet implements Iterator, Countable
     var $_count;
     var $_cache;
 
-    function Minim_Orm_ModelSet(&$manager)
+    function Minim_Orm_ModelSet($manager)
     {
-        $this->_manager =& $manager;
+        $this->_manager = $manager;
         $this->_iterator_position = 0;
         $this->_filters = array();
         $this->_sorting = array();
@@ -365,7 +377,7 @@ class Minim_Orm_ModelSet implements Iterator, Countable
     /**
      * Get a query object to apply to this modelset
      */
-    function &where($fieldname)
+    function where($fieldname)
     {
         return $this->_filter($fieldname);
     }
@@ -373,17 +385,17 @@ class Minim_Orm_ModelSet implements Iterator, Countable
     /**
      * @access private
      */
-    function &_filter($field_name, $conjunction='AND')
+    function _filter($field_name, $conjunction='AND')
     {
         $qo = new Minim_Orm_QueryObject($field_name, $conjunction, $this);
-        $this->_filters[] =& $qo;
+        $this->_filters[] = $qo;
         return $qo;
     }
 
     /**
      * Syntactic sugar for building filter chain
      */
-    function &__call($name, $params)
+    function __call($name, $params)
     {
         if ($name == 'and')
         {
@@ -445,7 +457,7 @@ class Minim_Orm_ModelSet implements Iterator, Countable
     {
         if (is_null($this->_count))
         {
-            $backend =& $this->_manager->_orm->_backend;
+            $backend = $this->_manager->_orm->_backend;
             if (!$backend)
             {
                 throw new Minim_Orm_Exception("No backend set");
@@ -460,8 +472,8 @@ class Minim_Orm_ModelSet implements Iterator, Countable
      */
     function _fill_cache()
     {
-        $backend =& $this->_manager->_orm->_backend;
-        $this->_cache =& $backend->get_dataobjects($this);
+        $backend = $this->_manager->_orm->_backend;
+        $this->_cache = $backend->get_dataobjects($this);
     }
 
     /**
@@ -504,7 +516,7 @@ class Minim_Orm_ModelSet implements Iterator, Countable
     /**
      * Get model instance at the current iterator position
      */
-    function &current()
+    function current()
     {
         return $this->_cache[$this->_iterator_position];
     }
@@ -561,7 +573,7 @@ class Minim_Orm_DataObject
     var $_in_db;
     var $_data;
 
-    function Minim_Orm_DataObject(&$manager)
+    function Minim_Orm_DataObject($manager)
     {
         $this->_manager = $manager;
         $this->_in_db = FALSE;
@@ -645,11 +657,11 @@ class Minim_Orm_QueryObject
     var $_operator;
     var $_operand;
 
-    function Minim_Orm_QueryObject($fieldname, $conjunction, &$modelset)
+    function Minim_Orm_QueryObject($fieldname, $conjunction, $modelset)
     {
         $this->_and = $conjunction == 'AND';
         $this->_field = $fieldname;
-        $this->_modelset =& $modelset;
+        $this->_modelset = $modelset;
         $this->_operator = '';
         $this->_operand = '';
     }
@@ -657,7 +669,7 @@ class Minim_Orm_QueryObject
     /**
      * Enable syntactic sugar for defining criteria
      */
-    function &__call($name, $params)
+    function __call($name, $params)
     {
         switch ($name)
         {
@@ -704,8 +716,27 @@ class Minim_Orm_Integer extends Minim_Orm_Field
 
 class Minim_Orm_Text extends Minim_Orm_Field
 {
+    var $params;
+
+    function __construct($params)
+    {
+        parent::__construct($params);
+        $this->params = array(
+            'max_length' => @$params['max_length']
+        );
+    }
+
     function accepts_value($value)
     {
         return is_string($value);
+    }
+
+    function widget()
+    {
+        if ($this->params['max_length'])
+        {
+            return 'text';
+        }
+        return 'textarea';
     }
 }

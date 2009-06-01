@@ -56,8 +56,14 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     }
 }
 
-minim('templates')->render('model-edit', array(
-    'model_name' => $model_name,
-    'form' => $form,
-    'errors' => $errors
-));
+minim('templates')->render(
+    array(
+        "{$model_name}-edit",
+        'model-edit'
+    ),
+    array(
+        'model_name' => $model_name,
+        'form' => $form,
+        'errors' => $errors
+    )
+);

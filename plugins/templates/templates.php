@@ -13,7 +13,9 @@ class Minim_TemplateEngine implements Minim_Plugin
     function Minim_TemplateEngine()
     {
         $this->template_paths = array();
-        $this->helper_paths = array();
+        $this->helper_paths = array(
+            path(dirname(__FILE__), 'helper.php')
+        );
         $this->_def_stack = array();
         $this->_blocks = array();
         $this->_extends = array();

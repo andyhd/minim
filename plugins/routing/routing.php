@@ -64,29 +64,38 @@ class Minim_Router implements Minim_Plugin
     /**
      * Build a URL for the specified view (and action)
      */
-    function url_for($_view, $_params=array()) // {{{
+    function url_for($_view, $_params=array())
     {
-        foreach ($this->_routes as $_route)
-        {
-            if ($_route->name == $_view)
-            {
+        error_log("url_for($_view, ".serialize($_params).")");
+        foreach ($this->_routes as $_route) {
+            if ($_route->name == $_view) {
                 extract($_params);
                 $_url = $_route->url_pattern;
 
                 // find required params
                 preg_match_all(',\(\?P<(.*?)>.*?\),', $_url, $_m);
+                if (array_intersect($_m[1], array_keys($_params)) == $_m[1]) {
+                    error_log("params matched: ".serialize(array_keys($_params)));
+                } else {
+                    continue;
+                }
 
                 // make sure values were passed in
-                foreach ($_m[1] as $_k)
-                {
-                    if (!array_key_exists($_k, $_params))
-                    {
-                        throw new Minim_Router_Exception(
-                            "Route {$_route->name} requires $_k parameter");
+                $_missing = NULL;
+                foreach ($_m[1] as $_k) {
+                    if (!array_key_exists($_k, $_params)) {
+                        // parameters do not match
+                        $_missing = $_k;
+                        break;
                     }
 
                     // don't append this one to the query string
                     unset($_params[$_k]);
+                }
+
+                if ($_missing) {
+                    error_log("Route {$_route->name} requires $_missing parameter, skipping");
+                    continue;
                 }
 
                 // replace optional params with their values, or remove them
@@ -100,8 +109,7 @@ class Minim_Router implements Minim_Plugin
                 $_url = ltrim(rtrim($_url, '/$'), '^');
 
                 // append extra params as query string
-                if ($_params)
-                {
+                if ($_params) {
                     $_url .= '?'.http_build_query($_params);
                 }
 
@@ -113,8 +121,8 @@ class Minim_Router implements Minim_Plugin
                 return $_url;
             }
         }
-        throw new Minim_Router_Exception("View $_view not found");
-    } // }}}
+        throw new Minim_Router_Exception("View $_view with params ".print_r($_params, TRUE)."not found");
+    }
 
     /**
      * Pass control to the view indicated by the request

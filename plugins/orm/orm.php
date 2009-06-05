@@ -722,12 +722,17 @@ class Minim_Orm_Text extends Minim_Orm_Field
     {
         parent::__construct($params);
         $this->params = array(
-            'max_length' => @$params['max_length']
+            'max_length' => @$params['max_length'],
+            'not_null' => @$params['not_null']
         );
     }
 
     function accepts_value($value)
     {
+        if ($value === NULL and !$this->params['not_null'])
+        {
+            return TRUE;
+        }
         return is_string($value);
     }
 

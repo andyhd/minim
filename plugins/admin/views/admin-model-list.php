@@ -13,7 +13,7 @@ $models = $model->all();
 function paginator(&$models, $model_name)
 {
     return minim('pagination')->source($models)
-                              ->base_url('admin/model-list', array(
+                              ->base_url('admin-model-list', array(
                                     'model' => $model_name
                                 ));
 }

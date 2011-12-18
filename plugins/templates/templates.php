@@ -1,5 +1,5 @@
 <?php
-class Minim_TemplateEngine implements Minim_Plugin 
+class Minim_TemplateEngine implements Minim_Plugin
 {
     var $template_paths;
     var $helper_paths;
@@ -64,7 +64,7 @@ class Minim_TemplateEngine implements Minim_Plugin
             throw new Minim_TemplateEngine_Exception(
                 "Template $_template not found on template path");
         }
-        
+
         extract($_context);
         ob_start();
         $included = include($_template_file);

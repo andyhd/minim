@@ -12,7 +12,7 @@ class Minim_Orm implements Minim_Plugin
     var $model_paths;
     var $_backend;
     var $backend_paths;
-    
+
     function Minim_Orm()
     {
         $this->_managers = array();

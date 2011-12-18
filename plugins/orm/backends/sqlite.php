@@ -210,7 +210,7 @@ SQL;
         $s = $this->_db->prepare($query);
         $s->execute($params);
         return $s;
-    } // }}} 
+    } // }}}
 
     function render($filter) // {{{
     {

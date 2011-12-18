@@ -47,7 +47,7 @@ class Minim_Auth_TestCase extends TestCase
         $plain = "user=$username&timestamp=$ts&hash=$hash";
         $cookie = $auth->encrypt($plain);
         $GLOBALS['_COOKIE'] = array(
-            'u' => $cookie 
+            'u' => $cookie
         );
         $this->assertEqual($plain, $auth->decrypt($cookie));
         $user = $auth->get_logged_in_user();

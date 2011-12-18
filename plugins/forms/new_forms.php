@@ -24,7 +24,7 @@ class Minim_New_Forms implements Minim_Plugin
     }
 
     /**
-     * Register a widget type 
+     * Register a widget type
      */
     function register_widget_type($type, $file, $class_name)
     {
@@ -93,7 +93,7 @@ class Minim_Form
     function was_submitted()
     {
         $data = $GLOBALS["_{$this->method}"];
-        
+
         if (!$data)
         {
             return FALSE;
@@ -201,7 +201,7 @@ class Minim_Form
 </form>
 HTML;
     }
-} 
+}
 
 class Minim_Form_Field
 {

@@ -45,7 +45,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     {
         $model = minim('orm')->{$model_name}->from($form->getData());
         $model->save();
-        
+
         minim('user_messaging')->info("$model_name saved");
         minim('routing')->redirect('admin/model-list', $_GET);
     }

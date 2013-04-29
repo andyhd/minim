@@ -55,7 +55,7 @@ class Minim_Form // {{{
                     // get initial value for field
                     $args['initial'] = $params['instance']->$name;
 
-                    // is field required? !blank & not_null 
+                    // is field required? !blank & not_null
                     if (!$field->attr('blank') and $field->attr('not_null'))
                     {
                         $args['required'] = TRUE;
@@ -271,7 +271,7 @@ class Minim_Input // {{{
     var $_class;
 
     var $label;
-    
+
     function __construct($name, $params) // {{{
     {
         $this->_name = $name;

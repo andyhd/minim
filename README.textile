@@ -20,7 +20,7 @@ In no particular order:
 
 * Don't force me to work a certain way. MVC is ok, but do I really have to put
   all my files in the folders you specify? I have to subclass this and
-  implement that and all I want to do is output some text from the DB. 
+  implement that and all I want to do is output some text from the DB.
 * Keep things as simple as possible, but no simpler. I know PHP is object
   oriented now, but that doesn't mean you have to build a massive hierarchy of
   classes and interfaces just to implement a blog. Seriously, leave that crap
@@ -28,7 +28,7 @@ In no particular order:
 * PHP parses text source files. Don't have another parser just for
   configuration. YAML is not more readable than PHP arrays. Just who are you
   expecting to write your configuration files anyway? If they can't understand
-  PHP, can you trust them with configuration at all? 
+  PHP, can you trust them with configuration at all?
 * PHP is already a template language. You already have conditional blocks,
   loops and function calls for more complex stuff. Implementing a parser in a
   template language is just stupid. Restricted template languages just

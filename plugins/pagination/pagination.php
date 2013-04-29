@@ -174,7 +174,7 @@ class Minim_Paginator implements Minim_Plugin, Iterator, Countable
             ));
             $next = minim('routing')->url_for($this->url, $params);
         }
-        
+
         include realpath(dirname(__FILE__))."/templates/_pagination.php";
     } // }}}
 

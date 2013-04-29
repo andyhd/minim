@@ -199,7 +199,7 @@ SQL;
             }
         }
         $sql = trim(preg_replace('/\s+/', ' ', $sql));
-        
+
         $ret = array($sql, $params);
 
         return $ret;
@@ -211,7 +211,7 @@ SQL;
         $s = $this->_db->prepare($query);
         $s->execute($params);
         return $s;
-    } // }}} 
+    } // }}}
 
     function render(&$filter) // {{{
     {

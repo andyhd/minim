@@ -24,7 +24,7 @@ class Minim_Admin_TestCase extends TestCase
     function test_admin_models()
     {
         $admin = minim('admin');
-        
+
         // register a test model
         $orm = minim('orm');
         $orm->model_paths[] = realpath(join(DIRECTORY_SEPARATOR, array(

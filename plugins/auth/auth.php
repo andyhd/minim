@@ -21,7 +21,7 @@ class Minim_Auth implements Minim_Plugin
     }
 
     /**
-     * Set the backend for authentication, eg: LDAP, ORM, etc 
+     * Set the backend for authentication, eg: LDAP, ORM, etc
      * Return FALSE on failure
      */
     function &set_backend($type, $params=array())
@@ -77,7 +77,7 @@ class Minim_Auth implements Minim_Plugin
             $ts = date('YmdHis', time());
             $hash = md5("uid:{$user->username},ts:$ts");
             $plain = "user={$user->username}&timestamp=$ts&hash=$hash";
-            error_log("Setting user cookie: $plain"); 
+            error_log("Setting user cookie: $plain");
             $_COOKIE['u'] = $this->encrypt($plain);;
             return $user;
         }
